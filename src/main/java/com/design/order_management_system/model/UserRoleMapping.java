@@ -2,6 +2,7 @@ package com.design.order_management_system.model;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
@@ -17,12 +18,12 @@ public class UserRoleMapping {
     @EmbeddedId
     private UserRoleMappingKey id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId(value = "userId")
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId(value = "roleId")
     @JoinColumn(name = "role_id")
     private Role role;
