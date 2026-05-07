@@ -1,6 +1,6 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.UserService;
+import com.design.order_management_system.service.UserService;
 import com.design.order_management_system.dto.CreateUserRequest;
 import com.design.order_management_system.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
