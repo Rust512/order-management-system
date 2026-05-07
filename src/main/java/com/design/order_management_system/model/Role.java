@@ -41,5 +41,6 @@ public class Role {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @Builder.Default
     Set<UserRoleMapping> users = new HashSet<>();
 }
