@@ -22,7 +22,7 @@ import lombok.Setter;
 @Table(name = "user_role_mappings")
 public class UserRoleMapping {
     @EmbeddedId
-    private UserRoleMappingKey id;
+    private UserRoleMappingKey id = new UserRoleMappingKey();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId(value = "userId")
