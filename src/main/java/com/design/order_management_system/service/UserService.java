@@ -15,6 +15,7 @@ import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.repository.UserRoleMappingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class UserService {
     private final CreateUserRequestToUser createUserRequestToUser;
     private final UserRoleMappingRepository userRoleMappingRepository;
 
+    @Transactional
     public UserResponse createUser(CreateUserRequest createUserRequest) {
         boolean userExists = userRepository.existsByUsername(createUserRequest.getUsername());
         if (userExists) {
