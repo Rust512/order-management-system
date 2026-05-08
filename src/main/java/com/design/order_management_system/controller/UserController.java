@@ -3,6 +3,7 @@ package com.design.order_management_system.controller;
 import com.design.order_management_system.dto.CreateUserRequest;
 import com.design.order_management_system.dto.UserResponse;
 import com.design.order_management_system.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
+    ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.ok(userService.createUser(createUserRequest));
     }
 
