@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -37,19 +35,21 @@ public class UserService {
         userRepository.save(createUserRequestToUser.apply(createUserRequest));
 
         boolean roleExists = roleRepository.existsByName(CommonConstants.ROLE_USER);
-        var role = roleExists ? roleRepository.findByName(CommonConstants.ROLE_USER)
-                : Optional.of(Role.builder().name(CommonConstants.ROLE_USER).build());
-        assert role.isPresent();
-        if (!roleExists) {
-            roleRepository.save(role.get());
+        Role role;
+        if (roleExists) {
+            role = roleRepository.findByName(CommonConstants.ROLE_USER).orElse(null);
+            assert role != null;
+        } else {
+            role = roleRepository.save(Role.builder().name(CommonConstants.ROLE_USER).build());
         }
 
         var user = userRepository.findByUsername(createUserRequest.getUsername()).orElse(null);
         assert user != null;
         var mapping = UserRoleMapping.builder()
                 .user(user)
-                .role(role.get())
+                .role(role)
                 .build();
+        user.getRoles().add(mapping);
         userRoleMappingRepository.save(mapping);
 
         return userToUserResponse.apply(user);
