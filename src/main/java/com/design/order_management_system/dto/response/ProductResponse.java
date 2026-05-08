@@ -28,10 +28,12 @@ public class ProductResponse {
     @JsonProperty(value = "sProductName")
     private String productName;
 
+    @NotNull
     @Positive
     @JsonProperty(value = "dPrice")
     private BigDecimal price;
 
+    @NotNull
     @PositiveOrZero
     @JsonProperty(value = "dStock")
     private Long stock;

@@ -2,6 +2,7 @@ package com.design.order_management_system.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,11 +20,13 @@ public class OrderItemResponse {
     @JsonProperty(value = "sProductName")
     private String productName;
 
+    @NotNull
     @Positive
     @JsonProperty(value = "dQuantity")
     private Long quantity;
 
     // TODO: add @NotNull to all fields with the @Positive annotation.
+    @NotNull
     @Positive
     @JsonProperty(value = "sProductName")
     private BigDecimal purchasePrice;
