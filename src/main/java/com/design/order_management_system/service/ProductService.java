@@ -4,11 +4,15 @@ import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.CreateProductRequestToProduct;
 import com.design.order_management_system.converter.ProductToProductResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
+import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,5 +31,23 @@ public class ProductService {
         Product product = productRepository.save(createProductRequestToProduct.apply(createProductRequest));
 
         return productToProductResponse.apply(product);
+    }
+
+    public PagedResponse<ProductResponse> getProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        var productResponseList = productPage.getContent()
+                .stream()
+                .map(productToProductResponse)
+                .toList();
+
+        return PagedResponse.<ProductResponse>builder()
+                .content(productResponseList)
+                .page(page)
+                .size(size)
+                .totalElements(productRepository.count())
+                .totalPages(productPage.getTotalPages())
+                .build();
     }
 }
