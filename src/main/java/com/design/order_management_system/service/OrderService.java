@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,36 +41,46 @@ public class OrderService {
                         String.valueOf(userId)
                 ));
 
-        var order = orderRepository.save(Order.builder()
+        var order = Order.builder()
                 .createdAt(Instant.now())
                 .orderStatus(OrderStatus.CREATED)
                 .user(user)
-                .build());
+                .build();
+
+        var productIds = orderRequest.getOrderItems()
+                .stream()
+                .map(OrderItemRequest::getProductId)
+                .toList();
+
+        var productIdMap = productRepository.findAllById(productIds)
+                .stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
         var orderItems = orderRequest.getOrderItems()
                 .stream()
                 .map(orderItemRequest -> {
                     Long productId = orderItemRequest.getProductId();
-                    Product product = productRepository.findById(productId)
-                            .orElseThrow(() -> new ResourceNotFoundException(
-                                    CommonConstants.PRODUCT,
-                                    CommonConstants.ID,
-                                    String.valueOf(productId)
-                            ));
+                    if (!productIdMap.containsKey(productId)) {
+                        throw new ResourceNotFoundException(
+                                CommonConstants.PRODUCT,
+                                CommonConstants.ID,
+                                String.valueOf(productId)
+                        );
+                    }
+                    Product product = productIdMap.get(productId);
                     product.setStock(getUpdatedStock(orderItemRequest, product));
 
                     return OrderItem.builder()
                             .product(product)
-                            .order(order)
                             .quantity(orderItemRequest.getQuantity())
                             .purchasePrice(product.getPrice())
                             .build();
                 })
                 .toList();
 
-        order.setOrderItems(orderItems);
+        orderItems.forEach(order::addOrderItem);
 
-        return orderToOrderResponse.apply(order);
+        return orderToOrderResponse.apply(orderRepository.save(order));
     }
 
     private Long getUpdatedStock(OrderItemRequest orderItemRequest, Product product) {
