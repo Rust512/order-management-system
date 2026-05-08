@@ -1,5 +1,6 @@
-package com.design.order_management_system.dto;
+package com.design.order_management_system.converter;
 
+import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.model.domain.Product;
 import org.springframework.stereotype.Component;
 

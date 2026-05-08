@@ -1,6 +1,6 @@
 package com.design.order_management_system.converter;
 
-import com.design.order_management_system.dto.CreateUserRequest;
+import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.model.security.User;
 import org.springframework.stereotype.Component;
 

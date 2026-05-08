@@ -1,7 +1,7 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.dto.CreateUserRequest;
-import com.design.order_management_system.dto.UserResponse;
+import com.design.order_management_system.dto.request.CreateUserRequest;
+import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

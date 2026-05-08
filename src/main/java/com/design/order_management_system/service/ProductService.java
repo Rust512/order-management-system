@@ -2,9 +2,9 @@ package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.CreateProductRequestToProduct;
-import com.design.order_management_system.dto.CreateProductRequest;
-import com.design.order_management_system.dto.ProductResponse;
-import com.design.order_management_system.dto.ProductToProductResponse;
+import com.design.order_management_system.converter.ProductToProductResponse;
+import com.design.order_management_system.dto.request.CreateProductRequest;
+import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;

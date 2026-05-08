@@ -1,6 +1,6 @@
 package com.design.order_management_system.advice;
 
-import com.design.order_management_system.dto.MessageDelegator;
+import com.design.order_management_system.dto.response.MessageDelegator;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;

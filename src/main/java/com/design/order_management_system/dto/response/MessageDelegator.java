@@ -1,4 +1,4 @@
-package com.design.order_management_system.dto;
+package com.design.order_management_system.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

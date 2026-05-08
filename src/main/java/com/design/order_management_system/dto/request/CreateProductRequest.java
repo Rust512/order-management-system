@@ -1,4 +1,4 @@
-package com.design.order_management_system.dto;
+package com.design.order_management_system.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
