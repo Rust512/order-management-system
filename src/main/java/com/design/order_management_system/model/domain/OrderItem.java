@@ -38,7 +38,8 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Min(value = 1)
+    @NotNull
+    @Positive
     @Column(nullable = false)
     private Long quantity;
 
