@@ -47,4 +47,12 @@ public class User {
     )
     @Builder.Default
     private Set<UserRoleMapping> roles = new HashSet<>();
+
+    public void addRole(Role role) {
+        var mapping = UserRoleMapping.builder()
+                .role(role)
+                .user(this)
+                .build();
+        this.roles.add(mapping);
+    }
 }
