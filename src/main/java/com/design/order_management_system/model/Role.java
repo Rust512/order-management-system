@@ -10,7 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -19,6 +22,9 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "roles")
 public class Role {
     @Id
@@ -35,5 +41,6 @@ public class Role {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @Builder.Default
     Set<UserRoleMapping> users = new HashSet<>();
 }
