@@ -27,6 +27,6 @@ public class OrderItemResponse {
 
     @NotNull
     @Positive
-    @JsonProperty(value = "sProductName")
+    @JsonProperty(value = "dPurchasePrice")
     private BigDecimal purchasePrice;
 }
