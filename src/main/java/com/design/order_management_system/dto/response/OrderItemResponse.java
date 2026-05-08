@@ -25,7 +25,6 @@ public class OrderItemResponse {
     @JsonProperty(value = "dQuantity")
     private Long quantity;
 
-    // TODO: add @NotNull to all fields with the @Positive annotation.
     @NotNull
     @Positive
     @JsonProperty(value = "sProductName")
