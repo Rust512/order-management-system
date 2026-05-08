@@ -2,6 +2,7 @@ package com.design.order_management_system.advice;
 
 import com.design.order_management_system.dto.response.MessageDelegator;
 import com.design.order_management_system.exception.DuplicateResourceException;
+import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,15 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = ResourceNotFoundException.class)
     ResponseEntity<MessageDelegator> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(MessageDelegator.builder()
+                        .exceptionName(ex.getClass().getSimpleName())
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(value = InsufficientResourcesException.class)
+    ResponseEntity<MessageDelegator> handleInsufficientResourcesException(InsufficientResourcesException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(MessageDelegator.builder()
                         .exceptionName(ex.getClass().getSimpleName())
                         .message(ex.getMessage())
