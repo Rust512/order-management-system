@@ -4,6 +4,7 @@ import com.design.order_management_system.dto.CreateUserRequest;
 import com.design.order_management_system.dto.UserResponse;
 import com.design.order_management_system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +19,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    UserResponse createUser(@RequestBody CreateUserRequest createUserRequest) {
-        return userService.createUser(createUserRequest);
+    ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
+        return ResponseEntity.ok(userService.createUser(createUserRequest));
     }
 
     @GetMapping(path = "/{id}")
-    UserResponse getUser(@PathVariable Long id) {
-        return userService.getById(id);
+    ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getById(id));
     }
 }
