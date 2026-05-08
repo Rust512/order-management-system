@@ -1,0 +1,24 @@
+package com.design.order_management_system.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@Builder
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OrderRequest {
+
+    @JsonProperty(value = "dUserId")
+    private Long userId;
+
+    @NotEmpty
+    @JsonProperty(value = "aOrderItems")
+    private List<OrderItemRequest> orderItems;
+}
