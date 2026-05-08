@@ -98,4 +98,14 @@ public class OrderService {
 
         return availableStock - minimumRequiredStock;
     }
+
+    public OrderResponse getOrderById(Long id) {
+        return orderToOrderResponse.apply(orderRepository.getOrderByIdWithItems(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CommonConstants.ORDER,
+                        CommonConstants.ID,
+                        String.valueOf(id)
+                ))
+        );
+    }
 }
