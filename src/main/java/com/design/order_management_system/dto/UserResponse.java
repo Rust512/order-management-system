@@ -13,7 +13,7 @@ import java.util.List;
 public class UserResponse {
     @JsonProperty(value = "sUsername")
     private String username;
-    
+
     @JsonProperty(value = "aRoles")
     private List<String> roles;
 }

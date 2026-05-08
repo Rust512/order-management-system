@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.service.UserService;
 import com.design.order_management_system.dto.CreateUserRequest;
 import com.design.order_management_system.dto.UserResponse;
+import com.design.order_management_system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +21,7 @@ public class UserController {
     UserResponse createUser(@RequestBody CreateUserRequest createUserRequest) {
         return userService.createUser(createUserRequest);
     }
-    
+
     @GetMapping(path = "/{id}")
     UserResponse getUser(@PathVariable Long id) {
         return userService.getById(id);

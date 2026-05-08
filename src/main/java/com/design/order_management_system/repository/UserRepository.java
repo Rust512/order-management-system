@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE user.username = :username
             """)
     Optional<User> findByUsername(@Param("username") String username);
-    
+
     @Query(value = """
             SELECT CASE WHEN (COUNT(user) > 0) THEN TRUE ELSE FALSE END
             FROM User user
