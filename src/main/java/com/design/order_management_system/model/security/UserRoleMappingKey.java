@@ -1,4 +1,4 @@
-package com.design.order_management_system.model;
+package com.design.order_management_system.model.security;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

@@ -1,4 +1,4 @@
-package com.design.order_management_system.model;
+package com.design.order_management_system.model.security;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
