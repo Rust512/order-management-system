@@ -53,4 +53,9 @@ public class SecurityUtils {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public static boolean isAdmin(PrincipalUser principalUser) {
+        List<String> roles = principalUser.getRoles();
+        return !roles.isEmpty() && roles.contains(ROLE_ADMIN);
+    }
 }
