@@ -41,7 +41,7 @@ public class UserService implements UserDetailsService {
         var user = userRepository.save(createUserRequestToUser.apply(createUserRequest));
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElse(roleRepository.save(Role.builder().name(CommonConstants.ROLE_USER).build()));
+                .orElseGet(() -> roleRepository.save(Role.builder().name(CommonConstants.ROLE_USER).build()));
 
         user.addRole(role);
 
