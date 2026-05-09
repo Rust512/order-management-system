@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**")
                             .permitAll();
-                    auth.requestMatchers(HttpMethod.POST, "/v1/user")
+                    auth.requestMatchers(HttpMethod.POST, "/v1/user", "/v1/products")
                             .hasRole("ADMIN");
                     auth.anyRequest()
                             .authenticated();
