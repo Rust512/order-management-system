@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/v1/login")
+@RequestMapping(path = "/auth")
 public class LoginController {
 
     private final LoginService loginService;
 
-    @PostMapping
+    @PostMapping(path = "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(loginService.getToken(loginRequest));
     }
