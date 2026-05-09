@@ -45,7 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             Claims claims = SecurityUtils.parseJwtToken(token);
-            PrincipalUser user = new PrincipalUser(claims.getSubject(), extractRoles(claims));
+            PrincipalUser user = new PrincipalUser(
+                    claims.get(SecurityUtils.USER_ID, Long.class),
+                    claims.getSubject(),
+                    extractRoles(claims)
+            );
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     user,
                     null,
