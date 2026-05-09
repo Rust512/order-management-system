@@ -18,4 +18,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "orderItems.product",
     })
     Optional<Order> getOrderByIdWithItems(Long id);
+
+    @Query(value = """
+            SELECT o
+            FROM Order o
+            INNER JOIN o.user user
+            WHERE o.id = :orderId
+            AND user.id = :userId
+            """)
+    @EntityGraph(attributePaths = {
+            "orderItems",
+            "orderItems.product",
+    })
+    Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
 }

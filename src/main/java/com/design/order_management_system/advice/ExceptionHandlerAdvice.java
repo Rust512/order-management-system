@@ -1,6 +1,6 @@
 package com.design.order_management_system.advice;
 
-import com.design.order_management_system.dto.response.MessageDelegator;
+import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
@@ -13,36 +13,36 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(value = DuplicateResourceException.class)
-    ResponseEntity<MessageDelegator> handleDuplicateResourceException(DuplicateResourceException ex) {
+    ResponseEntity<ApiErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(MessageDelegator.builder()
+                .body(ApiErrorResponse.builder()
                         .exceptionName(ex.getClass().getSimpleName())
                         .message(ex.getMessage())
                         .build());
     }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
-    ResponseEntity<MessageDelegator> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    ResponseEntity<ApiErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(MessageDelegator.builder()
+                .body(ApiErrorResponse.builder()
                         .exceptionName(ex.getClass().getSimpleName())
                         .message(ex.getMessage())
                         .build());
     }
 
     @ExceptionHandler(value = InsufficientResourcesException.class)
-    ResponseEntity<MessageDelegator> handleInsufficientResourcesException(InsufficientResourcesException ex) {
+    ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(InsufficientResourcesException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(MessageDelegator.builder()
+                .body(ApiErrorResponse.builder()
                         .exceptionName(ex.getClass().getSimpleName())
                         .message(ex.getMessage())
                         .build());
     }
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<MessageDelegator> handleGenericException(Exception ex) {
+    ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(MessageDelegator.builder()
+                .body(ApiErrorResponse.builder()
                         .exceptionName(ex.getClass().getSimpleName())
                         .message(ex.getMessage())
                         .build());
