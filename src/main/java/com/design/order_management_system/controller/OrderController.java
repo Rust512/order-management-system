@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.dto.request.CreateUserRequest;
-import com.design.order_management_system.dto.response.UserResponse;
-import com.design.order_management_system.service.UserService;
+import com.design.order_management_system.dto.request.OrderRequest;
+import com.design.order_management_system.dto.response.OrderResponse;
+import com.design.order_management_system.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,17 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/v1/user")
-public class UserController {
-    private final UserService userService;
+@RequestMapping(path = "/v1/orders")
+public class OrderController {
+
+    private final OrderService orderService;
 
     @PostMapping
-    ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
-        return ResponseEntity.ok(userService.createUser(createUserRequest));
+    ResponseEntity<OrderResponse> registerOrder(@RequestBody @Valid OrderRequest orderRequest) {
+        return ResponseEntity.ok(orderService.registerOrder(orderRequest));
     }
 
     @GetMapping(path = "/{id}")
-    ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getById(id));
+    ResponseEntity<OrderResponse> getOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 }

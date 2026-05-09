@@ -1,6 +1,6 @@
 package com.design.order_management_system.repository;
 
-import com.design.order_management_system.model.Role;
+import com.design.order_management_system.model.security.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
