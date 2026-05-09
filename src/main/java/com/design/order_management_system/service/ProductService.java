@@ -4,9 +4,12 @@ import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.CreateProductRequestToProduct;
 import com.design.order_management_system.converter.ProductToProductResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
+import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
+import com.design.order_management_system.exception.InsufficientResourcesException;
+import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +52,36 @@ public class ProductService {
                 .totalElements(productRepository.count())
                 .totalPages(productPage.getTotalPages())
                 .build();
+    }
+
+    public ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest) {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        CommonConstants.PRODUCT,
+                        CommonConstants.NAME,
+                        String.valueOf(id)
+                ));
+
+        if (productUpdateRequest.getNewProductName() != null) {
+            product.setName(productUpdateRequest.getNewProductName());
+        }
+
+        if (productUpdateRequest.getUpdatedPrice() != null) {
+            product.setPrice(productUpdateRequest.getUpdatedPrice());
+        }
+
+        Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
+        if (updatedStock.compareTo(0L) < 0) {
+            throw new InsufficientResourcesException(
+                    CommonConstants.PRODUCT,
+                    CommonConstants.STOCK,
+                    0,
+                    updatedStock
+            );
+        }
+
+        product.setStock(updatedStock);
+
+        return productToProductResponse.apply(productRepository.save(product));
     }
 }
