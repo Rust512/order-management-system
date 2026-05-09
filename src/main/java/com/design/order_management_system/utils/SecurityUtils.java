@@ -7,7 +7,7 @@ import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.security.KeyPair;
+import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -21,7 +21,7 @@ public class SecurityUtils {
 
     public static final String ROLES = "roles";
     private static final long TOKEN_EXPIRY_IN_MINUTES = 10L;
-    private static final KeyPair KEY_PAIR = Jwts.SIG.RS256.keyPair().build();
+    private static final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
 
     public static String generateJwtToken(UserDetails user) {
         List<String> roles = user.getAuthorities()
@@ -35,13 +35,13 @@ public class SecurityUtils {
                 .expiration(Date.from(Instant.now()
                         .plus(TOKEN_EXPIRY_IN_MINUTES, ChronoUnit.MINUTES)))
                 .issuedAt(Date.from(Instant.now()))
-                .signWith(KEY_PAIR.getPrivate(), StandardSecureDigestAlgorithms.findBySigningKey(KEY_PAIR.getPrivate()))
+                .signWith(SECRET_KEY, StandardSecureDigestAlgorithms.findBySigningKey(SECRET_KEY))
                 .compact();
     }
 
     public static Claims parseJwtToken(String token) throws JwtException {
         return Jwts.parser()
-                .verifyWith(KEY_PAIR.getPublic())
+                .verifyWith(SECRET_KEY)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
