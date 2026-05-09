@@ -5,6 +5,7 @@ import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
+import com.design.order_management_system.dto.security.PrincipalUser;
 import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Order;
@@ -14,7 +15,10 @@ import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.repository.OrderRepository;
 import com.design.order_management_system.repository.ProductRepository;
 import com.design.order_management_system.repository.UserRepository;
+import com.design.order_management_system.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,7 +104,28 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(Long id) {
-        return orderToOrderResponse.apply(orderRepository.getOrderByIdWithItems(id)
+        var token = SecurityContextHolder.getContext()
+                .getAuthentication();
+        if (token == null) {
+            throw new AuthorizationServiceException(SecurityUtils.SECURITY_CONTEXT_EMPTY);
+        }
+
+        var principalUser = (PrincipalUser) token.getPrincipal();
+        if (principalUser == null) {
+            throw new AuthorizationServiceException(SecurityUtils.PRINCIPAL_IS_NULL);
+        }
+
+        if (SecurityUtils.isAdmin(principalUser)) {
+            return orderToOrderResponse.apply(orderRepository.getOrderByIdWithItems(id)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            CommonConstants.ORDER,
+                            CommonConstants.ID,
+                            String.valueOf(id)
+                    ))
+            );
+        }
+
+        return orderToOrderResponse.apply(orderRepository.getOrderByIdAndUserIdWithItems(id, principalUser.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         CommonConstants.ORDER,
                         CommonConstants.ID,
