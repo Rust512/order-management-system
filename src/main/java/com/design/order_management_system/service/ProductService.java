@@ -8,7 +8,6 @@ import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
-import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;
@@ -58,7 +57,7 @@ public class ProductService {
         var product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         CommonConstants.PRODUCT,
-                        CommonConstants.NAME,
+                        CommonConstants.ID,
                         String.valueOf(id)
                 ));
 
@@ -70,17 +69,15 @@ public class ProductService {
             product.setPrice(productUpdateRequest.getUpdatedPrice());
         }
 
-        Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
-        if (updatedStock.compareTo(0L) < 0) {
-            throw new InsufficientResourcesException(
-                    CommonConstants.PRODUCT,
-                    CommonConstants.STOCK,
-                    0,
-                    updatedStock
-            );
+        if (productUpdateRequest.getStockToAdd() != null) {
+            Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
+            if (updatedStock.compareTo(0L) < 0) {
+                throw new IllegalArgumentException(
+                        "Product stock cannot be negative"
+                );
+            }
+            product.setStock(updatedStock);
         }
-
-        product.setStock(updatedStock);
 
         return productToProductResponse.apply(productRepository.save(product));
     }
