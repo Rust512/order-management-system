@@ -12,6 +12,7 @@ import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserToUserResponse userToUserResponse;
     private final CreateUserRequestToUser createUserRequestToUser;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserResponse createUser(CreateUserRequest createUserRequest) {
@@ -29,6 +31,8 @@ public class UserService {
         if (userExists) {
             throw new DuplicateResourceException(CommonConstants.USER, CommonConstants.USERNAME, createUserRequest.getUsername());
         }
+        String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
+        createUserRequest.setPassword(hashedPassword);
         var user = userRepository.save(createUserRequestToUser.apply(createUserRequest));
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
