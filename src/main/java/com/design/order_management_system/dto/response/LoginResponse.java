@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class LoginResponse {
-
     @JsonProperty(value = "sToken")
     private final String token;
 }
