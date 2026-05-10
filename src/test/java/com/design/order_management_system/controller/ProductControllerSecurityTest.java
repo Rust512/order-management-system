@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @EnableMethodSecurity
 @WebMvcTest(ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ProductControllerTest {
+class ProductControllerSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
