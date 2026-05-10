@@ -14,6 +14,7 @@ import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +30,7 @@ public class UserService implements UserDetailsService {
     private final UserToUserResponse userToUserResponse;
     private final CreateUserRequestToUser createUserRequestToUser;
     private final PasswordEncoder passwordEncoder;
+    private final MapReactiveUserDetailsService mapReactiveUserDetailsService;
 
     @Transactional
     public UserResponse createUser(CreateUserRequest createUserRequest) {
@@ -36,16 +38,19 @@ public class UserService implements UserDetailsService {
         if (userExists) {
             throw new DuplicateResourceException(CommonConstants.USER, CommonConstants.USERNAME, createUserRequest.getUsername());
         }
+
         String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
-        createUserRequest.setPassword(hashedPassword);
-        var user = userRepository.save(createUserRequestToUser.apply(createUserRequest));
+        var user = createUserRequestToUser.apply(createUserRequest);
+        user.setPassword(hashedPassword);
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
                 .orElseGet(() -> roleRepository.save(Role.builder().name(CommonConstants.ROLE_USER).build()));
 
         user.addRole(role);
 
-        return userToUserResponse.apply(user);
+        var savedUser = userRepository.save(user);
+
+        return userToUserResponse.apply(savedUser);
     }
 
     public UserResponse getById(Long id) {
