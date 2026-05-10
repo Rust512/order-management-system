@@ -9,6 +9,7 @@ import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.model.security.Role;
 import com.design.order_management_system.model.security.User;
+import com.design.order_management_system.model.security.UserRoleMapping;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -56,6 +57,7 @@ class UserServiceTest {
         Assertions.assertThatThrownBy(() -> userService.createUser(createUserRequest))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessageContaining(username);
+        verify(userRepository).existsByUsername(username);
         verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(passwordEncoder, createUserRequestToUser, roleRepository, userToUserResponse);
     }
@@ -98,10 +100,17 @@ class UserServiceTest {
         var actualResponse = userService.createUser(createUserRequest);
 
         Assertions.assertThat(actualResponse)
-                .returns(username, UserResponse::getUsername);
+                .isEqualTo(response);
+        Assertions.assertThat(savedUser.getRoles()
+                        .stream()
+                        .map(UserRoleMapping::getRole)
+                        .toList())
+                .containsExactly(role);
         Assertions.assertThat(actualResponse.getRoles())
                 .containsExactly(CommonConstants.ROLE_USER);
 
+        verify(passwordEncoder).encode(password);
+        verify(roleRepository).findByName(CommonConstants.ROLE_USER);
         verify(userRepository).save(unsavedUser);
     }
 
@@ -129,6 +138,7 @@ class UserServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage(RoleSeeder.ROLE_USER_WAS_NOT_SEEDED);
 
+        verify(userRepository).existsByUsername(username);
         verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(userToUserResponse);
     }
