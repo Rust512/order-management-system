@@ -32,7 +32,7 @@ public class RoleSeeder implements CommandLineRunner {
 
         roleMap.entrySet()
                 .stream()
-                .filter(entry -> roleRepository.existsByName(entry.getKey()))
+                .filter(entry -> !roleRepository.existsByName(entry.getKey()))
                 .forEach(entry -> roleRepository.save(entry.getValue()));
     }
 }
