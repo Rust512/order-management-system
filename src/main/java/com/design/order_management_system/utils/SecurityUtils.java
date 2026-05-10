@@ -5,9 +5,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -25,7 +27,8 @@ public class SecurityUtils {
     public static final String SECURITY_CONTEXT_EMPTY = "Security context empty";
     public static final String PRINCIPAL_IS_NULL = "Principal is null!";
     private static final long TOKEN_EXPIRY_IN_MINUTES = 10L;
-    private static final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
+    private static final String KEY = "RtpMd6zuyJMxz4YhZjJ2CwAKuwGzH5kQ";
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8));
 
     public static String generateJwtToken(PrincipalUser user) {
         List<String> roles = user.getAuthorities()
