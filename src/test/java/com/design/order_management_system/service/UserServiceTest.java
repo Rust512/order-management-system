@@ -1,5 +1,6 @@
 package com.design.order_management_system.service;
 
+import com.design.order_management_system.config.seeder.RoleSeeder;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.CreateUserRequestToUser;
 import com.design.order_management_system.converter.UserToUserResponse;
@@ -22,9 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -93,8 +91,8 @@ class UserServiceTest {
         when(userRepository.existsByUsername(username)).thenReturn(false);
         when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
         when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
-        when(userRepository.save(unsavedUser)).thenReturn(savedUser);
         when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.of(role));
+        when(userRepository.save(unsavedUser)).thenReturn(savedUser);
         when(userToUserResponse.apply(savedUser)).thenReturn(response);
 
         var actualResponse = userService.createUser(createUserRequest);
@@ -105,15 +103,14 @@ class UserServiceTest {
                 .containsExactly(CommonConstants.ROLE_USER);
 
         verify(userRepository).save(unsavedUser);
-        verify(roleRepository, never()).save(any(Role.class));
     }
 
     @Test
     @DisplayName(value = """
             When a user with the given username does not exist, and USER_ROLE does not exist,
-            the method should return a UserResponse object by saving the role.
+            the method should throw an IllegalStateException.
             """)
-    void createUser_WhenUsernameDoesNotExistRoleDoesNotExist_ShouldReturnUserResponse() {
+    void createUser_WhenUsernameDoesNotExistAndRoleDoesNotExist_ShouldThrowException() {
         String username = "U0";
         String password = "P0";
         String hashedPassword = "HP0";
@@ -122,37 +119,17 @@ class UserServiceTest {
                 .username(username)
                 .password(password)
                 .build();
-        var savedUser = User.builder()
-                .id(1L)
-                .username(username)
-                .password(password)
-                .build();
-        var role = Role.builder()
-                .id(1L)
-                .name(CommonConstants.ROLE_USER)
-                .build();
-        var response = UserResponse.builder()
-                .username(username)
-                .roles(List.of(CommonConstants.ROLE_USER))
-                .build();
 
         when(userRepository.existsByUsername(username)).thenReturn(false);
         when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
         when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
-        when(userRepository.save(unsavedUser)).thenReturn(savedUser);
         when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.empty());
-        when(roleRepository.save(argThat(roleArg -> CommonConstants.ROLE_USER.equals(roleArg.getName()))))
-                .thenReturn(role);
-        when(userToUserResponse.apply(savedUser)).thenReturn(response);
 
-        var actualResponse = userService.createUser(createUserRequest);
+        Assertions.assertThatThrownBy(() -> userService.createUser(createUserRequest))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage(RoleSeeder.ROLE_USER_WAS_NOT_SEEDED);
 
-        Assertions.assertThat(actualResponse)
-                .returns(username, UserResponse::getUsername);
-        Assertions.assertThat(actualResponse.getRoles())
-                .containsExactly(CommonConstants.ROLE_USER);
-
-        verify(roleRepository).save(any(Role.class));
-        verify(userRepository).save(unsavedUser);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(userToUserResponse);
     }
 }
