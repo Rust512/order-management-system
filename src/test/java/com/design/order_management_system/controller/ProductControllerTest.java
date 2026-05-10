@@ -17,6 +17,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,8 +41,8 @@ class ProductControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    @DisplayName(value = "POST /v1/products by a user with the ADMIN role should respond with HTTP status 200")
-    void registerProduct_WithAdminRole_ShouldReturn200() throws Exception {
+    @DisplayName(value = "POST /v1/products by a user with the ADMIN role should respond with HTTP status 201")
+    void registerProduct_WithAdminRole_ShouldReturn201() throws Exception {
         String productName = "P0";
         BigDecimal price = BigDecimal.valueOf(1.0);
         Long stock = 0L;
@@ -56,7 +59,7 @@ class ProductControllerTest {
                 .stock(stock)
                 .build();
 
-        when(productService.registerProduct(request)).thenReturn(response);
+        when(productService.registerProduct(any(CreateProductRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/v1/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,6 +69,8 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.sProductName").value(productName))
                 .andExpect(jsonPath("$.dPrice").value(price))
                 .andExpect(jsonPath("$.dStock").value(stock));
+
+        verify(productService).registerProduct(any(CreateProductRequest.class));
     }
 
     @Test
@@ -85,5 +90,7 @@ class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
+
+        verifyNoInteractions(productService);
     }
 }
