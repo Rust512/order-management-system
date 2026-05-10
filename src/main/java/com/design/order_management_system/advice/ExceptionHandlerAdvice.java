@@ -3,6 +3,7 @@ package com.design.order_management_system.advice;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.InsufficientResourcesException;
+import com.design.order_management_system.exception.InvalidCredentialsException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.utils.ExceptionUtils;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = InsufficientResourcesException.class)
     ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(InsufficientResourcesException ex) {
         return ExceptionUtils.getApiErrorResponseEntity(ex, HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @ExceptionHandler(value = InvalidCredentialsException.class)
+    ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        return ExceptionUtils.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = Exception.class)
