@@ -14,7 +14,6 @@ import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +29,6 @@ public class UserService implements UserDetailsService {
     private final UserToUserResponse userToUserResponse;
     private final CreateUserRequestToUser createUserRequestToUser;
     private final PasswordEncoder passwordEncoder;
-    private final MapReactiveUserDetailsService mapReactiveUserDetailsService;
 
     @Transactional
     public UserResponse createUser(CreateUserRequest createUserRequest) {
@@ -53,6 +51,7 @@ public class UserService implements UserDetailsService {
         return userToUserResponse.apply(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(CommonConstants.USER, CommonConstants.ID, String.valueOf(id)));
