@@ -8,7 +8,9 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -21,18 +23,15 @@ public class RoleSeeder implements CommandLineRunner {
     @Override
     @NullMarked
     public void run(String... args) {
-        var userRole = Role.builder()
-                .name(CommonConstants.ROLE_USER)
-                .build();
-        var adminRole = Role.builder()
-                .name(CommonConstants.ROLE_ADMIN)
-                .build();
-
-        var roleMap = Map.of(CommonConstants.ROLE_USER, userRole, CommonConstants.ROLE_ADMIN, adminRole);
-
-        roleMap.entrySet()
+        List<String> requiredRoles = List.of(CommonConstants.ROLE_USER, CommonConstants.ROLE_ADMIN);
+        Set<String> existingRoles = roleRepository.findAllByNameIn(requiredRoles)
                 .stream()
-                .filter(entry -> !roleRepository.existsByName(entry.getKey()))
-                .forEach(entry -> roleRepository.save(entry.getValue()));
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        requiredRoles.stream()
+                .filter(entry -> !existingRoles.contains(entry))
+                .map(entry -> Role.builder().name(entry).build())
+                .forEach(roleRepository::save);
     }
 }
