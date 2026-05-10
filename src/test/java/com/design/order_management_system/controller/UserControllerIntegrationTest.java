@@ -2,6 +2,7 @@ package com.design.order_management_system.controller;
 
 import com.design.order_management_system.config.seeder.RoleSeeder;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
@@ -10,7 +11,6 @@ import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,19 +19,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class LoginControllerIntegrationTest {
+class UserControllerIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -40,9 +42,6 @@ class LoginControllerIntegrationTest {
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @LocalServerPort
-    private int port;
 
     private static final String ADMIN_USERNAME = "A";
     private static final String ADMIN_PASSWORD = "ADM@4103";
@@ -68,33 +67,19 @@ class LoginControllerIntegrationTest {
         userRepository.saveAll(List.of(adminUser, normalUser));
     }
 
-    @AfterAll
-    void afterAll() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-    }
-
     @Test
     @DisplayName(value = """
-            the POST /v1/users API, with an admin admin token
-            should respond with HTTP status 200 OK
+            the POST /v1/user API, with an admin token
+            should respond with HTTP status 201 CREATED
             """)
-    void registerUser_WithAdminToken_ShouldReturnStatus200() {
-        var loginRequest = new LoginRequest();
-        loginRequest.setUsername(ADMIN_USERNAME);
-        loginRequest.setPassword(ADMIN_PASSWORD);
-
-        ResponseEntity<LoginResponse> loginResponse = this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
-        Assertions.assertThat(loginResponse.getBody()).isNotNull();
-        String jwtToken = loginResponse.getBody().token();
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Authorization", String.format("Bearer %s", jwtToken));
+    void registerUser_WithAdminToken_ShouldReturnStatus201() {
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(ADMIN_USERNAME, ADMIN_PASSWORD, headers);
 
         String username1 = "U1";
-        String password1 = "U1";
+        String password1 = "P1";
         var createUserRequest = new CreateUserRequest(username1, password1);
-        HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, header);
+        HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, headers);
 
         ResponseEntity<UserResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequestEntity, UserResponse.class);
         Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -102,5 +87,60 @@ class LoginControllerIntegrationTest {
         var body = createUserResponse.getBody();
         Assertions.assertThat(body.getUsername()).isEqualTo(username1);
         Assertions.assertThat(body.getRoles()).containsExactly(CommonConstants.ROLE_USER);
+    }
+
+    @Test
+    @DisplayName(value = """
+            the POST /v1/user API, with a normal user token
+            should respond with HTTP status 403 FORBIDDEN
+            """)
+    void registerUser_WithUserToken_ShouldReturnStatus403() {
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(NORMAL_USERNAME, NORMAL_PASSWORD, headers);
+
+        String username1 = "U1";
+        String password1 = "P1";
+        var createUserRequest = new CreateUserRequest(username1, password1);
+        HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, headers);
+
+        ResponseEntity<ApiErrorResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequestEntity, ApiErrorResponse.class);
+        Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        Assertions.assertThat(createUserResponse.getBody()).isNotNull();
+
+        var body = createUserResponse.getBody();
+        Assertions.assertThat(body.getExceptionName()).isEqualTo(AuthorizationDeniedException.class.getSimpleName());
+    }
+
+    // TODO: this test failed. Debug this.
+    @Test
+    @DisplayName(value = """
+            the POST /v1/user API, without a token
+            should respond with HTTP status 401 UNAUTHORIZED
+            """)
+    void registerUser_WithoutToken_ShouldReturnStatus401() {
+        String username1 = "U1";
+        String password1 = "P1";
+        var createUserRequest = new CreateUserRequest(username1, password1);
+
+        ResponseEntity<ApiErrorResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequest, ApiErrorResponse.class);
+        Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        Assertions.assertThat(createUserResponse.getBody()).isNotNull();
+
+        var body = createUserResponse.getBody();
+        Assertions.assertThat(body.getExceptionName()).isEqualTo(AuthorizationDeniedException.class.getSimpleName());
+    }
+
+    private void setAuthorizationHeader(String username, String password, HttpHeaders headers) {
+        var loginRequest = new LoginRequest();
+        loginRequest.setUsername(username);
+        loginRequest.setPassword(password);
+
+        ResponseEntity<LoginResponse> loginResponse = this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
+        Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(loginResponse.getBody()).isNotNull();
+
+        String jwtToken = loginResponse.getBody().token();
+        Assertions.assertThat(jwtToken).isNotBlank();
+        headers.setBearerAuth(jwtToken);
     }
 }
