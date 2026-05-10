@@ -9,6 +9,7 @@ import com.design.order_management_system.factory.ErrorMessageFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -38,6 +39,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = Exception.class)
