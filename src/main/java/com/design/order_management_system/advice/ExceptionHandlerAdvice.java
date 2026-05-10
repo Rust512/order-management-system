@@ -8,6 +8,7 @@ import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.utils.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -32,6 +33,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = InvalidCredentialsException.class)
     ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex) {
         return ExceptionUtils.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return ExceptionUtils.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(value = Exception.class)
