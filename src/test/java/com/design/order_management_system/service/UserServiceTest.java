@@ -85,6 +85,7 @@ class UserServiceTest {
                 .id(1L)
                 .name(CommonConstants.ROLE_USER)
                 .build();
+        savedUser.addRole(role);
         var response = UserResponse.builder()
                 .username(username)
                 .roles(List.of(CommonConstants.ROLE_USER))
