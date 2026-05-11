@@ -5,6 +5,7 @@ import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,8 @@ public class UserController {
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
-        return ResponseEntity.ok(userService.createUser(createUserRequest));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.createUser(createUserRequest));
     }
 
     @GetMapping(path = "/{id}")

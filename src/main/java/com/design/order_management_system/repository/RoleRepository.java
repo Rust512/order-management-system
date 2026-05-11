@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
@@ -21,4 +22,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
             WHERE role.name = :name
             """)
     boolean existsByName(@Param("name") String name);
+
+    List<Role> findAllByNameIn(List<String> requiredRoles);
 }

@@ -1,10 +1,10 @@
 package com.design.order_management_system.config;
 
 import com.design.order_management_system.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,6 +33,13 @@ public class SecurityConfig {
                     auth.anyRequest()
                             .authenticated();
                 })
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(
+                                ((_, response, _) -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                        ).accessDeniedHandler(
+                                ((_, response, _) -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))
+                        )
+                )
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
