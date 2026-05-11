@@ -22,7 +22,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     @NullMarked
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         var user = User.builder()
                 .username(ADMIN_USERNAME)
                 .password(passwordEncoder.encode(ADMIN_PASSWORD))
