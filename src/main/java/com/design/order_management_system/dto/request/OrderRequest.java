@@ -15,9 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderRequest {
 
-    @JsonProperty(value = "dUserId")
-    private Long userId;
-
     @NotEmpty
     @JsonProperty(value = "aOrderItems")
     private List<OrderItemRequest> orderItems;
