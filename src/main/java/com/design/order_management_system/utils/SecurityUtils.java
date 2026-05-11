@@ -28,8 +28,8 @@ public class SecurityUtils {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private static final long TOKEN_EXPIRY_IN_MINUTES = 10L;
     private static final String KEY = "RtpMd6zuyJMxz4YhZjJ2CwAKuwGzH5kQ";
-    private static final String PRINCIPAL_IS_NULL = "Principal is null!";
     private static final String SECURITY_CONTEXT_EMPTY = "Security context empty";
+    private static final String INVALID_AUTHENTICATION_PRINCIPAL = "Invalid Authentication Principal";
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8));
 
     public static String generateJwtToken(PrincipalUser user) {
@@ -63,7 +63,7 @@ public class SecurityUtils {
         List<String> roles = principalUser.getRoles();
         return !roles.isEmpty() && roles.contains(ROLE_ADMIN);
     }
-    
+
     public static PrincipalUser getPrincipalUser() {
         var token = SecurityContextHolder.getContext()
                 .getAuthentication();
@@ -71,11 +71,10 @@ public class SecurityUtils {
             throw new AuthorizationServiceException(SECURITY_CONTEXT_EMPTY);
         }
 
-        var principalUser = (PrincipalUser) token.getPrincipal();
-        if (principalUser == null) {
-            throw new AuthorizationServiceException(PRINCIPAL_IS_NULL);
+        if (!(token.getPrincipal() instanceof PrincipalUser principalUser)) {
+            throw new AuthorizationServiceException(INVALID_AUTHENTICATION_PRINCIPAL);
         }
-        
+
         return principalUser;
     }
 }
