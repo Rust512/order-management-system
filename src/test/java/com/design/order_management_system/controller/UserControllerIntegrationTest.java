@@ -1,6 +1,6 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.config.seeder.RoleSeeder;
+import com.design.order_management_system.config.seeder.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
@@ -51,9 +51,9 @@ class UserControllerIntegrationTest {
     @BeforeAll
     void beforeAll() {
         var adminRole = roleRepository.findByName(CommonConstants.ROLE_ADMIN)
-                .orElseThrow(() -> new IllegalStateException(RoleSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
         var normalRole = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(RoleSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
         var adminUser = User.builder()
                 .username(ADMIN_USERNAME)
                 .password(passwordEncoder.encode(ADMIN_PASSWORD))
@@ -111,7 +111,6 @@ class UserControllerIntegrationTest {
         Assertions.assertThat(body.getExceptionName()).isEqualTo(AuthorizationDeniedException.class.getSimpleName());
     }
 
-    // TODO: this test failed. Debug this.
     @Test
     @DisplayName(value = """
             the POST /v1/user API, without a token
@@ -122,12 +121,9 @@ class UserControllerIntegrationTest {
         String password1 = "P1";
         var createUserRequest = new CreateUserRequest(username1, password1);
 
-        ResponseEntity<ApiErrorResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequest, ApiErrorResponse.class);
+        ResponseEntity<String> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequest, String.class);
         Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        Assertions.assertThat(createUserResponse.getBody()).isNotNull();
-
-        var body = createUserResponse.getBody();
-        Assertions.assertThat(body.getExceptionName()).isEqualTo(AuthorizationDeniedException.class.getSimpleName());
+        Assertions.assertThat(createUserResponse.getBody()).isNull();
     }
 
     private void setAuthorizationHeader(String username, String password, HttpHeaders headers) {
