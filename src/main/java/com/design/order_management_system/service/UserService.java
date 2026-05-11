@@ -1,6 +1,6 @@
 package com.design.order_management_system.service;
 
-import com.design.order_management_system.config.seeder.RoleSeeder;
+import com.design.order_management_system.config.seeder.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.CreateUserRequestToUser;
 import com.design.order_management_system.converter.UserToUserResponse;
@@ -42,7 +42,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(hashedPassword);
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(RoleSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
 
         user.addRole(role);
 
