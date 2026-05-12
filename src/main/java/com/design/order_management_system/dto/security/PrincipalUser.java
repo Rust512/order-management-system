@@ -3,6 +3,7 @@ package com.design.order_management_system.dto.security;
 import com.design.order_management_system.model.security.Role;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.model.security.UserRoleMapping;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
+@Builder
 @RequiredArgsConstructor
 public class PrincipalUser implements UserDetails {
 
