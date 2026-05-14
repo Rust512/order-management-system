@@ -16,4 +16,11 @@ public class SwaggerRequestExamples {
                 "sPassword": "Some$Password@432"
             }
             """;
+    public static final String PRODUCT_REGISTRATION = """
+            {
+                "sProductName": "Product 0",
+                "dPrice": 200.54,
+                "dStock": 5
+            }
+            """;
 }

@@ -1,10 +1,16 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +33,31 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @Operation(
+            summary = "Register a product",
+            description = """
+                    Register a new product.
+                    Only Admin users are authorized to create products.
+                    """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.PRODUCT_REGISTRATION))
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Registration successful",
+                            content = @Content(schema = @Schema(implementation = ProductResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Authentication required"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Admin role required"
+                    )
+            }
+    )
     ResponseEntity<ProductResponse> registerProduct(@RequestBody @Valid CreateProductRequest createProductRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.registerProduct(createProductRequest));
