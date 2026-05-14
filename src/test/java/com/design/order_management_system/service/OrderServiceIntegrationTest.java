@@ -1,6 +1,6 @@
 package com.design.order_management_system.service;
 
-import com.design.order_management_system.config.seeder.DataSeeder;
+import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.request.OrderRequest;

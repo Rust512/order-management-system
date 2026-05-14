@@ -1,6 +1,6 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.config.seeder.DataSeeder;
+import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.LoginRequest;

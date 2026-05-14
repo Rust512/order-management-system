@@ -1,4 +1,4 @@
-package com.design.order_management_system.config.seeder;
+package com.design.order_management_system.config;
 
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.model.security.Role;
