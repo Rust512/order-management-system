@@ -36,7 +36,12 @@ public class LoginController {
                             examples = @ExampleObject(
                                     name = "Seeded User Credentials",
                                     summary = "Pre-configured testing user",
-                                    value = "{\"sUsername\": \"ADMIN\", \"sPassword\": \"Admin@123\"}"
+                                    value = """
+                                            {
+                                                "sUsername": "ADMIN",
+                                                "sPassword": "Admin@123"
+                                            }
+                                            """
                             )
                     )
             ),
