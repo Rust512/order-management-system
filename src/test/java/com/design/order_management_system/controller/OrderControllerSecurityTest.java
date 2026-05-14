@@ -61,6 +61,7 @@ public class OrderControllerSecurityTest {
     private long stock1;
     private long userId;
 
+    private static final String REGISTER_ORDERS_ENDPOINT = "/v1/orders";
     private static final String NORMAL_USERNAME = "B";
     private static final String NORMAL_PASSWORD = "NRL@5896";
 
@@ -125,7 +126,7 @@ public class OrderControllerSecurityTest {
         HttpHeaders headers = new HttpHeaders();
         setAuthorizationHeader(headers);
 
-        ResponseEntity<OrderResponse> response = restTemplate.postForEntity("/v1/orders", new HttpEntity<>(orderRequest, headers), OrderResponse.class);
+        ResponseEntity<OrderResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), OrderResponse.class);
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
@@ -145,7 +146,7 @@ public class OrderControllerSecurityTest {
         long quantityWhenStockSufficient = Math.min(stock0, stock1);
         var orderRequest = constructOrderRequest(quantityWhenStockSufficient);
 
-        ResponseEntity<String> response = restTemplate.postForEntity("/v1/orders", orderRequest, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, orderRequest, String.class);
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         Assertions.assertThat(response.getBody()).isNull();
@@ -163,13 +164,16 @@ public class OrderControllerSecurityTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth("something");
 
-        ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity("/v1/orders", new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
+        ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
         var body = response.getBody();
         Assertions.assertThat(body).isNotNull();
+        Assertions.assertThat(body.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
         Assertions.assertThat(body.getExceptionName()).isEqualTo(MalformedJwtException.class.getSimpleName());
+        Assertions.assertThat(body.getPath()).isEqualTo(REGISTER_ORDERS_ENDPOINT);
+        Assertions.assertThat(body.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -185,7 +189,7 @@ public class OrderControllerSecurityTest {
         HttpHeaders headers = new HttpHeaders();
         setAuthorizationHeader(headers);
 
-        ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity("/v1/orders", new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
+        ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
         Assertions.assertThat(response.getBody()).isNotNull();

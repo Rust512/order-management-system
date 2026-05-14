@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,6 +39,8 @@ class ProductControllerValidationTest {
     @MockitoBean
     private ProductService productService;
 
+    private static final String PRODUCT_REGISTRATION_ENDPOINT = "/v1/products";
+
     @Test
     @DisplayName(value = """
             POST /v1/products with a missing (null) product name
@@ -48,10 +51,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.valueOf(1.0));
         request.setStock(0L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
@@ -68,10 +76,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.valueOf(1.0));
         request.setStock(0L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
@@ -88,10 +101,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.valueOf(1.0));
         request.setStock(0L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
@@ -108,10 +126,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.ZERO);
         request.setStock(0L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
@@ -128,10 +151,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.valueOf(-1L));
         request.setStock(0L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
@@ -148,10 +176,15 @@ class ProductControllerValidationTest {
         request.setPrice(BigDecimal.valueOf(1.0));
         request.setStock(-1L);
 
-        mockMvc.perform(post("/v1/products")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(PRODUCT_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);

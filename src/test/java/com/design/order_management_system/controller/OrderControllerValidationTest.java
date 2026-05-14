@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +33,8 @@ class OrderControllerValidationTest {
     @MockitoBean
     private OrderService orderService;
 
+    private static final String ORDER_REGISTRATION_ENDPOINT = "/v1/orders";
+
     @Test
     @DisplayName(value = """
             In the POST /v1/orders request body, if the orderItems array is missing,
@@ -41,10 +44,15 @@ class OrderControllerValidationTest {
         var request = OrderRequest.builder()
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -60,10 +68,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of())
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -87,10 +100,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -115,10 +133,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -143,10 +166,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -170,10 +198,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -198,10 +231,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);
@@ -226,10 +264,15 @@ class OrderControllerValidationTest {
                 .orderItems(List.of(orderItemRequest0, orderItemRequest1))
                 .build();
 
-        mockMvc.perform(post("/v1/orders")
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(post(ORDER_REGISTRATION_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(ORDER_REGISTRATION_ENDPOINT))
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(orderService);

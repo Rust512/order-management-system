@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +32,8 @@ class LoginControllerTest {
     @MockitoBean
     private LoginService loginService;
 
+    private static final String LOGIN_ENDPOINT = "/auth/login";
+
     @Test
     @DisplayName(value = """
             POST /auth/login with valid credentials should respond with
@@ -46,7 +49,7 @@ class LoginControllerTest {
 
         when(loginService.getToken(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post(LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -65,10 +68,15 @@ class LoginControllerTest {
 
         when(loginService.getToken(any(LoginRequest.class))).thenThrow(exception);
 
-        mockMvc.perform(post("/auth/login")
+        HttpStatus expectedStatus = HttpStatus.UNAUTHORIZED;
+
+        mockMvc.perform(post(LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(LOGIN_ENDPOINT))
                 .andExpect(jsonPath("$.sMessage").value(exception.getMessage()))
                 .andExpect(jsonPath("$.sExceptionName").value(InvalidCredentialsException.class.getSimpleName()));
     }

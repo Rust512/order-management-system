@@ -44,6 +44,7 @@ class UserControllerIntegrationTest {
 
     private List<Long> userIds;
 
+    private static final String REGISTER_USERS_ENDPOINT = "/v1/user";
     private static final String ADMIN_USERNAME = "A";
     private static final String ADMIN_PASSWORD = "ADM@4103";
     private static final String NORMAL_USERNAME = "B";
@@ -90,7 +91,7 @@ class UserControllerIntegrationTest {
         var createUserRequest = new CreateUserRequest(username1, password1);
         HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, headers);
 
-        ResponseEntity<UserResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequestEntity, UserResponse.class);
+        ResponseEntity<UserResponse> createUserResponse = this.restTemplate.postForEntity(REGISTER_USERS_ENDPOINT, createUserRequestEntity, UserResponse.class);
         Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Assertions.assertThat(createUserResponse.getBody()).isNotNull();
         var body = createUserResponse.getBody();
@@ -111,13 +112,18 @@ class UserControllerIntegrationTest {
         String password1 = "P1";
         var createUserRequest = new CreateUserRequest(username1, password1);
         HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, headers);
+        
+        HttpStatus expectedStatus = HttpStatus.FORBIDDEN;
 
-        ResponseEntity<ApiErrorResponse> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequestEntity, ApiErrorResponse.class);
-        Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        Assertions.assertThat(createUserResponse.getBody()).isNotNull();
+        ResponseEntity<ApiErrorResponse> response = this.restTemplate.postForEntity(REGISTER_USERS_ENDPOINT, createUserRequestEntity, ApiErrorResponse.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
 
-        var body = createUserResponse.getBody();
+        var body = response.getBody();
+        Assertions.assertThat(body).isNotNull();
+        Assertions.assertThat(body.getStatusCode()).isEqualTo(expectedStatus.value());
         Assertions.assertThat(body.getExceptionName()).isEqualTo(AuthorizationDeniedException.class.getSimpleName());
+        Assertions.assertThat(body.getPath()).isEqualTo(REGISTER_USERS_ENDPOINT);
+        Assertions.assertThat(body.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -130,7 +136,7 @@ class UserControllerIntegrationTest {
         String password1 = "P1";
         var createUserRequest = new CreateUserRequest(username1, password1);
 
-        ResponseEntity<String> createUserResponse = this.restTemplate.postForEntity("/v1/user", createUserRequest, String.class);
+        ResponseEntity<String> createUserResponse = this.restTemplate.postForEntity(REGISTER_USERS_ENDPOINT, createUserRequest, String.class);
         Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         Assertions.assertThat(createUserResponse.getBody()).isNull();
     }
