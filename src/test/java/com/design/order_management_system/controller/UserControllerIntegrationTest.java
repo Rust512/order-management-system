@@ -11,6 +11,7 @@ import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,8 @@ class UserControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private List<Long> userIds;
+
     private static final String ADMIN_USERNAME = "A";
     private static final String ADMIN_PASSWORD = "ADM@4103";
     private static final String NORMAL_USERNAME = "B";
@@ -62,7 +65,15 @@ class UserControllerIntegrationTest {
                 .password(passwordEncoder.encode(NORMAL_PASSWORD))
                 .build();
         normalUser.addRole(normalRole);
-        userRepository.saveAll(List.of(adminUser, normalUser));
+        userIds = userRepository.saveAll(List.of(adminUser, normalUser))
+                .stream()
+                .map(User::getId)
+                .toList();
+    }
+
+    @AfterAll
+    void afterAll() {
+        userRepository.deleteAllById(userIds);
     }
 
     @Test
