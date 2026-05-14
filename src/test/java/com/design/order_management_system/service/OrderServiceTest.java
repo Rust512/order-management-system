@@ -56,7 +56,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setup() {
-        TestSecurityUtils.authenticateUser(USER_ID, "U0", CommonConstants.ROLE_USER);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, "U0", CommonConstants.ROLE_USER);
     }
 
     @AfterEach

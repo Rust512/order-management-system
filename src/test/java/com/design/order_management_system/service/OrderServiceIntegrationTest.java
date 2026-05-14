@@ -75,7 +75,7 @@ public class OrderServiceIntegrationTest {
         var savedUser = userRepository.save(normalUser);
         this.userId = savedUser.getId();
 
-        TestSecurityUtils.authenticateUser(userId, USERNAME, CommonConstants.ROLE_USER);
+        TestSecurityUtils.setAuthenticationContext(userId, USERNAME, CommonConstants.ROLE_USER);
 
         String productName0 = "Pr0";
         String productName1 = "Pr1";

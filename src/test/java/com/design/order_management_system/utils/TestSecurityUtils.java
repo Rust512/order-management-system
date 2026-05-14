@@ -11,7 +11,7 @@ public class TestSecurityUtils {
     private TestSecurityUtils() {
     }
 
-    public static void authenticateUser(long userId, String username, String... roles) {
+    public static void setAuthenticationContext(long userId, String username, String... roles) {
         var principal = PrincipalUser.builder()
                 .userId(userId)
                 .username(username)
