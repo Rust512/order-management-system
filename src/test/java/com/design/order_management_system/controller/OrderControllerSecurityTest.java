@@ -18,6 +18,7 @@ import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import io.jsonwebtoken.MalformedJwtException;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,6 +59,7 @@ public class OrderControllerSecurityTest {
     private long productId1;
     private long stock0;
     private long stock1;
+    private long userId;
 
     private static final String NORMAL_USERNAME = "B";
     private static final String NORMAL_PASSWORD = "NRL@5896";
@@ -71,7 +73,13 @@ public class OrderControllerSecurityTest {
                 .password(passwordEncoder.encode(NORMAL_PASSWORD))
                 .build();
         normalUser.addRole(normalRole);
-        userRepository.save(normalUser);
+        var savedUser = userRepository.save(normalUser);
+        userId = savedUser.getId();
+    }
+
+    @AfterAll
+    void afterAll() {
+        userRepository.deleteById(userId);
     }
 
     @BeforeEach
