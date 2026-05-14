@@ -1,8 +1,14 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +29,31 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @Operation(
+            summary = "Register a user",
+            description = """
+                    Register a new user account.
+                    Only Admin users are authorized to create users.
+                    """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.USER_REGISTRATION))
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Registration successful",
+                            content = @Content(schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Authentication required"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Admin role required"
+                    )
+            }
+    )
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.createUser(createUserRequest));
