@@ -6,7 +6,9 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -24,10 +26,10 @@ public class SecurityUtils {
     public static final String ROLES = "roles";
     public static final String USER_ID = "userId";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
-    public static final String SECURITY_CONTEXT_EMPTY = "Security context empty";
-    public static final String PRINCIPAL_IS_NULL = "Principal is null!";
     private static final long TOKEN_EXPIRY_IN_MINUTES = 10L;
     private static final String KEY = "RtpMd6zuyJMxz4YhZjJ2CwAKuwGzH5kQ";
+    private static final String SECURITY_CONTEXT_EMPTY = "Security context empty";
+    private static final String INVALID_AUTHENTICATION_PRINCIPAL = "Invalid Authentication Principal";
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8));
 
     public static String generateJwtToken(PrincipalUser user) {
@@ -60,5 +62,19 @@ public class SecurityUtils {
     public static boolean isAdmin(PrincipalUser principalUser) {
         List<String> roles = principalUser.getRoles();
         return !roles.isEmpty() && roles.contains(ROLE_ADMIN);
+    }
+
+    public static PrincipalUser getPrincipalUser() {
+        var token = SecurityContextHolder.getContext()
+                .getAuthentication();
+        if (token == null) {
+            throw new AuthorizationServiceException(SECURITY_CONTEXT_EMPTY);
+        }
+
+        if (!(token.getPrincipal() instanceof PrincipalUser principalUser)) {
+            throw new AuthorizationServiceException(INVALID_AUTHENTICATION_PRINCIPAL);
+        }
+
+        return principalUser;
     }
 }

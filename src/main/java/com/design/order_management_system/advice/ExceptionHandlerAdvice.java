@@ -6,6 +6,7 @@ import com.design.order_management_system.exception.InsufficientResourcesExcepti
 import com.design.order_management_system.exception.InvalidCredentialsException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.factory.ErrorMessageFactory;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -44,6 +45,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = JwtException.class)
+    ResponseEntity<ApiErrorResponse> handleJwtException(JwtException ex) {
+        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = Exception.class)
