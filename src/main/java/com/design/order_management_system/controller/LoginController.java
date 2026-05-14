@@ -27,7 +27,6 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping(path = "/login")
-    @SecurityRequirement(name = "")
     @Operation(
             summary = "Generate JWT Token",
             description = "Submit user credentials to generate a bearer token. Use the provided seeded user credentials for testing.",
