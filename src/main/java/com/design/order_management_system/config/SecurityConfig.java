@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**")
+                    auth.requestMatchers("/auth/**", "/v3/**", "/swagger-ui/**")
                             .permitAll();
                     auth.anyRequest()
                             .authenticated();
