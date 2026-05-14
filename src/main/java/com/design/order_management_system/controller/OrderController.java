@@ -1,8 +1,14 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
 import com.design.order_management_system.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +28,28 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
+    @Operation(
+            summary = "Register an order",
+            description = "Register an order.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.REGISTER_ORDER))
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Update successful",
+                            content = @Content(schema = @Schema(implementation = OrderResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Authentication required"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Admin role required"
+                    )
+            }
+    )
     ResponseEntity<OrderResponse> registerOrder(@RequestBody @Valid OrderRequest orderRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.registerOrder(orderRequest));

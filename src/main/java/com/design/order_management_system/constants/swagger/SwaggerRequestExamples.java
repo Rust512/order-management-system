@@ -31,4 +31,19 @@ public class SwaggerRequestExamples {
                 "dStockToAdd": 5
             }
             """;
+
+    public static final String REGISTER_ORDER = """
+            {
+                "aOrderItems": [
+                    {
+                        "dProductId": 1,
+                        "dQuantity": 1
+                    },
+                    {
+                        "dProductId": 2,
+                        "dQuantity": 1
+                    }
+                ]
+            }
+            """;
 }
