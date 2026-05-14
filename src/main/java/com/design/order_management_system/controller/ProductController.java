@@ -77,7 +77,7 @@ public class ProductController {
                     Only Admin users are authorized to update products.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.PRODUCT_REGISTRATION))
+                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.UPDATE_PRODUCT))
             ),
             responses = {
                     @ApiResponse(
