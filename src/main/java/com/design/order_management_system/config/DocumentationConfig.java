@@ -24,7 +24,7 @@ public class DocumentationConfig {
             5. Click the green **Authorize** button at the top of this page, paste the token, and click Authorize;
             
             You can access all the secured APIs using this token now.
-            NOTE: every API except POST /auth/login is authenticated.
+            NOTE: All APIs require authentication except POST /auth/login.
             """;
 
     @Bean
