@@ -70,6 +70,31 @@ public class ProductController {
 
     @PutMapping(path = "/{id}")
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @Operation(
+            summary = "Update a product",
+            description = """
+                    Update a new product.
+                    Only Admin users are authorized to update products.
+                    """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.PRODUCT_REGISTRATION))
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Update successful",
+                            content = @Content(schema = @Schema(implementation = ProductResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Authentication required"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Admin role required"
+                    )
+            }
+    )
     ResponseEntity<ProductResponse> updateProduct(@PathVariable long id, @RequestBody @Valid ProductUpdateRequest updateRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, updateRequest));
     }

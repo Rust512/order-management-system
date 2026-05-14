@@ -23,4 +23,12 @@ public class SwaggerRequestExamples {
                 "dStock": 5
             }
             """;
+
+    public static final String UPDATE_PRODUCT = """
+            {
+                "sNewProductName": "Product 0 PRO",
+                "dUpdatedPrice": 349.99,
+                "dStockToAdd": 5
+            }
+            """;
 }
