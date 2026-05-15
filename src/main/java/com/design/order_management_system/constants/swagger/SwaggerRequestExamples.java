@@ -12,22 +12,22 @@ public class SwaggerRequestExamples {
             """;
     public static final String USER_REGISTRATION = """
             {
-                "sUsername": "username",
+                "sUsername": "JohnDoe",
                 "sPassword": "Some$Password@432"
             }
             """;
     public static final String PRODUCT_REGISTRATION = """
             {
-                "sProductName": "Product 0",
-                "dPrice": 200.54,
+                "sProductName": "Sprite",
+                "dPrice": 29.99,
                 "dStock": 5
             }
             """;
 
     public static final String UPDATE_PRODUCT = """
             {
-                "sNewProductName": "Product 0 PRO",
-                "dUpdatedPrice": 349.99,
+                "sNewProductName": "Diet Sprite",
+                "dUpdatedPrice": 34.99,
                 "dStockToAdd": 5
             }
             """;
