@@ -1,6 +1,6 @@
 package com.design.order_management_system.utils;
 
-import com.design.order_management_system.dto.security.PrincipalUser;
+import com.design.order_management_system.model.security.PrincipalUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

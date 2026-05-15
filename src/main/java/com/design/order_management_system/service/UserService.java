@@ -6,7 +6,7 @@ import com.design.order_management_system.converter.CreateUserRequestToUser;
 import com.design.order_management_system.converter.UserToUserResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.response.UserResponse;
-import com.design.order_management_system.dto.security.PrincipalUser;
+import com.design.order_management_system.model.security.PrincipalUser;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.security.User;

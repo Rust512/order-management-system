@@ -1,7 +1,7 @@
 package com.design.order_management_system.security;
 
 import com.design.order_management_system.constants.CommonConstants;
-import com.design.order_management_system.dto.security.PrincipalUser;
+import com.design.order_management_system.model.security.PrincipalUser;
 import com.design.order_management_system.utils.SecurityUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

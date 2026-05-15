@@ -1,6 +1,6 @@
 package com.design.order_management_system.utils;
 
-import com.design.order_management_system.dto.security.PrincipalUser;
+import com.design.order_management_system.model.security.PrincipalUser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

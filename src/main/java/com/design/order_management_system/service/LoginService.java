@@ -2,7 +2,7 @@ package com.design.order_management_system.service;
 
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
-import com.design.order_management_system.dto.security.PrincipalUser;
+import com.design.order_management_system.model.security.PrincipalUser;
 import com.design.order_management_system.exception.InvalidCredentialsException;
 import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.utils.SecurityUtils;

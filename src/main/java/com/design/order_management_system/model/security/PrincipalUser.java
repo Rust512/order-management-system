@@ -1,8 +1,5 @@
-package com.design.order_management_system.dto.security;
+package com.design.order_management_system.model.security;
 
-import com.design.order_management_system.model.security.Role;
-import com.design.order_management_system.model.security.User;
-import com.design.order_management_system.model.security.UserRoleMapping;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
