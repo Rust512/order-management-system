@@ -56,7 +56,7 @@ class ProductServiceTest {
         Assertions.assertThatThrownBy(() -> productService.registerProduct(request))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage(String.format(
-                        DuplicateResourceException.ALREADY_EXISTS,
+                        ErrorMessageConstants.ALREADY_EXISTS,
                         CommonConstants.PRODUCT,
                         CommonConstants.NAME,
                         productName)

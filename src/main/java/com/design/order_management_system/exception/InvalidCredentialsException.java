@@ -1,14 +1,14 @@
 package com.design.order_management_system.exception;
 
-public class InvalidCredentialsException extends RuntimeException {
+import com.design.order_management_system.constants.ErrorMessageConstants;
 
-    private static final String PASSWORD_IS_INVALID = "Given credentials for username %s are invalid.";
+public class InvalidCredentialsException extends RuntimeException {
 
     private InvalidCredentialsException(String message) {
         super(message);
     }
 
     public static InvalidCredentialsException forUsername(String username) {
-        return new InvalidCredentialsException(String.format(PASSWORD_IS_INVALID, username));
+        return new InvalidCredentialsException(String.format(ErrorMessageConstants.PASSWORD_IS_INVALID, username));
     }
 }

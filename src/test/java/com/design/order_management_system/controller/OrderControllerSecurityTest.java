@@ -2,6 +2,7 @@ package com.design.order_management_system.controller;
 
 import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.request.OrderItemRequest;
@@ -196,7 +197,7 @@ public class OrderControllerSecurityTest {
         var body = response.getBody();
         Assertions.assertThat(body.getExceptionName()).isEqualTo(InsufficientResourcesException.class.getSimpleName());
         Assertions.assertThat(body.getMessage()).isEqualTo(
-                String.format(InsufficientResourcesException.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT,
+                String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT,
                         CommonConstants.STOCK,
                         quantityWhenStockInsufficient,
                         Math.max(stock0, stock1))

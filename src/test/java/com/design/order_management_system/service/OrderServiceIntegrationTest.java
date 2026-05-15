@@ -2,6 +2,7 @@ package com.design.order_management_system.service;
 
 import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.exception.InsufficientResourcesException;
@@ -131,7 +132,7 @@ public class OrderServiceIntegrationTest {
 
         Assertions.assertThatThrownBy(() -> orderService.registerOrder(createOrderRequest))
                 .isInstanceOf(InsufficientResourcesException.class)
-                .hasMessage(String.format(InsufficientResourcesException.INSUFFICIENT_RESOURCES,
+                .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES,
                         CommonConstants.PRODUCT,
                         CommonConstants.STOCK,
                         quantity,

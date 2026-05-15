@@ -1,6 +1,7 @@
 package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.request.OrderRequest;
@@ -78,7 +79,7 @@ class OrderServiceTest {
 
         Assertions.assertThatThrownBy(() -> orderService.registerOrder(createOrderRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(String.format(ResourceNotFoundException.RESOURCE_NOT_FOUND,
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND,
                         CommonConstants.USER,
                         CommonConstants.ID,
                         USER_ID)
@@ -111,7 +112,7 @@ class OrderServiceTest {
 
         Assertions.assertThatThrownBy(() -> orderService.registerOrder(createOrderRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(String.format(ResourceNotFoundException.RESOURCE_NOT_FOUND,
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND,
                         CommonConstants.PRODUCT,
                         CommonConstants.ID,
                         productId)
@@ -155,7 +156,7 @@ class OrderServiceTest {
 
         Assertions.assertThatThrownBy(() -> orderService.registerOrder(createOrderRequest))
                 .isInstanceOf(InsufficientResourcesException.class)
-                .hasMessage(String.format(InsufficientResourcesException.INSUFFICIENT_RESOURCES,
+                .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES,
                         CommonConstants.PRODUCT,
                         CommonConstants.STOCK,
                         quantity,
