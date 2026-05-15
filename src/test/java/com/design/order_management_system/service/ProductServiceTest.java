@@ -9,7 +9,10 @@ import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;
+import com.design.order_management_system.utils.TestSecurityUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +40,16 @@ class ProductServiceTest {
     private ProductToProductResponse productToProductResponse;
     @InjectMocks
     private ProductService productService;
+
+    @BeforeEach
+    void setUp() {
+        TestSecurityUtils.setAuthenticationContext(1L, "ADMIN", CommonConstants.ROLE_ADMIN);
+    }
+
+    @AfterEach
+    void tearDown() {
+        TestSecurityUtils.clearAuthenticationContext();
+    }
 
     @Test
     @DisplayName(value = """
