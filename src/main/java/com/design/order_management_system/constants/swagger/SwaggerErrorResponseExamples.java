@@ -9,7 +9,7 @@ public class SwaggerErrorResponseExamples {
                 "dStatusCode": 401,
                 "sError": "Unauthorized",
                 "sExceptionName": "InvalidCredentialsException",
-                "sMessage": "Given password for username ADMIN is invalid",
+                "sMessage": "Given credentials for username Aman are invalid.",
                 "sPath": "/auth/login",
                 "dtTimeStamp": "2026-05-15T01:48:56.930Z"
             }
