@@ -1,6 +1,8 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
+import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.dto.response.PagedResponse;
@@ -83,15 +85,26 @@ public class ProductController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Update successful",
-                            content = @Content(schema = @Schema(implementation = ProductResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = ProductResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Authentication required"
+                            description = "Authentication required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.INVALID_TOKEN)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Admin role required"
+                            description = "Admin role required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.ACCESS_DENIED)
+                            )
                     )
             }
     )
