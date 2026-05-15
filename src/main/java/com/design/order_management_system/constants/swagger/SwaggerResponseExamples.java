@@ -61,7 +61,7 @@ public class SwaggerResponseExamples {
             }
             """;
     
-    public static final String ALREADY_EXISTS = """
+    public static final String USER_ALREADY_EXISTS = """
             {
                 "dStatusCode": 409,
                 "sError": "Conflict",
@@ -71,7 +71,18 @@ public class SwaggerResponseExamples {
                 "dtTimeStamp": "2026-05-15T03:29:47.680454252Z"
             }
             """;
-    
+
+    public static final String PRODUCT_ALREADY_EXISTS = """
+            {
+                "dStatusCode": 409,
+                "sError": "Conflict",
+                "sExceptionName": "DuplicateResourceException",
+                "sMessage": "Resource PRODUCT with username matching P0 already exists",
+                "sPath": "/v1/products",
+                "dtTimeStamp": "2026-05-15T03:29:47.680454252Z"
+            }
+            """;
+
     public static final String REGISTER_ORDER = """
             {
                 "dOrderId": 1,

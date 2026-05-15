@@ -54,7 +54,7 @@ public class UserController {
                             description = "User already exists",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.ALREADY_EXISTS)
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.USER_ALREADY_EXISTS)
                             )
                     ),
                     @ApiResponse(
