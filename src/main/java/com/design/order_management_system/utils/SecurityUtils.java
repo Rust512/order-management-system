@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class SecurityUtils {
 
     private SecurityUtils() {
@@ -28,6 +30,7 @@ public class SecurityUtils {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     private static final long TOKEN_EXPIRY_IN_MINUTES = 10L;
     private static final String KEY = "RtpMd6zuyJMxz4YhZjJ2CwAKuwGzH5kQ";
+    private static final String MISSING_PRINCIPAL = "Missing principal user";
     private static final String SECURITY_CONTEXT_EMPTY = "Security context empty";
     private static final String INVALID_AUTHENTICATION_PRINCIPAL = "Invalid Authentication Principal";
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(KEY.getBytes(StandardCharsets.UTF_8));
@@ -68,10 +71,20 @@ public class SecurityUtils {
         var token = SecurityContextHolder.getContext()
                 .getAuthentication();
         if (token == null) {
+            log.error("Security context invalid; reason=authentication_missing");
             throw new AuthorizationServiceException(SECURITY_CONTEXT_EMPTY);
         }
 
-        if (!(token.getPrincipal() instanceof PrincipalUser principalUser)) {
+        var principal = token.getPrincipal();
+
+        if (principal == null) {
+            log.error("Security context invalid; reason=principal_missing");
+            throw new AuthorizationServiceException(MISSING_PRINCIPAL);
+        }
+
+        if (!(principal instanceof PrincipalUser principalUser)) {
+            String principalType = principal.getClass().getSimpleName();
+            log.error("Security context invalid; principalType={} reason=invalid_principal", principalType);
             throw new AuthorizationServiceException(INVALID_AUTHENTICATION_PRINCIPAL);
         }
 
