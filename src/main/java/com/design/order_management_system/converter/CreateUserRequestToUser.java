@@ -8,10 +8,8 @@ import java.util.function.Function;
 
 @Component
 public class CreateUserRequestToUser implements Function<CreateUserRequest, User> {
-
     @Override
     public User apply(CreateUserRequest source) {
-        // The password should be encrypted, the logic will be added later.
         return User.builder()
                 .username(source.getUsername())
                 .password(source.getPassword())
