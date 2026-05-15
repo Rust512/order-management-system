@@ -13,6 +13,7 @@ import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
@@ -32,9 +34,12 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserResponse createUser(CreateUserRequest createUserRequest) {
-        boolean userExists = userRepository.existsByUsername(createUserRequest.getUsername());
+        String username = createUserRequest.getUsername();
+        log.info("User registration requested; username={}", username);
+        boolean userExists = userRepository.existsByUsername(username);
         if (userExists) {
-            throw new DuplicateResourceException(CommonConstants.USER, CommonConstants.USERNAME, createUserRequest.getUsername());
+            log.warn("User registration failed; username={}, reason=username_already_exists", username);
+            throw new DuplicateResourceException(CommonConstants.USER, CommonConstants.USERNAME, username);
         }
 
         String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
@@ -42,11 +47,16 @@ public class UserService implements UserDetailsService {
         user.setPassword(hashedPassword);
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> {
+                    log.error("Seeding error for role={}; reason=role_not_seeded", CommonConstants.ROLE_USER);
+                    return new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED);
+                });
 
         user.addRole(role);
 
         var savedUser = userRepository.save(user);
+
+        log.info("User registered; userId={}, username={}", savedUser.getId(), username);
 
         return userToUserResponse.apply(savedUser);
     }
