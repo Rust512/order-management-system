@@ -1,5 +1,6 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
@@ -54,7 +55,7 @@ public class LoginController {
                             description = "Invalid credentials",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.INVALID_CREDENTIALS)
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_CREDENTIALS)
                             )
                     )
             }

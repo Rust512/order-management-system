@@ -1,5 +1,6 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
@@ -54,7 +55,7 @@ public class UserController {
                             description = "User already exists",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.USER_ALREADY_EXISTS)
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.USER_ALREADY_EXISTS)
                             )
                     ),
                     @ApiResponse(
@@ -62,7 +63,7 @@ public class UserController {
                             description = "Authentication required",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.INVALID_TOKEN)
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
                             )
                     ),
                     @ApiResponse(
@@ -70,7 +71,7 @@ public class UserController {
                             description = "Admin role required",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.ACCESS_DENIED)
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
                             )
                     )
             }
