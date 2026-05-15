@@ -43,7 +43,7 @@ public class OrderService {
                     log.warn("Order registration failed; userId={} reason=user_not_found", userId);
                     return new ResourceNotFoundException(
                             CommonConstants.USER,
-                            CommonConstants.ID,
+                            "id",
                             String.valueOf(userId)
                     );
                 });
@@ -71,7 +71,7 @@ public class OrderService {
                         log.warn("Order registration failed; userId={} productId={} reason=product_not_found", userId, productId);
                         throw new ResourceNotFoundException(
                                 CommonConstants.PRODUCT,
-                                CommonConstants.ID,
+                                "id",
                                 String.valueOf(productId)
                         );
                     }
@@ -109,7 +109,7 @@ public class OrderService {
             );
             throw new InsufficientResourcesException(
                     CommonConstants.PRODUCT,
-                    CommonConstants.STOCK,
+                    "stock",
                     requestedQuantity,
                     availableStock
             );
@@ -129,7 +129,7 @@ public class OrderService {
                         log.warn("Fetch order failed; userId={} orderId={} reason=order_not_found", userId, id);
                         return new ResourceNotFoundException(
                                 CommonConstants.ORDER,
-                                CommonConstants.ID,
+                                "id",
                                 String.valueOf(id)
                         );
                     })
@@ -143,7 +143,7 @@ public class OrderService {
                     log.warn("Fetch order failed; userId={} orderId={} reason=order_not_accessible", userId, id);
                     return new ResourceNotFoundException(
                             CommonConstants.ORDER,
-                            CommonConstants.ID,
+                            "id",
                             String.valueOf(id)
                     );
                 });

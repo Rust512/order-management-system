@@ -58,7 +58,7 @@ class ProductServiceTest {
                 .hasMessage(String.format(
                         ErrorMessageConstants.ALREADY_EXISTS,
                         CommonConstants.PRODUCT,
-                        CommonConstants.NAME,
+                        "name",
                         productName)
                 );
 

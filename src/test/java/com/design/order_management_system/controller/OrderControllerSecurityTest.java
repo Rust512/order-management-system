@@ -198,7 +198,7 @@ public class OrderControllerSecurityTest {
         Assertions.assertThat(body.getExceptionName()).isEqualTo(InsufficientResourcesException.class.getSimpleName());
         Assertions.assertThat(body.getMessage()).isEqualTo(
                 String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT,
-                        CommonConstants.STOCK,
+                        "stock",
                         quantityWhenStockInsufficient,
                         Math.max(stock0, stock1))
         );

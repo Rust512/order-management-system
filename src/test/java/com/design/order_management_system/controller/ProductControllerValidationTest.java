@@ -72,7 +72,7 @@ class ProductControllerValidationTest {
             """)
     void registerProduct_WithBlankProductName_ShouldReturn400() throws Exception {
         var request = new CreateProductRequest();
-        request.setProductName(CommonConstants.EMPTY);
+        request.setProductName("");
         request.setPrice(BigDecimal.valueOf(1.0));
         request.setStock(0L);
 

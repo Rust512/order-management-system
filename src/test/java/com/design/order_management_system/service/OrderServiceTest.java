@@ -81,7 +81,7 @@ class OrderServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND,
                         CommonConstants.USER,
-                        CommonConstants.ID,
+                        "id",
                         USER_ID)
                 );
 
@@ -114,7 +114,7 @@ class OrderServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND,
                         CommonConstants.PRODUCT,
-                        CommonConstants.ID,
+                        "id",
                         productId)
                 );
 
@@ -158,7 +158,7 @@ class OrderServiceTest {
                 .isInstanceOf(InsufficientResourcesException.class)
                 .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES,
                         CommonConstants.PRODUCT,
-                        CommonConstants.STOCK,
+                        "stock",
                         quantity,
                         stock)
                 );

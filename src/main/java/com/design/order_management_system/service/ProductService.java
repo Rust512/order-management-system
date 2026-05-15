@@ -36,7 +36,7 @@ public class ProductService {
         log.info("Product registration requested; userId={} productName={}", userId, productName);
         if (productRepository.existsByName(productName)) {
             log.warn("Product registration failed; userId={} productName={} reason=product_already_exists", userId, productName);
-            throw new DuplicateResourceException(CommonConstants.PRODUCT, CommonConstants.NAME, productName);
+            throw new DuplicateResourceException(CommonConstants.PRODUCT, "name", productName);
         }
 
         Product product = productRepository.save(createProductRequestToProduct.apply(createProductRequest));
@@ -73,7 +73,7 @@ public class ProductService {
                     log.warn("Product update failed; userId={} productId={} reason=product_not_found", userId, id);
                     return new ResourceNotFoundException(
                             CommonConstants.PRODUCT,
-                            CommonConstants.ID,
+                            "id",
                             String.valueOf(id)
                     );
                 });

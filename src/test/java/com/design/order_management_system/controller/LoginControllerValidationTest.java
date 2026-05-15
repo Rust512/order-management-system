@@ -55,7 +55,7 @@ class LoginControllerValidationTest {
     void login_WhenBlankPassword_ShouldReturnStatus400() throws Exception {
         var request = new LoginRequest();
         request.setUsername("U0");
-        request.setPassword(CommonConstants.EMPTY);
+        request.setPassword("");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

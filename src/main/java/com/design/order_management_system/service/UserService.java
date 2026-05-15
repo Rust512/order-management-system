@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
         boolean userExists = userRepository.existsByUsername(username);
         if (userExists) {
             log.warn("User registration failed; username={}, reason=username_already_exists", username);
-            throw new DuplicateResourceException(CommonConstants.USER, CommonConstants.USERNAME, username);
+            throw new DuplicateResourceException(CommonConstants.USER, "username", username);
         }
 
         String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("User fetch failed; userId={}, reason=user_not_found", id);
-                    return new ResourceNotFoundException(CommonConstants.USER, CommonConstants.ID, String.valueOf(id));
+                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(id));
                 });
 
         return userToUserResponse.apply(user);

@@ -134,7 +134,7 @@ public class OrderServiceIntegrationTest {
                 .isInstanceOf(InsufficientResourcesException.class)
                 .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES,
                         CommonConstants.PRODUCT,
-                        CommonConstants.STOCK,
+                        "stock",
                         quantity,
                         stock1)
                 );
