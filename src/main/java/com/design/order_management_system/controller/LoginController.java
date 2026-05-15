@@ -31,7 +31,10 @@ public class LoginController {
     @SecurityRequirement(name = "none")
     @Operation(
             summary = "Generate JWT Token",
-            description = "Submit user credentials to generate a bearer token. Use the provided seeded user credentials for testing.",
+            description = """
+                    Submit user credentials to generate a bearer token.
+                    Use the provided seeded user credentials for testing.
+                    """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.LOGIN))
             ),
