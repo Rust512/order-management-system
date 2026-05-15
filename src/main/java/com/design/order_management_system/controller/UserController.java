@@ -1,6 +1,8 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
+import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.service.UserService;
@@ -42,15 +44,26 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Registration successful",
-                            content = @Content(schema = @Schema(implementation = UserResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = UserResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_USER)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Authentication required"
+                            description = "Authentication required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.INVALID_TOKEN)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Admin role required"
+                            description = "Admin role required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.ACCESS_DENIED)
+                            )
                     )
             }
     )

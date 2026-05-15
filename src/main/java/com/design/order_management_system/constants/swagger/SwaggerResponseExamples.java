@@ -51,4 +51,13 @@ public class SwaggerResponseExamples {
                 "dtTimeStamp": "2026-05-15T02:11:26.925807628Z"
             }
             """;
+
+    public static final String REGISTER_USER = """
+            {
+                "sUsername": "username",
+                "aRoles": [
+                    "ROLE_USER"
+                ]
+            }
+            """;
 }
