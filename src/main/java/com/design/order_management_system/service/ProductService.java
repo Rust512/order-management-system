@@ -1,6 +1,7 @@
 package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.CreateProductRequestToProduct;
 import com.design.order_management_system.converter.ProductToProductResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
@@ -72,9 +73,7 @@ public class ProductService {
         if (productUpdateRequest.getStockToAdd() != null) {
             Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
             if (updatedStock.compareTo(0L) < 0) {
-                throw new IllegalArgumentException(
-                        "Product stock cannot be negative"
-                );
+                throw new IllegalArgumentException(ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
             }
             product.setStock(updatedStock);
         }
