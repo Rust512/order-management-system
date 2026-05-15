@@ -11,7 +11,11 @@ public class ErrorMessageFactory {
     private ErrorMessageFactory() {
     }
 
-    public static ResponseEntity<ApiErrorResponse> getApiErrorResponseEntity(Exception ex, HttpStatus httpStatus, HttpServletRequest request) {
+    public static ResponseEntity<ApiErrorResponse> getApiErrorResponseEntity(
+            Exception ex,
+            HttpStatus httpStatus,
+            HttpServletRequest request
+    ) {
         return ResponseEntity.status(httpStatus)
                 .body(ApiErrorResponse.builder()
                         .statusCode(httpStatus.value())
