@@ -60,4 +60,47 @@ public class SwaggerResponseExamples {
                 ]
             }
             """;
+    
+    public static final String REGISTER_ORDER = """
+            {
+                "dOrderId": 1,
+                "sOrderStatus": "CREATED",
+                "dtCreatedAt": "2026-05-15T02:36:03.372348931Z",
+                "dTotalPrice": 45,
+                "aOrderItems": [
+                    {
+                        "sProductName": "Product 0",
+                        "dQuantity": 1,
+                        "dPurchasePrice": 20
+                    },
+                    {
+                        "sProductName": "Product 1",
+                        "dQuantity": 1,
+                        "dPurchasePrice": 25
+                    }
+                ]
+            }
+            """;
+    
+    public static final String PRODUCT_NOT_FOUND = """
+            {
+                "dStatusCode": 404,
+                "sError": "Not Found",
+                "sExceptionName": "ResourceNotFoundException",
+                "sMessage": "Resource PRODUCT with id matching 5 not found",
+                "sPath": "/v1/orders",
+                "dtTimeStamp": "2026-05-15T02:36:25.603756763Z"
+            }
+            """;
+    
+    public static final String INSUFFICIENT_RESOURCES = """
+            {
+                "dStatusCode": 422,
+                "sError": "Unprocessable Content",
+                "sExceptionName": "InsufficientResourcesException",
+                "sMessage": "Insufficient resources for PRODUCT: requested value of stock was 10, but only 4 was found",
+                "sPath": "/v1/orders",
+                "dtTimeStamp": "2026-05-15T02:37:32.394464220Z"
+            }
+            """;
 }
