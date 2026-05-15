@@ -1,0 +1,66 @@
+package com.design.order_management_system.service;
+
+import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.converter.CreateProductRequestToProduct;
+import com.design.order_management_system.converter.ProductToProductResponse;
+import com.design.order_management_system.dto.request.CreateProductRequest;
+import com.design.order_management_system.exception.DuplicateResourceException;
+import com.design.order_management_system.repository.ProductRepository;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ProductServiceTest {
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private CreateProductRequestToProduct createProductRequestToProduct;
+    @Mock
+    private ProductToProductResponse productToProductResponse;
+    @InjectMocks
+    private ProductService productService;
+
+    @Test
+    @DisplayName(value = """
+            When the product registration service receives an already existing product name,
+            it should throw a DuplicateResourceException
+            """)
+    void registerProduct_WhenProductNameAlreadyExists_ShouldThrowDuplicateResourceException() {
+        String productName = "P0";
+        var request = CreateProductRequest.builder()
+                .productName(productName)
+                .price(BigDecimal.valueOf(1.0))
+                .stock(1L)
+                .build();
+
+        when(productRepository.existsByName(productName)).thenReturn(true);
+
+        Assertions.assertThatThrownBy(() -> productService.registerProduct(request))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage(String.format(
+                        DuplicateResourceException.ALREADY_EXISTS,
+                        CommonConstants.PRODUCT,
+                        CommonConstants.NAME,
+                        productName)
+                );
+        
+        verify(productRepository).existsByName(productName);
+        verify(productRepository, never()).save(any());
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(createProductRequestToProduct, productToProductResponse);
+    }
+}
