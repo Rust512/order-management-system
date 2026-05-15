@@ -90,7 +90,7 @@ public class UserController {
     )
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUser(createUserRequest));
+                .body(userService.userRegistration(createUserRequest));
     }
 
     @GetMapping(path = "/{id}")

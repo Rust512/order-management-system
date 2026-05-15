@@ -50,11 +50,11 @@ class UserServiceTest {
             When a user with the given username already exists,
             the method should throw a DuplicateResourceException.
             """)
-    void createUser_WhenUsernameExists_ShouldThrowException() {
+    void userRegistration_WhenUsernameExists_ShouldThrowException() {
         String username = "U0";
         var createUserRequest = new CreateUserRequest(username, null);
         when(userRepository.existsByUsername(username)).thenReturn(true);
-        Assertions.assertThatThrownBy(() -> userService.createUser(createUserRequest))
+        Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessageContaining(username);
         verify(userRepository).existsByUsername(username);
@@ -67,7 +67,7 @@ class UserServiceTest {
             When a user with the given username does not exist, and USER_ROLE exists,
             the method should return a UserResponse object without saving any role.
             """)
-    void createUser_WhenUsernameDoesNotExistAndRoleExists_ShouldReturnUserResponseWithoutSavingRole() {
+    void userRegistration_WhenUsernameDoesNotExistAndRoleExists_ShouldReturnUserResponseWithoutSavingRole() {
         String username = "U0";
         String password = "P0";
         String hashedPassword = "HP0";
@@ -98,7 +98,7 @@ class UserServiceTest {
         when(userRepository.save(unsavedUser)).thenReturn(savedUser);
         when(userToUserResponse.apply(savedUser)).thenReturn(response);
 
-        var actualResponse = userService.createUser(createUserRequest);
+        var actualResponse = userService.userRegistration(createUserRequest);
 
         Assertions.assertThat(actualResponse)
                 .isEqualTo(response);
@@ -120,7 +120,7 @@ class UserServiceTest {
             When a user with the given username does not exist, and USER_ROLE does not exist,
             the method should throw an IllegalStateException.
             """)
-    void createUser_WhenUsernameDoesNotExistAndRoleDoesNotExist_ShouldThrowException() {
+    void userRegistration_WhenUsernameDoesNotExistAndRoleDoesNotExist_ShouldThrowException() {
         String username = "U0";
         String password = "P0";
         String hashedPassword = "HP0";
@@ -135,7 +135,7 @@ class UserServiceTest {
         when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
         when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> userService.createUser(createUserRequest))
+        Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage(DataSeeder.ROLE_USER_WAS_NOT_SEEDED);
 

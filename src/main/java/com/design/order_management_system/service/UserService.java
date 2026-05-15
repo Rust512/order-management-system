@@ -33,7 +33,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse createUser(CreateUserRequest createUserRequest) {
+    public UserResponse userRegistration(CreateUserRequest createUserRequest) {
         String username = createUserRequest.getUsername();
         log.info("User registration requested; username={}", username);
         boolean userExists = userRepository.existsByUsername(username);
