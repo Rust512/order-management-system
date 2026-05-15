@@ -52,11 +52,19 @@ public class ProductController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Authentication required"
+                            description = "Authentication required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.INVALID_TOKEN)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Admin role required"
+                            description = "Admin role required",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.ACCESS_DENIED)
+                            )
                     )
             }
     )
