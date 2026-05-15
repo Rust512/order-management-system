@@ -81,6 +81,14 @@ public class ProductController {
                                     schema = @Schema(implementation = ApiErrorResponse.class),
                                     examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Validation failed",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
+                            )
                     )
             }
     )

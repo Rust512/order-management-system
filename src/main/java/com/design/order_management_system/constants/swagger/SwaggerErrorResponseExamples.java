@@ -75,4 +75,15 @@ public class SwaggerErrorResponseExamples {
                 "dtTimeStamp": "2026-05-15T02:37:32.394Z"
             }
             """;
+    
+    public static final String BAD_REQUEST = """
+            {
+                "dStatusCode": 400,
+                "sError": "Unprocessable Content",
+                "sExceptionName": "MethodArgumentNotValidException",
+                "sMessage": "Validation failed",
+                "sPath": "/v1/orders",
+                "dtTimeStamp": "2026-05-15T02:37:32.394Z"
+            }
+            """;
 }
