@@ -35,8 +35,6 @@ class LoginServiceTest {
     @InjectMocks
     private LoginService loginService;
 
-    private static final String USER_NOT_FOUND = "user not found";
-
     @Test
     @DisplayName(value = """
             When the given username does not exist,
