@@ -1,6 +1,7 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
+import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
 import com.design.order_management_system.service.LoginService;
@@ -37,7 +38,8 @@ public class LoginController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Authentication successful"
+                            description = "Authentication successful",
+                            content = @Content(examples = @ExampleObject(value = SwaggerResponseExamples.LOGIN))
                     ),
                     @ApiResponse(responseCode = "401", description = "Invalid credentials")
             }
