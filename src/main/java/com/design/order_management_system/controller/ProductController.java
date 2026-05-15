@@ -48,7 +48,18 @@ public class ProductController {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Registration successful",
-                            content = @Content(schema = @Schema(implementation = ProductResponse.class))
+                            content = @Content(
+                                    schema = @Schema(implementation = ProductResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Product already exists",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.ALREADY_EXISTS)
+                            )
                     ),
                     @ApiResponse(
                             responseCode = "401",

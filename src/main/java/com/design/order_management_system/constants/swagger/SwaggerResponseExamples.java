@@ -61,6 +61,17 @@ public class SwaggerResponseExamples {
             }
             """;
     
+    public static final String ALREADY_EXISTS = """
+            {
+                "dStatusCode": 409,
+                "sError": "Conflict",
+                "sExceptionName": "DuplicateResourceException",
+                "sMessage": "Resource USER with username matching ADMIN already exists",
+                "sPath": "/v1/user",
+                "dtTimeStamp": "2026-05-15T03:29:47.680454252Z"
+            }
+            """;
+    
     public static final String REGISTER_ORDER = """
             {
                 "dOrderId": 1,

@@ -50,6 +50,14 @@ public class UserController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "409",
+                            description = "User already exists",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerResponseExamples.ALREADY_EXISTS)
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "401",
                             description = "Authentication required",
                             content = @Content(
