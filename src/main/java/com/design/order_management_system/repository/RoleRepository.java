@@ -16,12 +16,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
             """)
     Optional<Role> findByName(@Param("name") String name);
 
-    @Query(value = """
-            SELECT CASE WHEN (COUNT(role) > 0) THEN TRUE ELSE FALSE END
-            FROM Role role
-            WHERE role.name = :name
-            """)
-    boolean existsByName(@Param("name") String name);
-
     List<Role> findAllByNameIn(List<String> requiredRoles);
 }
