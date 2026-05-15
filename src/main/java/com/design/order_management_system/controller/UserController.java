@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +40,10 @@ public class UserController {
                     Only Admin users are authorized to create users.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.USER_REGISTRATION))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(value = SwaggerRequestExamples.USER_REGISTRATION)
+                    )
             ),
             responses = {
                     @ApiResponse(

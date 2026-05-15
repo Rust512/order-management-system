@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,10 @@ public class LoginController {
                     Use the provided seeded user credentials for testing.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(examples = @ExampleObject(value = SwaggerRequestExamples.LOGIN))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(value = SwaggerRequestExamples.LOGIN)
+                    )
             ),
             responses = {
                     @ApiResponse(
