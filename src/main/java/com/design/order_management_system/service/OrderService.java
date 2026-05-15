@@ -37,7 +37,7 @@ public class OrderService {
     @Transactional
     public OrderResponse registerOrder(OrderRequest orderRequest) {
         var userId = SecurityUtils.getPrincipalUser().getUserId();
-        log.info("Register order; userId={}", userId);
+        log.info("Order registration requested; userId={}", userId);
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Order registration failed; userId={} reason=user_not_found", userId);
