@@ -250,6 +250,8 @@ DB_PASSWORD=your_password
 
 ### 3. Start the application
 
+#### 3.1 Using Docker (Recommended)
+
 Run:
 
 ```bash
@@ -274,7 +276,17 @@ Swagger UI:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
+
 ```
+
+#### 3.2 Local development
+
+3.1.1 Start postgres container:
+
+```bash
+docker compose up postgres-db -d
+```
+3.1.2 Run spring boot app from IntelliJ IDEA using the `dev` profile.
 
 ### Seeded Admin Credentials
 
