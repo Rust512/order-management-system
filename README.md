@@ -208,52 +208,91 @@ These credentials are intentionally exposed for demonstration and testing purpos
 git clone https://github.com/Rust512/order-management-system.git
 cd order-management-system
 ```
+## 2.  Running the Project
 
-### 2. Configure PostgreSQL
+### Prerequisites
 
-Create a PostgreSQL database.
+Ensure the following are installed:
 
-Example:
+* Docker
+* Docker Compose
 
-```sql
-CREATE DATABASE order_management_system;
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Rust512/order-management-system.git
+cd order-management-system
 ```
 
-Update your database configuration inside:
+### 2. Create the environment file
+
+Copy:
 
 ```text
-application.yml
+.env.example
 ```
+
+to:
+
+```text
+.env
+```
+
+Then update the environment variable values as desired.
 
 Example:
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/order_management_system
-    username: your_username
-    password: your_password
+```env
+DB_NAME=order_management_system
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
 ```
 
-### 3. Run the application
+### 3. Start the application
 
-Using Maven:
+Run:
 
 ```bash
-mvn spring-boot:run
+docker compose up --build -d
 ```
 
-Or:
+> The first build may take a few minutes as Docker downloads dependencies and builds the application image.
 
-```bash
-./mvnw spring-boot:run
-```
-
-The application starts on:
+Once started, the application will be available at:
 
 ```text
 http://localhost:8080
 ```
+
+Logs:
+
+```bash
+docker compose logs -f
+```
+
+Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+### Seeded Admin Credentials
+
+Use the following credentials to test secured endpoints:
+
+| Username | Password  | Role  |
+| -------- | --------- | ----- |
+| ADMIN    | Admin@123 | ADMIN |
+
+### Stopping the Application
+
+To stop the containers:
+
+```bash
+docker compose down
+```
+
+If PostgreSQL volume persistence is enabled, your data will remain intact between restarts.
 
 ---
 

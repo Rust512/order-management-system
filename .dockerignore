@@ -1,0 +1,9 @@
+target
+.git
+.idea
+.junie
+.mvn
+assets
+.env
+.env.example
+README.md
