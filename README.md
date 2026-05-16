@@ -373,7 +373,9 @@ Planned improvements include:
 
 ### Swagger UI
 
-*Add screenshots here later*
+<img src="assets/swagger_img0.png" alt="swagger_img_0">
+<img src="assets/swagger_img1.png" alt="swagger_img_1">
+<img src="assets/swagger_img2.png" alt="swagger_img_2">
 
 ---
 
