@@ -44,7 +44,7 @@ class UserControllerIntegrationTest {
 
     private List<Long> userIds;
 
-    private static final String REGISTER_USERS_ENDPOINT = "/v1/user";
+    private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
     private static final String ADMIN_USERNAME = "A";
     private static final String ADMIN_PASSWORD = "ADM@4103";
     private static final String NORMAL_USERNAME = "B";
