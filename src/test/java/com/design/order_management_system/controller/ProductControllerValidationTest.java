@@ -1,6 +1,5 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.service.ProductService;
 import org.junit.jupiter.api.DisplayName;

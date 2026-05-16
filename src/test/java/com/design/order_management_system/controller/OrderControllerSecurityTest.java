@@ -42,7 +42,7 @@ import java.util.List;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OrderControllerSecurityTest {
+class OrderControllerSecurityTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired

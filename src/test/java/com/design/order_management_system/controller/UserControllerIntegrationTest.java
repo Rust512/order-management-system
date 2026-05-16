@@ -112,7 +112,7 @@ class UserControllerIntegrationTest {
         String password1 = "P1";
         var createUserRequest = new CreateUserRequest(username1, password1);
         HttpEntity<CreateUserRequest> createUserRequestEntity = new HttpEntity<>(createUserRequest, headers);
-        
+
         HttpStatus expectedStatus = HttpStatus.FORBIDDEN;
 
         ResponseEntity<ApiErrorResponse> response = this.restTemplate.postForEntity(REGISTER_USERS_ENDPOINT, createUserRequestEntity, ApiErrorResponse.class);

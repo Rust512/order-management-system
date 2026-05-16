@@ -35,7 +35,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 @AutoConfigureTestEntityManager
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OrderServiceIntegrationTest {
+class OrderServiceIntegrationTest {
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
