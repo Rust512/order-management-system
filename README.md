@@ -312,9 +312,10 @@ If PostgreSQL volume persistence is enabled, your data will remain intact betwee
 
 ### Authentication
 
-| Method | Endpoint      |
-| ------ | ------------- |
-| POST   | `/auth/login` |
+| Method | Endpoint       |
+| ------ |----------------|
+| POST   | `/auth/login`  |
+| POST   | `/auth/logout` |
 
 ### Users
 
