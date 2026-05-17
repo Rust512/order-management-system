@@ -1,5 +1,6 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.annotation.WebMvcSliceTest;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.service.ProductService;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @EnableMethodSecurity
-@WebMvcTest(ProductController.class)
+@WebMvcSliceTest(ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ProductControllerSecurityTest {
 

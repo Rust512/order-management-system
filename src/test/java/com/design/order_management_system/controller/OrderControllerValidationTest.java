@@ -1,12 +1,12 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.annotation.WebMvcSliceTest;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(OrderController.class)
+@WebMvcSliceTest(OrderController.class)
 class OrderControllerValidationTest {
 
     @Autowired
