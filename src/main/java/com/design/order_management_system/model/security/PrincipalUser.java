@@ -2,7 +2,6 @@ package com.design.order_management_system.model.security;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +15,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@RequiredArgsConstructor
 public class PrincipalUser implements UserDetails {
 
     private final Long userId;
@@ -25,6 +23,12 @@ public class PrincipalUser implements UserDetails {
 
     @Setter
     private Instant expiryTime;
+
+    public PrincipalUser(Long userId, String username, List<String> roles) {
+        this.userId = userId;
+        this.username = username;
+        this.roles = roles;
+    }
 
     public PrincipalUser(User user) {
         this.userId = user.getId();
