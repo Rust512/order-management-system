@@ -3,12 +3,14 @@ package com.design.order_management_system.model.security;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +22,9 @@ public class PrincipalUser implements UserDetails {
     private final Long userId;
     private final String username;
     private final List<String> roles;
+
+    @Setter
+    private Instant expiryTime;
 
     public PrincipalUser(User user) {
         this.userId = user.getId();
