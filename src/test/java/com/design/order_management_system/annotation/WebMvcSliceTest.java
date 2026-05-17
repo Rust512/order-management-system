@@ -13,8 +13,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Use this annotation in a WebMvcTest where you do not want
- * to test the login and logout procedures
+ * Use this annotation in a test class instead of the WebMvcTest
+ * annotation in a Web MVC test.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
