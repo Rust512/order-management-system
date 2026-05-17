@@ -2,10 +2,15 @@ package com.design.order_management_system.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -51,5 +56,23 @@ public class DocumentationConfig {
                 .info(information)
                 .components(securityComponent)
                 .addSecurityItem(securityRequirement);
+    }
+
+    @Bean
+    public OpenApiCustomizer customerLogoutOpenApiCustomizer() {
+        return openApi -> {
+            Operation logoutOperation = new Operation()
+                    .summary("Logout user")
+                    .description("Invalidates the current HTTP session and clears security contexts.")
+                    .addTagsItem("Authentication")
+                    .responses(new ApiResponses()
+                            .addApiResponse("200", new ApiResponse().description("Successfully logged out"))
+                            .addApiResponse("401", new ApiResponse().description("Unauthorized / Not logged in"))
+                    );
+
+            PathItem logoutPathItem = new PathItem().post(logoutOperation);
+
+            openApi.getPaths().addPathItem("/auth/logout", logoutPathItem);
+        };
     }
 }
