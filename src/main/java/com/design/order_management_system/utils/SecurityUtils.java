@@ -8,6 +8,7 @@ import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -68,14 +69,18 @@ public class SecurityUtils {
     }
 
     public static PrincipalUser getPrincipalUser() {
-        var token = SecurityContextHolder.getContext()
+        var authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
-        if (token == null) {
+        return getPrincipalUserFromAuthentication(authentication);
+    }
+    
+    public static PrincipalUser getPrincipalUserFromAuthentication(Authentication authentication) {
+        if (authentication == null) {
             log.error("Security context invalid; reason=authentication_missing");
             throw new AuthorizationServiceException(SECURITY_CONTEXT_EMPTY);
         }
 
-        var principal = token.getPrincipal();
+        var principal = authentication.getPrincipal();
 
         if (principal == null) {
             log.error("Security context invalid; reason=principal_missing");
