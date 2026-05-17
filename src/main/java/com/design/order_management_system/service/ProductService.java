@@ -11,7 +11,11 @@ import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
+import com.design.order_management_system.model.domain.ProductAuditEntry;
+import com.design.order_management_system.model.enumeration.OperationType;
+import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.ProductRepository;
+import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +30,19 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+    private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ProductAuditEntryService productAuditEntryService;
     private final CreateProductRequestToProduct createProductRequestToProduct;
     private final ProductToProductResponse productToProductResponse;
 
     public ProductResponse registerProduct(CreateProductRequest createProductRequest) {
         Long userId = SecurityUtils.getPrincipalUser().getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("User fetch failed; userId={}, reason=user_not_found", id);
+                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(id));
+                });
         String productName = createProductRequest.getProductName();
         log.info("Product registration requested; userId={} productName={}", userId, productName);
         if (productRepository.existsByName(productName)) {
@@ -40,6 +51,18 @@ public class ProductService {
         }
 
         Product product = productRepository.save(createProductRequestToProduct.apply(createProductRequest));
+
+        ProductAuditEntry productAuditEntry = ProductAuditEntry.builder()
+                .version(1L)
+                .productName(product.getName())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .operationType(OperationType.CREATE)
+                .user(user)
+                .product(product)
+                .build();
+        
+        productAuditEntryService.saveProductAuditEntry(userId, product.getId(), productAuditEntry);
 
         log.info("Product registered; userId={} productId={} productName={}", userId, product.getId(), productName);
 
