@@ -1,5 +1,6 @@
 package com.design.order_management_system.config;
 
+import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.security.JwtAuthenticationFilter;
 import com.design.order_management_system.security.JwtLogoutHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,7 +56,7 @@ public class SecurityConfig {
                         .addLogoutHandler(jwtLogoutHandler)
                         .logoutSuccessHandler((_, response, _) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write("Logout successful!");
+                            response.getWriter().write(CommonConstants.LOGOUT_SUCCESS_MESSAGE);
                         }))
                 .build();
     }
