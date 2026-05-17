@@ -10,11 +10,13 @@ import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
 import com.design.order_management_system.dto.response.OrderResponse;
 import com.design.order_management_system.exception.InsufficientResourcesException;
+import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.OrderRepository;
 import com.design.order_management_system.repository.ProductRepository;
+import com.design.order_management_system.repository.RevokedTokenRepository;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
 import io.jsonwebtoken.MalformedJwtException;
@@ -55,6 +57,8 @@ class OrderControllerSecurityTest {
     private ProductRepository productRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private RevokedTokenRepository revokedTokenRepository;
 
     private long productId0;
     private long productId1;
@@ -113,6 +117,7 @@ class OrderControllerSecurityTest {
     void tearDown() {
         orderRepository.deleteAll();
         productRepository.deleteAll();
+        revokedTokenRepository.deleteAll();
     }
 
     @Test
@@ -125,7 +130,8 @@ class OrderControllerSecurityTest {
         var orderRequest = constructOrderRequest(quantityWhenStockSufficient);
 
         HttpHeaders headers = new HttpHeaders();
-        setAuthorizationHeader(headers);
+        var token = getBearerToken();
+        headers.setBearerAuth(token);
 
         ResponseEntity<OrderResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), OrderResponse.class);
 
@@ -179,6 +185,34 @@ class OrderControllerSecurityTest {
 
     @Test
     @DisplayName(value = """
+            If the POST /v1/orders API receives a revoked token,
+            it should return HTTP status 401
+            """)
+    void registerOrder_WithRevokeddToken_ShouldReturnStatus401() {
+        long quantityWhenStockSufficient = Math.min(stock0, stock1);
+        var orderRequest = constructOrderRequest(quantityWhenStockSufficient);
+
+        HttpHeaders headers = new HttpHeaders();
+        var token = getBearerToken();
+        headers.setBearerAuth(token);
+
+        revokeToken(token);
+
+        ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        var body = response.getBody();
+        Assertions.assertThat(body).isNotNull();
+        Assertions.assertThat(body.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        Assertions.assertThat(body.getExceptionName()).isEqualTo(RevokedTokenException.class.getSimpleName());
+        Assertions.assertThat(body.getPath()).isEqualTo(REGISTER_ORDERS_ENDPOINT);
+        Assertions.assertThat(body.getMessage()).isEqualTo(ErrorMessageConstants.BLACKLISTED_TOKEN);
+        Assertions.assertThat(body.getTimestamp()).isNotNull();
+    }
+
+    @Test
+    @DisplayName(value = """
             If the request body of the POST /v1/orders API has an order item with
             quantity more than the available stock for the corresponding product,
             it should return HTTP status 422 with a valid error response.
@@ -188,7 +222,8 @@ class OrderControllerSecurityTest {
         var orderRequest = constructOrderRequest(quantityWhenStockInsufficient);
 
         HttpHeaders headers = new HttpHeaders();
-        setAuthorizationHeader(headers);
+        var token = getBearerToken();
+        headers.setBearerAuth(token);
 
         ResponseEntity<ApiErrorResponse> response = restTemplate.postForEntity(REGISTER_ORDERS_ENDPOINT, new HttpEntity<>(orderRequest, headers), ApiErrorResponse.class);
 
@@ -210,8 +245,7 @@ class OrderControllerSecurityTest {
                 .containsExactlyInAnyOrder(stock0, stock1);
     }
 
-
-    private void setAuthorizationHeader(HttpHeaders headers) {
+    private String getBearerToken() {
         var loginRequest = new LoginRequest();
         loginRequest.setUsername(NORMAL_USERNAME);
         loginRequest.setPassword(NORMAL_PASSWORD);
@@ -222,7 +256,20 @@ class OrderControllerSecurityTest {
 
         String jwtToken = loginResponse.getBody().token();
         Assertions.assertThat(jwtToken).isNotBlank();
-        headers.setBearerAuth(jwtToken);
+
+        return jwtToken;
+    }
+
+    private void revokeToken(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        ResponseEntity<String> logoutResponse = this.restTemplate.postForEntity(
+                "/auth/logout",
+                new HttpEntity<>(headers),
+                String.class
+        );
+        Assertions.assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(logoutResponse.getBody()).isEqualTo(CommonConstants.LOGOUT_SUCCESS_MESSAGE);
     }
 
     private OrderRequest constructOrderRequest(long quantity) {
