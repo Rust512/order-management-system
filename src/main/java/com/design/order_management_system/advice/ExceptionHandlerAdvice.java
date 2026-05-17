@@ -4,6 +4,7 @@ import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.InvalidCredentialsException;
+import com.design.order_management_system.exception.MissingTokenException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.factory.ErrorMessageFactory;
@@ -37,6 +38,7 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = {
             InvalidCredentialsException.class,
             RevokedTokenException.class,
+            MissingTokenException.class,
             JwtException.class
     })
     ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(Exception ex, HttpServletRequest request) {

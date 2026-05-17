@@ -2,6 +2,7 @@ package com.design.order_management_system.security;
 
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
+import com.design.order_management_system.exception.MissingTokenException;
 import com.design.order_management_system.model.security.RevokedToken;
 import com.design.order_management_system.repository.RevokedTokenRepository;
 import com.design.order_management_system.utils.HashUtils;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
@@ -46,7 +46,12 @@ public class JwtLogoutHandler implements LogoutHandler {
 
         if (authHeader == null || !authHeader.startsWith(CommonConstants.BEARER_TOKEN_PREFIX)) {
             log.info("Logout attempt failed; userId={} reason=token_missing", userId);
-            exceptionResolver.resolveException(request, response, null, new InsufficientAuthenticationException(ErrorMessageConstants.BEARER_TOKEN_MISSING));
+            exceptionResolver.resolveException(
+                    request,
+                    response,
+                    null,
+                    new MissingTokenException(ErrorMessageConstants.BEARER_TOKEN_MISSING)
+            );
             return;
         }
 
