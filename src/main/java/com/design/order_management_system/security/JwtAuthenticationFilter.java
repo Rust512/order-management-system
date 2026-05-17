@@ -2,6 +2,7 @@ package com.design.order_management_system.security;
 
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
+import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.model.security.PrincipalUser;
 import com.design.order_management_system.repository.RevokedTokenRepository;
 import com.design.order_management_system.utils.HashUtils;
@@ -15,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     request,
                     response,
                     null,
-                    new AccessDeniedException(ErrorMessageConstants.BLACKLISTED_TOKEN)
+                    new RevokedTokenException(ErrorMessageConstants.BLACKLISTED_TOKEN)
             );
             return;
         }

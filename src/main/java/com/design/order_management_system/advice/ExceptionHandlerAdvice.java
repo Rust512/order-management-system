@@ -5,6 +5,7 @@ import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.InsufficientResourcesException;
 import com.design.order_management_system.exception.InvalidCredentialsException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
+import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.factory.ErrorMessageFactory;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,38 +20,37 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(value = DuplicateResourceException.class)
-    ResponseEntity<ApiErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex, HttpServletRequest request) {
+    ResponseEntity<ApiErrorResponse> handleDuplicateResourceException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
-    ResponseEntity<ApiErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+    ResponseEntity<ApiErrorResponse> handleResourceNotFoundException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(value = InsufficientResourcesException.class)
-    ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(InsufficientResourcesException ex, HttpServletRequest request) {
+    ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNPROCESSABLE_CONTENT, request);
     }
 
-    @ExceptionHandler(value = InvalidCredentialsException.class)
-    ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex, HttpServletRequest request) {
+    @ExceptionHandler(value = {
+            InvalidCredentialsException.class,
+            RevokedTokenException.class,
+            JwtException.class
+    })
+    ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(value = AuthorizationDeniedException.class)
-    ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
+    ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST, request);
-    }
-
-    @ExceptionHandler(value = JwtException.class)
-    ResponseEntity<ApiErrorResponse> handleJwtException(JwtException ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(value = Exception.class)
