@@ -15,6 +15,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 
+// TODO: add scheduler to delete revoked tokens
 @Entity
 @Getter
 @Setter
