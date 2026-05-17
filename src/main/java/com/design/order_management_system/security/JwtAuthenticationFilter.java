@@ -1,7 +1,10 @@
 package com.design.order_management_system.security;
 
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.model.security.PrincipalUser;
+import com.design.order_management_system.repository.RevokedTokenRepository;
+import com.design.order_management_system.utils.HashUtils;
 import com.design.order_management_system.utils.SecurityUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -12,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,16 +24,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final HandlerExceptionResolver exceptionResolver;
+    private final RevokedTokenRepository revokedTokenRepository;
 
-    public JwtAuthenticationFilter(@Qualifier(value = "handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public JwtAuthenticationFilter(
+            @Qualifier(value = "handlerExceptionResolver") HandlerExceptionResolver resolver,
+            RevokedTokenRepository revokedTokenRepository
+    ) {
         this.exceptionResolver = resolver;
+        this.revokedTokenRepository = revokedTokenRepository;
     }
 
     @Override
@@ -45,6 +54,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(CommonConstants.BEARER_TOKEN_PREFIX.length());
 
+        boolean tokenBlacklisted = revokedTokenRepository.existsByTokenHashAndExpiresAtAfter(HashUtils.sha256(token), Instant.now());
+        if (tokenBlacklisted) {
+            log.warn("Auth failed; reason=token_blacklisted");
+            exceptionResolver.resolveException(
+                    request,
+                    response,
+                    null,
+                    new AccessDeniedException(ErrorMessageConstants.BLACKLISTED_TOKEN)
+            );
+            return;
+        }
+
         try {
             Claims claims = SecurityUtils.parseJwtToken(token);
             PrincipalUser user = new PrincipalUser(
@@ -52,6 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     claims.getSubject(),
                     extractRoles(claims)
             );
+            user.setExpiryTime(claims.getExpiration().toInstant());
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     user,
                     null,

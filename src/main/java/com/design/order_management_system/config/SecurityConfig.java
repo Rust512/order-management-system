@@ -1,6 +1,7 @@
 package com.design.order_management_system.config;
 
 import com.design.order_management_system.security.JwtAuthenticationFilter;
+import com.design.order_management_system.security.JwtLogoutHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtLogoutHandler jwtLogoutHandler;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
@@ -49,6 +51,12 @@ public class SecurityConfig {
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
+                .logout(logout -> logout.logoutUrl("/auth/logout")
+                        .addLogoutHandler(jwtLogoutHandler)
+                        .logoutSuccessHandler((_, response, _) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.getWriter().write("Logout successful!");
+                        }))
                 .build();
     }
 
