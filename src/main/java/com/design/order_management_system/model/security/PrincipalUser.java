@@ -1,5 +1,6 @@
 package com.design.order_management_system.model.security;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class PrincipalUser implements UserDetails {
 
     private final Long userId;
