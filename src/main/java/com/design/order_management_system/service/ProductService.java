@@ -11,7 +11,6 @@ import com.design.order_management_system.dto.response.ProductResponse;
 import com.design.order_management_system.exception.DuplicateResourceException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
-import com.design.order_management_system.model.domain.ProductAuditEntry;
 import com.design.order_management_system.model.enumeration.OperationType;
 import com.design.order_management_system.repository.ProductRepository;
 import com.design.order_management_system.utils.SecurityUtils;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -28,15 +28,14 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final UserService userService;
     private final ProductRepository productRepository;
     private final ProductAuditEntryService productAuditEntryService;
     private final CreateProductRequestToProduct createProductRequestToProduct;
     private final ProductToProductResponse productToProductResponse;
 
+    @Transactional
     public ProductResponse registerProduct(CreateProductRequest createProductRequest) {
         Long userId = SecurityUtils.getPrincipalUser().getUserId();
-        var user = userService.getUserById(userId);
         String productName = createProductRequest.getProductName();
         log.info("Product registration requested; userId={} productName={}", userId, productName);
 
@@ -47,23 +46,14 @@ public class ProductService {
 
         Product product = productRepository.save(createProductRequestToProduct.apply(createProductRequest));
 
-        ProductAuditEntry productAuditEntry = ProductAuditEntry.builder()
-                .version(1L)
-                .productName(product.getName())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .operationType(OperationType.CREATE)
-                .user(user)
-                .product(product)
-                .build();
-
-        productAuditEntryService.saveProductAuditEntry(userId, product.getId(), productAuditEntry);
+        productAuditEntryService.saveProductAuditEntry(userId, product, OperationType.CREATE);
 
         log.info("Product registered; userId={} productId={} productName={}", userId, product.getId(), productName);
 
         return productToProductResponse.apply(product);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<ProductResponse> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findAll(pageable);
@@ -82,10 +72,11 @@ public class ProductService {
                 .build();
     }
 
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest) {
-        // TODO: Replace the field-level debug logs with product audit events when audit logging is implemented 
         Long userId = SecurityUtils.getPrincipalUser().getUserId();
         log.info("Product update requested; userId={} productId={}", userId, id);
+
         var product = productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Product update failed; userId={} productId={} reason=product_not_found", userId, id);
@@ -97,26 +88,12 @@ public class ProductService {
                 });
 
         String newProductName = productUpdateRequest.getNewProductName();
-        if (newProductName != null) {
-            log.debug(
-                    "Update product name; userId={} productId={} oldName={} newName={}",
-                    userId,
-                    id,
-                    product.getName(),
-                    newProductName
-            );
+        if (newProductName != null && !newProductName.equalsIgnoreCase(product.getName())) {
             product.setName(newProductName);
         }
 
         BigDecimal updatedPrice = productUpdateRequest.getUpdatedPrice();
-        if (updatedPrice != null) {
-            log.debug(
-                    "Update product price; userId={} productId={} oldPrice={} newPrice={}",
-                    userId,
-                    id,
-                    product.getPrice(),
-                    updatedPrice
-            );
+        if (updatedPrice != null && updatedPrice.compareTo(product.getPrice()) != 0) {
             product.setPrice(updatedPrice);
         }
 
@@ -126,19 +103,14 @@ public class ProductService {
                 log.warn("Update product failed; userId={} productId={} reason=stock_cannot_be_negative", userId, id);
                 throw new IllegalArgumentException(ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
             }
-            log.debug(
-                    "Update product stock; userId={} productId={} oldStock={} newStock={}",
-                    userId,
-                    id,
-                    product.getStock(),
-                    updatedStock
-            );
             product.setStock(updatedStock);
         }
 
         var savedProduct = productRepository.save(product);
 
         log.info("Product updated; userId={} productId={}", userId, id);
+
+        productAuditEntryService.saveProductAuditEntry(userId, product, OperationType.UPDATE);
 
         return productToProductResponse.apply(savedProduct);
     }
