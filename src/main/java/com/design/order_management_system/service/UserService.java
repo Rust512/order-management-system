@@ -72,15 +72,6 @@ public class UserService implements UserDetailsService {
         return userToUserResponse.apply(user);
     }
 
-    @Transactional(readOnly = true)
-    User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("User fetch failed; userId={}, reason=user_not_found", id);
-                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(id));
-                });
-    }
-
     @Override
     @NullMarked
     @Transactional(readOnly = true)

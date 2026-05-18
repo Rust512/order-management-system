@@ -46,7 +46,7 @@ public class ProductService {
 
         Product product = productRepository.save(createProductRequestToProduct.apply(createProductRequest));
 
-        productAuditEntryService.saveProductAuditEntry(userId, product, OperationType.CREATE);
+        productAuditEntryService.createProductAuditEntry(userId, product, OperationType.CREATE);
 
         log.info("Product registered; userId={} productId={} productName={}", userId, product.getId(), productName);
 
@@ -110,7 +110,7 @@ public class ProductService {
 
         log.info("Product updated; userId={} productId={}", userId, id);
 
-        productAuditEntryService.saveProductAuditEntry(userId, product, OperationType.UPDATE);
+        productAuditEntryService.createProductAuditEntry(userId, product, OperationType.UPDATE);
 
         return productToProductResponse.apply(savedProduct);
     }
