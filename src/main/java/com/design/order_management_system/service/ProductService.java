@@ -40,8 +40,8 @@ public class ProductService {
         Long userId = SecurityUtils.getPrincipalUser().getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.warn("User fetch failed; userId={}, reason=user_not_found", id);
-                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(id));
+                    log.warn("User fetch failed; userId={}, reason=user_not_found", userId);
+                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(userId));
                 });
         String productName = createProductRequest.getProductName();
         log.info("Product registration requested; userId={} productName={}", userId, productName);
