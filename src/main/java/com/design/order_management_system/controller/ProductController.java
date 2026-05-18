@@ -7,7 +7,9 @@ import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.dto.response.PagedResponse;
+import com.design.order_management_system.dto.response.ProductAuditEntryResponse;
 import com.design.order_management_system.dto.response.ProductResponse;
+import com.design.order_management_system.service.ProductAuditEntryService;
 import com.design.order_management_system.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,7 +17,12 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final ProductAuditEntryService productAuditEntryService;
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
@@ -97,11 +105,6 @@ public class ProductController {
                 .body(productService.registerProduct(createProductRequest));
     }
 
-    @GetMapping
-    ResponseEntity<PagedResponse<ProductResponse>> getProducts(@RequestParam int page, @RequestParam int size) {
-        return ResponseEntity.ok(productService.getProducts(page, size));
-    }
-
     @PutMapping(path = "/{id}")
     @PreAuthorize(value = "hasRole('ADMIN')")
     @Operation(
@@ -145,5 +148,38 @@ public class ProductController {
     )
     ResponseEntity<ProductResponse> updateProduct(@PathVariable long id, @RequestBody @Valid ProductUpdateRequest updateRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, updateRequest));
+    }
+
+    @GetMapping
+    ResponseEntity<PagedResponse<ProductResponse>> getProducts(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(productService.getProducts(page, size));
+    }
+
+    @GetMapping(path = "/{id}/audit")
+    ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
+            @PathVariable
+            @NotNull
+            @Positive
+            long id,
+
+            @PageableDefault(size = 5, sort = "version", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(productAuditEntryService.getProductVersions(id, pageable));
+    }
+
+    @GetMapping(path = "/{id}/audit/{version}")
+    ResponseEntity<ProductAuditEntryResponse> getProductAuditEntry(
+            @PathVariable
+            @NotNull
+            @Positive
+            long id,
+
+            @PathVariable
+            @NotNull
+            @Positive
+            long version
+    ) {
+        return ResponseEntity.ok(productAuditEntryService.getProductAuditEntryByVersion(id, version));
     }
 }
