@@ -35,7 +35,7 @@ import java.time.Instant;
         name = "product_audit_entries",
         uniqueConstraints = @UniqueConstraint(
                 name = "unique_product_audit_entries_product_id_version",
-                columnNames = "product_id, version"
+                columnNames = {"product_id", "version"}
         )
 )
 public class ProductAuditEntry {
