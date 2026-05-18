@@ -3,6 +3,7 @@ package com.design.order_management_system.controller;
 import com.design.order_management_system.annotation.WebMvcSliceTest;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.response.ProductResponse;
+import com.design.order_management_system.service.ProductAuditEntryService;
 import com.design.order_management_system.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class ProductControllerSecurityTest {
 
     @MockitoBean
     private ProductService productService;
+
+    @MockitoBean
+    private ProductAuditEntryService productAuditEntryService;
 
     @Test
     @WithMockUser(roles = "ADMIN")
