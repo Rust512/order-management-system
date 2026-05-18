@@ -11,5 +11,6 @@ public class CommonConstants {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String BEARER_TOKEN_PREFIX = "Bearer ";
     public static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+    public static final String PRODUCT_AUDIT_ENTRY = "PRODUCT_AUDIT_ENTRY";
     public static final String LOGOUT_SUCCESS_MESSAGE = "Logout successful!";
 }
