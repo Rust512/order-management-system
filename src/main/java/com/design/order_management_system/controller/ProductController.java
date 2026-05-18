@@ -155,16 +155,16 @@ public class ProductController {
     }
 
     @PreAuthorize(value = "hasRole('ADMIN')")
-    @GetMapping(path = "/{id}/audit")
+    @GetMapping(path = "/{productId}/audit")
     ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
             @PathVariable
             @Positive
-            long id,
+            long productId,
 
             @PageableDefault(size = 5, sort = "version", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        return ResponseEntity.ok(productAuditEntryService.getProductVersions(id, pageable));
+        return ResponseEntity.ok(productAuditEntryService.getProductVersions(productId, pageable));
     }
 
     @PreAuthorize(value = "hasRole('ADMIN')")
