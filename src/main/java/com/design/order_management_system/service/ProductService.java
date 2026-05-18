@@ -13,9 +13,7 @@ import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.domain.ProductAuditEntry;
 import com.design.order_management_system.model.enumeration.OperationType;
-import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.ProductRepository;
-import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,7 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ProductRepository productRepository;
     private final ProductAuditEntryService productAuditEntryService;
     private final CreateProductRequestToProduct createProductRequestToProduct;
@@ -38,13 +36,10 @@ public class ProductService {
 
     public ProductResponse registerProduct(CreateProductRequest createProductRequest) {
         Long userId = SecurityUtils.getPrincipalUser().getUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("User fetch failed; userId={}, reason=user_not_found", userId);
-                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(userId));
-                });
+        var user = userService.getUserById(userId);
         String productName = createProductRequest.getProductName();
         log.info("Product registration requested; userId={} productName={}", userId, productName);
+
         if (productRepository.existsByName(productName)) {
             log.warn("Product registration failed; userId={} productName={} reason=product_already_exists", userId, productName);
             throw new DuplicateResourceException(CommonConstants.PRODUCT, "name", productName);
@@ -61,7 +56,7 @@ public class ProductService {
                 .user(user)
                 .product(product)
                 .build();
-        
+
         productAuditEntryService.saveProductAuditEntry(userId, product.getId(), productAuditEntry);
 
         log.info("Product registered; userId={} productId={} productName={}", userId, product.getId(), productName);
