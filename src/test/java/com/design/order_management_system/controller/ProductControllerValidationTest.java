@@ -2,6 +2,7 @@ package com.design.order_management_system.controller;
 
 import com.design.order_management_system.annotation.WebMvcSliceTest;
 import com.design.order_management_system.dto.request.CreateProductRequest;
+import com.design.order_management_system.service.ProductAuditEntryService;
 import com.design.order_management_system.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,11 +15,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +41,12 @@ class ProductControllerValidationTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private ProductAuditEntryService productAuditEntryService;
+
     private static final String PRODUCT_REGISTRATION_ENDPOINT = "/v1/products";
+    private static final String AUDIT_LOGS_BY_PRODUCT_ID = "/v1/products/%d/audit";
+    private static final String AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION = "/v1/products/%d/audit/%d";
 
     @Test
     @DisplayName(value = """
@@ -187,5 +195,47 @@ class ProductControllerValidationTest {
                 .andExpect(jsonPath("$.sExceptionName").value(MethodArgumentNotValidException.class.getSimpleName()));
 
         verifyNoInteractions(productService);
+    }
+
+    @Test
+    @DisplayName(value = """
+            GET /v1/products/{id}/audit/{version}, with zero product ID
+            should response with HTTP status 400
+            """)
+    void getProductAuditEntry_WhenProductIdZero_ShouldReturnStatus400() throws Exception {
+        long productId = 0L;
+        long version = 1L;
+
+        var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(get(endpoint)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(endpoint))
+                .andExpect(jsonPath("$.sExceptionName").value(HandlerMethodValidationException.class.getSimpleName()));
+    }
+
+    @Test
+    @DisplayName(value = """
+            GET /v1/products/{id}/audit/{version}, with negative version
+            should response with HTTP status 400
+            """)
+    void getProductAuditEntry_WhenNegativeVersion_ShouldReturnStatus400() throws Exception {
+        long productId = 1L;
+        long version = -1L;
+
+        var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+
+        mockMvc.perform(get(endpoint)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(endpoint))
+                .andExpect(jsonPath("$.sExceptionName").value(HandlerMethodValidationException.class.getSimpleName()));
     }
 }
