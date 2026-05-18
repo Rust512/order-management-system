@@ -52,6 +52,7 @@ public class ProductAuditEntryService {
         log.info("Product audit entry created; userId={} productId={} auditEntryId={}", userId, productId, savedAuditEntry.getId());
     }
 
+    @Transactional(readOnly = true)
     public PagedResponse<ProductAuditEntryResponse> getProductVersions(Long productId, Pageable pageable) {
         var userId = SecurityUtils.getPrincipalUser().getUserId();
         if (!productRepository.existsById(productId)) {
@@ -74,6 +75,7 @@ public class ProductAuditEntryService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public ProductAuditEntryResponse getProductAuditEntryByVersion(Long productId, Long version) {
         var userId = SecurityUtils.getPrincipalUser().getUserId();
         return productAuditEntryRepository.findByProduct_IdAndVersion(productId, version)
