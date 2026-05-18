@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -155,10 +154,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProducts(page, size));
     }
 
+    @PreAuthorize(value = "hasRole('ADMIN')")
     @GetMapping(path = "/{id}/audit")
     ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
             @PathVariable
-            @NotNull
             @Positive
             long id,
 
@@ -168,18 +167,17 @@ public class ProductController {
         return ResponseEntity.ok(productAuditEntryService.getProductVersions(id, pageable));
     }
 
-    @GetMapping(path = "/{id}/audit/{version}")
+    @PreAuthorize(value = "hasRole('ADMIN')")
+    @GetMapping(path = "/{productId}/audit/{version}")
     ResponseEntity<ProductAuditEntryResponse> getProductAuditEntry(
             @PathVariable
-            @NotNull
             @Positive
-            long id,
+            long productId,
 
             @PathVariable
-            @NotNull
             @Positive
             long version
     ) {
-        return ResponseEntity.ok(productAuditEntryService.getProductAuditEntryByVersion(id, version));
+        return ResponseEntity.ok(productAuditEntryService.getProductAuditEntryByVersion(productId, version));
     }
 }
