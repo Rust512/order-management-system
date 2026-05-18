@@ -55,7 +55,7 @@ public class ProductAuditEntryService {
     public PagedResponse<ProductAuditEntryResponse> getProductVersions(Long productId, Pageable pageable) {
         var userId = SecurityUtils.getPrincipalUser().getUserId();
         if (!productRepository.existsById(productId)) {
-            log.warn("Product audit entry fetch failed; userId={} productId={}", userId, productId);
+            log.warn("Product audit entry fetch failed; userId={} productId={} reason=product_not_found", userId, productId);
             throw new ResourceNotFoundException(CommonConstants.PRODUCT, "id", String.valueOf(productId));
         }
         var result = productAuditEntryRepository.findByProduct_Id(productId, pageable);
@@ -79,8 +79,8 @@ public class ProductAuditEntryService {
         return productAuditEntryRepository.findByProduct_IdAndVersion(productId, version)
                 .map(productAuditEntryToResponse)
                 .orElseThrow(() -> {
-                    log.warn("Product audit entry fetch failed; userId={} productId={} version={}", userId, productId, version);
-                    return new ResourceNotFoundException(CommonConstants.PRODUCT_AUDIT_ENTRY, "productId, version", String.format("%d, %d", productId, version));
+                    log.warn("Product audit entry fetch failed; userId={} productId={} version={} reason=audit_entry_not_found", userId, productId, version);
+                    return new ResourceNotFoundException(CommonConstants.PRODUCT_AUDIT_ENTRY, "(productId, version)", String.format("(%d, %d)", productId, version));
                 });
     }
 }
