@@ -16,6 +16,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
@@ -50,7 +51,10 @@ public class ExceptionHandlerAdvice {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN, request);
     }
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ExceptionHandler(value = {
+            MethodArgumentNotValidException.class,
+            HandlerMethodValidationException.class
+    })
     ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST, request);
     }
