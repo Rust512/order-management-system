@@ -49,4 +49,70 @@ public class SwaggerResponseExamples {
             }
             """;
 
+    public static final String GET_PRODUCTS = """
+            {
+                "aContent": [
+                    {
+                        "sProductId": 1,
+                        "sProductName": "Protein bar",
+                        "dPrice": 20,
+                        "dStock": 5
+                    },
+                    {
+                        "sProductId": 2,
+                        "sProductName": "Potato Chips",
+                        "dPrice": 15,
+                        "dStock": 10
+                    }
+                ],
+                "dPage": 1,
+                "dSize": 2,
+                "dTotalElements": 5,
+                "dTotalPages": 3
+            }
+            """;
+
+    public static final String GET_PRODUCT_AUDIT_ENTRIES = """
+            {
+                "aContent": [
+                    {
+                        "dVersion": 1,
+                        "sProductName": "Coca-Cola",
+                        "dPrice": 15,
+                        "dStock": 15,
+                        "sOperationType": "CREATE",
+                        "dChangedByUserId": 1,
+                        "dChangedByUserName": "JohnDoe",
+                        "dtCreatedAt": "2026-05-19T08:16:51.007Z"
+                    },
+                    {
+                        "dVersion": 2,
+                        "sProductName": "Lassi",
+                        "dPrice": 20,
+                        "dStock": 20,
+                        "sOperationType": "UPDATE",
+                        "dChangedByUserId": 2,
+                        "dChangedByUserName": "FooBar",
+                        "dtCreatedAt": "2026-04-19T08:12:52.107Z"
+                    }
+                ],
+                "dPage": 1,
+                "dSize": 2,
+                "dTotalElements": 5,
+                "dTotalPages": 3
+            }
+            """;
+
+    public static final String GET_PRODUCT_AUDIT_ENTRY = """
+            {
+                "dVersion": 1,
+                "sProductName": "Coca-Cola",
+                "dPrice": 35,
+                "dStock": 50,
+                "sOperationType": "CREATE",
+                "dChangedByUserId": 1,
+                "dChangedByUserName": "JohnDoe",
+                "dtCreatedAt": "2026-05-19T08:16:51.007Z"
+            }
+            """;
 }
