@@ -43,6 +43,7 @@ Built while surviving Spring Security pain 😵‍💫
 - Update product information
 - Stock management
 - Duplicate product prevention
+- Get Product audit entries
 
 ### Order Management
 
@@ -118,6 +119,7 @@ src/main/java
 ├── service
 ├── repository
 ├── model
+├── documentation
 ├── dto
 ├── converter
 ├── security
@@ -184,6 +186,16 @@ Use the returned token in Swagger or API requests:
 
 ```http
 Authorization: Bearer YOUR_TOKEN
+```
+
+---
+
+## Logout
+
+Logout using the endpoint:
+
+```http
+POST /auth/logout
 ```
 
 ---
@@ -304,7 +316,7 @@ To stop the containers:
 docker compose down
 ```
 
-If PostgreSQL volume persistence is enabled, your data will remain intact between restarts.
+The PostgreSQL volume persistence is enabled; your data will remain intact between restarts.
 
 ---
 
@@ -325,11 +337,13 @@ If PostgreSQL volume persistence is enabled, your data will remain intact betwee
 
 ### Products
 
-| Method | Endpoint            |
-| ------ | ------------------- |
-| POST   | `/v1/products`      |
-| PUT    | `/v1/products/{id}` |
-| GET    | `/v1/products`      |
+| Method | Endpoint                            |
+| ------ |-------------------------------------|
+| POST   | `/v1/products`                      |
+| PUT    | `/v1/products/{id}`                 |
+| GET    | `/v1/products`                      |
+| GET    | `/v1/products/{id}/audit`           |
+| GET    | `/v1/products/{id}/audit/{version}` |
 
 ### Orders
 
@@ -379,7 +393,7 @@ The project currently includes:
 * Transaction Tests
 * Security-related test utilities
 
-**Current test count: 45+ tests** ✅
+**Current test count: 55 tests** ✅
 
 Testing helped catch regressions during refactors — including a logging change that unexpectedly introduced a security context dependency 😄
 
@@ -412,12 +426,14 @@ The logging strategy focuses on:
 
 Planned improvements include:
 
-* Dockerization
-* Audit Logging
-* Product change tracking
-* Maker-Checker approval flow
-* Kafka integration for asynchronous workflows
-* Enhanced observability
+* Token blacklisting using Redis for faster revocation lookups
+* Scheduled cleanup for revoked tokens
+* Maker-Checker approval for sensitive operations
+* Kafka integration for asynchronous workflows and event-driven processing
+* Enhanced observability (metrics, structured logging, tracing)
+* Rate limiting for authentication and sensitive endpoints
+* API caching for read-heavy endpoints
+* Email/notification integration for operational workflows
 
 ---
 
@@ -426,8 +442,6 @@ Planned improvements include:
 ### Swagger UI
 
 <img src="assets/swagger_img0.png" alt="swagger_img_0">
-<img src="assets/swagger_img1.png" alt="swagger_img_1">
-<img src="assets/swagger_img2.png" alt="swagger_img_2">
 
 ---
 
