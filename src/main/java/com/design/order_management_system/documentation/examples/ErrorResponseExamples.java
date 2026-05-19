@@ -65,6 +65,39 @@ public class ErrorResponseExamples {
             }
             """;
 
+    public static final String PRODUCT_NOT_FOUND_FOR_AUDIT = """
+            {
+                "dStatusCode": 404,
+                "sError": "Not Found",
+                "sExceptionName": "ResourceNotFoundException",
+                "sMessage": "Resource PRODUCT with id matching 5 not found",
+                "sPath": "/v1/products/5/audit",
+                "dtTimeStamp": "2026-05-15T02:36:25.603Z"
+            }
+            """;
+
+    public static final String PRODUCT_AUDIT_ENTRY_NOT_FOUND = """
+            {
+                "dStatusCode": 404,
+                "sError": "Not Found",
+                "sExceptionName": "ResourceNotFoundException",
+                "sMessage": "Resource PRODUCT_AUDIT_ENTRY with (productId, version) matching (5, 3) not found",
+                "sPath": "/v1/products/5/audit/3",
+                "dtTimeStamp": "2026-05-15T02:36:25.603Z"
+            }
+            """;
+
+    public static final String ORDER_NOT_FOUND = """
+            {
+                "dStatusCode": 404,
+                "sError": "Not Found",
+                "sExceptionName": "ResourceNotFoundException",
+                "sMessage": "Resource ORDER with id matching 3 not found",
+                "sPath": "/v1/orders",
+                "dtTimeStamp": "2026-05-15T02:36:25.603Z"
+            }
+            """;
+
     public static final String INSUFFICIENT_RESOURCES = """
             {
                 "dStatusCode": 422,

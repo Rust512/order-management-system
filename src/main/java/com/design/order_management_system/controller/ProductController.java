@@ -1,9 +1,11 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
 import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
 import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
-import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
+import com.design.order_management_system.documentation.schema.PagedProductAuditEntryResponse;
+import com.design.order_management_system.documentation.schema.PagedProductResponse;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
@@ -47,6 +49,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
     @Operation(
             summary = "Register a product",
             description = """
@@ -58,49 +61,7 @@ public class ProductController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(value = RequestExamples.PRODUCT_REGISTRATION)
                     )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Registration successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = ProductResponse.class),
-                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_PRODUCT)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "Product already exists",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Admin role required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.ACCESS_DENIED)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Validation failed",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
-                            )
-                    )
-            }
+            )
     )
     @ApiResponse(
             responseCode = "201",
@@ -144,7 +105,7 @@ public class ProductController {
             description = "Update successful",
             content = @Content(
                     schema = @Schema(implementation = ProductResponse.class),
-                    examples = @ExampleObject(value = ResponseExamples.REGISTER_PRODUCT)
+                    examples = @ExampleObject(value = ResponseExamples.UPDATE_PRODUCT)
             )
     )
     @ApiResponse(
@@ -164,33 +125,31 @@ public class ProductController {
             summary = "get products in pages",
             description = """
                     Fetch all products in pages.
-                    """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Fetch successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = PagedResponse.class),
-                                    examples = @ExampleObject(value = ResponseExamples.GET_PRODUCTS)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Validation failed",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    )
-            }
+                    """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Fetch successful",
+            content = @Content(
+                    schema = @Schema(implementation = PagedProductResponse.class),
+                    examples = @ExampleObject(value = ResponseExamples.GET_PRODUCTS)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
+            )
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Authentication required",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
+            )
     )
     ResponseEntity<PagedResponse<ProductResponse>> getProducts(
             @RequestParam
@@ -225,7 +184,7 @@ public class ProductController {
             responseCode = "200",
             description = "Fetch successful",
             content = @Content(
-                    schema = @Schema(implementation = PagedResponse.class),
+                    schema = @Schema(implementation = PagedProductAuditEntryResponse.class),
                     examples = @ExampleObject(value = ResponseExamples.GET_PRODUCT_AUDIT_ENTRIES)
             )
     )
@@ -234,7 +193,7 @@ public class ProductController {
             description = "Resource not found",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND_FOR_AUDIT)
             )
     )
     ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
@@ -276,7 +235,7 @@ public class ProductController {
             description = "Resource not found",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_AUDIT_ENTRY_NOT_FOUND)
             )
     )
     ResponseEntity<ProductAuditEntryResponse> getProductAuditEntry(

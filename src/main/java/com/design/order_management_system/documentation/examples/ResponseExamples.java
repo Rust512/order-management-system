@@ -19,6 +19,8 @@ public class ResponseExamples {
             }
             """;
 
+    public static final String UPDATE_PRODUCT = REGISTER_PRODUCT;
+
     public static final String REGISTER_USER = """
             {
                 "sUsername": "JohnDoe",
