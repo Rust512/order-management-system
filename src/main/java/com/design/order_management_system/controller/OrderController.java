@@ -52,7 +52,7 @@ public class OrderController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Product not found",
+                            description = "Order not found",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
                                     examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
