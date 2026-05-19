@@ -3,6 +3,7 @@ package com.design.order_management_system.controller;
 import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.response.UserResponse;
@@ -33,6 +34,7 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
     @Operation(
             summary = "Register a user",
             description = """
@@ -44,49 +46,23 @@ public class UserController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(value = SwaggerRequestExamples.USER_REGISTRATION)
                     )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Registration successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = UserResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_USER)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "User already exists",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.USER_ALREADY_EXISTS)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Admin role required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Validation failed",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
-                            )
-                    )
-            }
+            )
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "Registration successful",
+            content = @Content(
+                    schema = @Schema(implementation = UserResponse.class),
+                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_USER)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "User already exists",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.USER_ALREADY_EXISTS)
+            )
     )
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)

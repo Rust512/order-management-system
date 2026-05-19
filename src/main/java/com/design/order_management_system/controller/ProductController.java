@@ -3,6 +3,7 @@ package com.design.order_management_system.controller;
 import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
 import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
 import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
@@ -101,13 +102,30 @@ public class ProductController {
                     )
             }
     )
+    @ApiResponse(
+            responseCode = "201",
+            description = "Registration successful",
+            content = @Content(
+                    schema = @Schema(implementation = ProductResponse.class),
+                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Product already exists",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
+            )
+    )
     ResponseEntity<ProductResponse> registerProduct(@RequestBody @Valid CreateProductRequest createProductRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.registerProduct(createProductRequest));
     }
 
-    @PutMapping(path = "/{id}")
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
+    @PutMapping(path = "/{id}")
     @Operation(
             summary = "Update a product",
             description = """
@@ -119,33 +137,23 @@ public class ProductController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(value = SwaggerRequestExamples.UPDATE_PRODUCT)
                     )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Update successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = ProductResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Admin role required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
-                            )
-                    )
-            }
+            )
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Update successful",
+            content = @Content(
+                    schema = @Schema(implementation = ProductResponse.class),
+                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Resource not found",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+            )
     )
     ResponseEntity<ProductResponse> updateProduct(@PathVariable long id, @RequestBody @Valid ProductUpdateRequest updateRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, updateRequest));
@@ -167,6 +175,14 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Validation failed",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
+                            )
+                    ),
+                    @ApiResponse(
                             responseCode = "401",
                             description = "Authentication required",
                             content = @Content(
@@ -185,6 +201,7 @@ public class ProductController {
             int page,
 
             @RequestParam
+            @Positive
             @Parameter(
                     description = "The number of items per page",
                     example = "5"
@@ -195,39 +212,30 @@ public class ProductController {
     }
 
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
     @GetMapping(path = "/{productId}/audit")
     @Operation(
             summary = "get product audit entries by product ID in pages",
             description = """
                     Fetch product audit entries by product ID in pages.
                     Only Admin users are authorized to fetch product audit entries.
-                    """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Fetch successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = PagedResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRIES)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Admin role required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
-                            )
-                    )
-            }
+                    """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Fetch successful",
+            content = @Content(
+                    schema = @Schema(implementation = PagedResponse.class),
+                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRIES)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Resource not found",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+            )
     )
     ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
             @Positive
@@ -246,39 +254,30 @@ public class ProductController {
     }
 
     @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
     @GetMapping(path = "/{productId}/audit/{version}")
     @Operation(
             summary = "get product audit entry by product ID and version",
             description = """
                     Fetch product audit entry by product ID and version.
                     Only Admin users are authorized to fetch a product audit entry.
-                    """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Fetch successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = PagedResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRY)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Authentication required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Admin role required",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
-                            )
-                    )
-            }
+                    """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Fetch successful",
+            content = @Content(
+                    schema = @Schema(implementation = PagedResponse.class),
+                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRY)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Resource not found",
+            content = @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+            )
     )
     ResponseEntity<ProductAuditEntryResponse> getProductAuditEntry(
             @Positive
