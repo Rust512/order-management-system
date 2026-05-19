@@ -1,6 +1,6 @@
 package com.design.order_management_system.documentation.annotation;
 
-import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
                 description = "Validation failed",
                 content = @Content(
                         schema = @Schema(implementation = ApiErrorResponse.class),
-                        examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
+                        examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
                 )
         ),
         @ApiResponse(
@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
                 description = "Authentication required",
                 content = @Content(
                         schema = @Schema(implementation = ApiErrorResponse.class),
-                        examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
+                        examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
                 )
         ),
         @ApiResponse(
@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
                 description = "Admin role required",
                 content = @Content(
                         schema = @Schema(implementation = ApiErrorResponse.class),
-                        examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
+                        examples = @ExampleObject(value = ErrorResponseExamples.ACCESS_DENIED)
                 )
         )
 })

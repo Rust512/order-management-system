@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
-import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
-import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.RequestExamples;
+import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
@@ -56,7 +56,7 @@ public class ProductController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = SwaggerRequestExamples.PRODUCT_REGISTRATION)
+                            examples = @ExampleObject(value = RequestExamples.PRODUCT_REGISTRATION)
                     )
             ),
             responses = {
@@ -65,7 +65,7 @@ public class ProductController {
                             description = "Registration successful",
                             content = @Content(
                                     schema = @Schema(implementation = ProductResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_PRODUCT)
                             )
                     ),
                     @ApiResponse(
@@ -73,7 +73,7 @@ public class ProductController {
                             description = "Product already exists",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
                             )
                     ),
                     @ApiResponse(
@@ -81,7 +81,7 @@ public class ProductController {
                             description = "Authentication required",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
                             )
                     ),
                     @ApiResponse(
@@ -89,7 +89,7 @@ public class ProductController {
                             description = "Admin role required",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.ACCESS_DENIED)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ACCESS_DENIED)
                             )
                     ),
                     @ApiResponse(
@@ -97,7 +97,7 @@ public class ProductController {
                             description = "Validation failed",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
                             )
                     )
             }
@@ -107,7 +107,7 @@ public class ProductController {
             description = "Registration successful",
             content = @Content(
                     schema = @Schema(implementation = ProductResponse.class),
-                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+                    examples = @ExampleObject(value = ResponseExamples.REGISTER_PRODUCT)
             )
     )
     @ApiResponse(
@@ -115,7 +115,7 @@ public class ProductController {
             description = "Product already exists",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_ALREADY_EXISTS)
             )
     )
     ResponseEntity<ProductResponse> registerProduct(@RequestBody @Valid CreateProductRequest createProductRequest) {
@@ -135,7 +135,7 @@ public class ProductController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = SwaggerRequestExamples.UPDATE_PRODUCT)
+                            examples = @ExampleObject(value = RequestExamples.UPDATE_PRODUCT)
                     )
             )
     )
@@ -144,7 +144,7 @@ public class ProductController {
             description = "Update successful",
             content = @Content(
                     schema = @Schema(implementation = ProductResponse.class),
-                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_PRODUCT)
+                    examples = @ExampleObject(value = ResponseExamples.REGISTER_PRODUCT)
             )
     )
     @ApiResponse(
@@ -152,7 +152,7 @@ public class ProductController {
             description = "Resource not found",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
             )
     )
     ResponseEntity<ProductResponse> updateProduct(@PathVariable long id, @RequestBody @Valid ProductUpdateRequest updateRequest) {
@@ -171,7 +171,7 @@ public class ProductController {
                             description = "Fetch successful",
                             content = @Content(
                                     schema = @Schema(implementation = PagedResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCTS)
+                                    examples = @ExampleObject(value = ResponseExamples.GET_PRODUCTS)
                             )
                     ),
                     @ApiResponse(
@@ -179,7 +179,7 @@ public class ProductController {
                             description = "Validation failed",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.BAD_REQUEST)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
                             )
                     ),
                     @ApiResponse(
@@ -187,7 +187,7 @@ public class ProductController {
                             description = "Authentication required",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_TOKEN)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
                             )
                     )
             }
@@ -226,7 +226,7 @@ public class ProductController {
             description = "Fetch successful",
             content = @Content(
                     schema = @Schema(implementation = PagedResponse.class),
-                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRIES)
+                    examples = @ExampleObject(value = ResponseExamples.GET_PRODUCT_AUDIT_ENTRIES)
             )
     )
     @ApiResponse(
@@ -234,7 +234,7 @@ public class ProductController {
             description = "Resource not found",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
             )
     )
     ResponseEntity<PagedResponse<ProductAuditEntryResponse>> getProductAuditEntries(
@@ -268,7 +268,7 @@ public class ProductController {
             description = "Fetch successful",
             content = @Content(
                     schema = @Schema(implementation = PagedResponse.class),
-                    examples = @ExampleObject(value = SwaggerResponseExamples.GET_PRODUCT_AUDIT_ENTRY)
+                    examples = @ExampleObject(value = ResponseExamples.GET_PRODUCT_AUDIT_ENTRY)
             )
     )
     @ApiResponse(
@@ -276,7 +276,7 @@ public class ProductController {
             description = "Resource not found",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
             )
     )
     ResponseEntity<ProductAuditEntryResponse> getProductAuditEntry(

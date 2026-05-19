@@ -1,7 +1,7 @@
-package com.design.order_management_system.constants.swagger;
+package com.design.order_management_system.documentation.examples;
 
-public class SwaggerErrorResponseExamples {
-    private SwaggerErrorResponseExamples() {
+public class ErrorResponseExamples {
+    private ErrorResponseExamples() {
     }
 
     public static final String INVALID_CREDENTIALS = """

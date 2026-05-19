@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
-import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
-import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.RequestExamples;
+import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
@@ -42,7 +42,7 @@ public class LoginController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = SwaggerRequestExamples.LOGIN)
+                            examples = @ExampleObject(value = RequestExamples.LOGIN)
                     )
             ),
             responses = {
@@ -51,7 +51,7 @@ public class LoginController {
                             description = "Authentication successful",
                             content = @Content(
                                     schema = @Schema(implementation = LoginResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.LOGIN)
+                                    examples = @ExampleObject(value = ResponseExamples.LOGIN)
                             )
                     ),
                     @ApiResponse(
@@ -59,7 +59,7 @@ public class LoginController {
                             description = "Invalid credentials",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INVALID_CREDENTIALS)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_CREDENTIALS)
                             )
                     )
             }

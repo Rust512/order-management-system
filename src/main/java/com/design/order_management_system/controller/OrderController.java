@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
-import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
-import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.RequestExamples;
+import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.OrderRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
@@ -38,7 +38,7 @@ public class OrderController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = SwaggerRequestExamples.REGISTER_ORDER)
+                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
                     )
             ),
             responses = {
@@ -47,7 +47,7 @@ public class OrderController {
                             description = "Order registration successful",
                             content = @Content(
                                     schema = @Schema(implementation = OrderResponse.class),
-                                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_ORDER)
+                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
                             )
                     ),
                     @ApiResponse(
@@ -55,7 +55,7 @@ public class OrderController {
                             description = "Order not found",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.PRODUCT_NOT_FOUND)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.PRODUCT_NOT_FOUND)
                             )
                     ),
                     @ApiResponse(
@@ -63,7 +63,7 @@ public class OrderController {
                             description = "Insufficient product stock",
                             content = @Content(
                                     schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.INSUFFICIENT_RESOURCES)
+                                    examples = @ExampleObject(value = ErrorResponseExamples.INSUFFICIENT_RESOURCES)
                             )
                     )
             }

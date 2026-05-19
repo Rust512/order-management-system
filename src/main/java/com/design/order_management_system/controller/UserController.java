@@ -1,8 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.constants.swagger.SwaggerErrorResponseExamples;
-import com.design.order_management_system.constants.swagger.SwaggerRequestExamples;
-import com.design.order_management_system.constants.swagger.SwaggerResponseExamples;
+import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.RequestExamples;
+import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
@@ -44,7 +44,7 @@ public class UserController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = SwaggerRequestExamples.USER_REGISTRATION)
+                            examples = @ExampleObject(value = RequestExamples.USER_REGISTRATION)
                     )
             )
     )
@@ -53,7 +53,7 @@ public class UserController {
             description = "Registration successful",
             content = @Content(
                     schema = @Schema(implementation = UserResponse.class),
-                    examples = @ExampleObject(value = SwaggerResponseExamples.REGISTER_USER)
+                    examples = @ExampleObject(value = ResponseExamples.REGISTER_USER)
             )
     )
     @ApiResponse(
@@ -61,7 +61,7 @@ public class UserController {
             description = "User already exists",
             content = @Content(
                     schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = SwaggerErrorResponseExamples.USER_ALREADY_EXISTS)
+                    examples = @ExampleObject(value = ErrorResponseExamples.USER_ALREADY_EXISTS)
             )
     )
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {

@@ -1,7 +1,7 @@
-package com.design.order_management_system.constants.swagger;
+package com.design.order_management_system.documentation.examples;
 
-public class SwaggerResponseExamples {
-    private SwaggerResponseExamples() {
+public class ResponseExamples {
+    private ResponseExamples() {
     }
 
     public static final String LOGIN = """
