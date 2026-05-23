@@ -41,4 +41,10 @@ public class Product {
     @NotNull
     @PositiveOrZero
     private Long stock;
+    
+    @NotNull
+    @PositiveOrZero
+    @Builder.Default
+    @Column(nullable = false)
+    private Long reservedStock = 0L;
 }
