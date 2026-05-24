@@ -6,11 +6,11 @@ import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
-import com.design.order_management_system.model.security.Role;
 import com.design.order_management_system.model.security.User;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceUtil;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,13 @@ class OrderRepositoryTest extends DatabaseTest {
     private OrderRepository orderRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
+    
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+    }
 
     private static final PersistenceUtil PERSISTENCE_UTIL = Persistence.getPersistenceUtil();
 

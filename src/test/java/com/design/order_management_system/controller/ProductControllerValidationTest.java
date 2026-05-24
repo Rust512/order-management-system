@@ -45,7 +45,6 @@ class ProductControllerValidationTest {
     private ProductAuditEntryService productAuditEntryService;
 
     private static final String PRODUCT_REGISTRATION_ENDPOINT = "/v1/products";
-    private static final String AUDIT_LOGS_BY_PRODUCT_ID = "/v1/products/%d/audit";
     private static final String AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION = "/v1/products/%d/audit/%d";
 
     @Test

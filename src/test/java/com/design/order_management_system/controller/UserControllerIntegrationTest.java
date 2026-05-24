@@ -43,8 +43,6 @@ class UserControllerIntegrationTest extends DatabaseTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private List<Long> userIds;
-
     private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
     private static final String ADMIN_USERNAME = "A";
     private static final String ADMIN_PASSWORD = "ADM@4103";
@@ -67,15 +65,12 @@ class UserControllerIntegrationTest extends DatabaseTest {
                 .password(passwordEncoder.encode(NORMAL_PASSWORD))
                 .build();
         normalUser.addRole(normalRole);
-        userIds = userRepository.saveAll(List.of(adminUser, normalUser))
-                .stream()
-                .map(User::getId)
-                .toList();
+        userRepository.saveAll(List.of(adminUser, normalUser));
     }
 
     @AfterAll
     void afterAll() {
-        userRepository.deleteAllById(userIds);
+        userRepository.deleteAll();
     }
 
     @Test
