@@ -1,7 +1,7 @@
 package com.design.order_management_system.service;
 
-import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.CreateUserRequestToUser;
 import com.design.order_management_system.converter.UserToUserResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
@@ -137,7 +137,7 @@ class UserServiceTest {
 
         Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage(DataSeeder.ROLE_USER_WAS_NOT_SEEDED);
+                .hasMessage(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
 
         verify(userRepository).existsByUsername(username);
         verifyNoMoreInteractions(userRepository);

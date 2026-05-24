@@ -1,6 +1,6 @@
 package com.design.order_management_system.service;
 
-import com.design.order_management_system.config.DataSeeder;
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.request.OrderItemRequest;
@@ -35,7 +35,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 @AutoConfigureTestEntityManager
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class OrderServiceIntegrationTest {
+class OrderServiceIntegrationTest extends DatabaseTest {
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
@@ -67,7 +67,7 @@ class OrderServiceIntegrationTest {
     @BeforeEach
     void setup() {
         var normalRole = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
         var normalUser = User.builder()
                 .username(USERNAME)
                 .password(passwordEncoder.encode(PASSWORD))

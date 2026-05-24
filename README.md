@@ -305,8 +305,8 @@ docker compose up postgres-db -d
 Use the following credentials to test secured endpoints:
 
 | Username | Password  | Role  |
-| -------- | --------- | ----- |
-| ADMIN    | Admin@123 | ADMIN |
+|----------| --------- | ----- |
+| admin    | Admin@123 | ADMIN |
 
 ### Stopping the Application
 

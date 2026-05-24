@@ -1,5 +1,6 @@
 package com.design.order_management_system.repository;
 
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.domain.ProductAuditEntry;
@@ -18,9 +19,11 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import java.math.BigDecimal;
 
 @DataJpaTest
-class ProductAuditEntryRepositoryTest {
+class ProductAuditEntryRepositoryTest extends DatabaseTest {
     @Autowired
     private TestEntityManager entityManager;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private ProductAuditEntryRepository repository;
 
@@ -33,9 +36,8 @@ class ProductAuditEntryRepositoryTest {
             with user entity details loaded.
             """)
     void findByProduct_IdAndVersion_WhenEntryExists_ShouldReturnProductAuditEntryWithLoadedUser() {
-        var role = entityManager.persist(Role.builder()
-                .name(CommonConstants.ROLE_USER)
-                .build());
+        var role = roleRepository.findByName(CommonConstants.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("Role not found"));
 
         var userName = "U0";
         var unsavedUser = User.builder()

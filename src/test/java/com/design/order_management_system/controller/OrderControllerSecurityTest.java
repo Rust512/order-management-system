@@ -1,6 +1,6 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.config.DataSeeder;
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
@@ -44,7 +44,7 @@ import java.util.List;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class OrderControllerSecurityTest {
+class OrderControllerSecurityTest extends DatabaseTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -73,7 +73,7 @@ class OrderControllerSecurityTest {
     @BeforeAll
     void beforeAll() {
         var normalRole = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
         var normalUser = User.builder()
                 .username(NORMAL_USERNAME)
                 .password(passwordEncoder.encode(NORMAL_PASSWORD))

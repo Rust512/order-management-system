@@ -1,5 +1,6 @@
 package com.design.order_management_system.service;
 
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.model.security.RevokedToken;
 import com.design.order_management_system.repository.RevokedTokenRepository;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class LogoutTest {
+class LogoutTest extends DatabaseTest {
 
     @Autowired
     private MockMvc mockMvc;

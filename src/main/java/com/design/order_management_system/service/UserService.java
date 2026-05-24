@@ -1,7 +1,7 @@
 package com.design.order_management_system.service;
 
-import com.design.order_management_system.config.DataSeeder;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.CreateUserRequestToUser;
 import com.design.order_management_system.converter.UserToUserResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
@@ -49,7 +49,7 @@ public class UserService implements UserDetailsService {
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
                 .orElseThrow(() -> {
                     log.error("Seeding error for role={}; reason=role_not_seeded", CommonConstants.ROLE_USER);
-                    return new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED);
+                    return new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
                 });
 
         user.addRole(role);
