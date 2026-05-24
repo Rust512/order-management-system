@@ -32,48 +32,6 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping
-    @Operation(
-            summary = "Register an order",
-            description = "Register an order.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
-                    )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "Order registration successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = OrderResponse.class),
-                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Order not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_NOT_FOUND)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "422",
-                            description = "Insufficient product stock",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.INSUFFICIENT_RESOURCES)
-                            )
-                    )
-            }
-    )
-    ResponseEntity<OrderResponse> registerOrder(@RequestBody @Valid OrderRequest orderRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.registerOrder(orderRequest));
-    }
-
     @GetMapping(path = "/{id}")
     @Operation(
             summary = "Fetch order by ID",
