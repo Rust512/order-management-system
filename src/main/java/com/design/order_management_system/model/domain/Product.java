@@ -47,4 +47,8 @@ public class Product {
     @Builder.Default
     @Column(nullable = false)
     private Long reservedStock = 0L;
+    
+    public Long getAvailableStock() {
+        return stock - reservedStock;
+    }
 }

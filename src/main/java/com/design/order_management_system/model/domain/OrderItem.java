@@ -42,7 +42,8 @@ public class OrderItem {
     @NotNull
     @Positive
     @Column(nullable = false)
-    private Long quantity;
+    @Builder.Default
+    private Long quantity = 0L;
 
     @NotNull
     @Positive

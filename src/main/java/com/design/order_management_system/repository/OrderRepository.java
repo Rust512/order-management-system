@@ -1,10 +1,12 @@
 package com.design.order_management_system.repository;
 
 import com.design.order_management_system.model.domain.Order;
+import com.design.order_management_system.model.enumeration.OrderStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -31,4 +33,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "orderItems.product",
     })
     Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
+
+    Optional<Order> findOrderByUser_IdAndOrderStatus(Long userId, OrderStatus orderStatus);
 }

@@ -14,12 +14,15 @@ import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OperationType;
 import com.design.order_management_system.repository.ProductRepository;
 import com.design.order_management_system.utils.SecurityUtils;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
