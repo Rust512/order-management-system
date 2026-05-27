@@ -31,25 +31,27 @@ public class OrderItemService {
     public OrderResponse addOrderItem(OrderItemRequest orderItemRequest) {
         var user = SecurityUtils.getPrincipalUser();
         var userId = user.getUserId();
-        log.info("Append order item attempted; userId={}", userId);
+        log.debug("Add order item attempted; userId={}", userId);
 
         var productId = orderItemRequest.getProductId();
+        var quantity = orderItemRequest.getQuantity();
         var product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> {
-                    log.warn("Add order item failed; userId={} orderId={} productId={} reason=product_not_found", userId, orderId, productId);
+                    log.warn("Add order item failed; userId={} productId={} reason=product_not_found", userId, productId);
                     return new ResourceNotFoundException(
                             CommonConstants.PRODUCT,
                             "id",
                             String.valueOf(productId)
                     );
                 });
+        validateStockAvailability(userId, product, quantity);
 
         var draftOrder = orderService.getDraftOrder(userId);
         var orderId = draftOrder.getId();
 
         var optionalOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
 
-        var quantity = orderItemRequest.getQuantity();
+        product.setReservedStock(product.getReservedStock() + quantity);
 
         OrderItem orderItem;
         if (optionalOrderItem.isPresent()) {
@@ -66,8 +68,6 @@ public class OrderItemService {
             draftOrder.addOrderItem(orderItem);
         }
 
-        updateReservedStock(userId, orderId, product, quantity);
-
         var savedOrder = orderRepository.save(draftOrder);
 
         log.info("Order item added; userId={} orderId={} productId={} quantity={}", userId, orderId, productId, quantity);
@@ -75,15 +75,12 @@ public class OrderItemService {
         return orderToOrderResponse.apply(savedOrder);
     }
 
-    private void updateReservedStock(Long userId, Long orderId, Product product, Long requestedQuantity) {
-        var reservedStock = product.getReservedStock();
+    private void validateStockAvailability(Long userId, Product product, Long requestedQuantity) {
         var availableStock = product.getAvailableStock();
 
         if (requestedQuantity > availableStock) {
-            log.warn("Add order item failed; userId={} orderId={} productId={} reason=insufficient_stock", userId, orderId, product.getId());
+            log.warn("Stock validation failed; userId={} productId={} reason=insufficient_stock", userId, product.getId());
             throw new InsufficientResourcesException(CommonConstants.PRODUCT, "stock - reserved_stock", requestedQuantity, availableStock);
         }
-
-        product.setReservedStock(reservedStock + requestedQuantity);
     }
 }
