@@ -82,7 +82,7 @@ public class OrderItemService {
     public OrderResponse editOrderItem(OrderItemRequest orderItemRequest) {
         var user = SecurityUtils.getPrincipalUser();
         var userId = user.getUserId();
-        log.info("Edit order item attempted; userId={}", userId);
+        log.debug("Edit order item attempted; userId={}", userId);
 
         var productId = orderItemRequest.getProductId();
         var product = productRepository.findByIdForUpdate(productId)
