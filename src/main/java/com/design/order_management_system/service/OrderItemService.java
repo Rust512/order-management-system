@@ -31,14 +31,16 @@ public class OrderItemService {
     public OrderResponse addOrderItem(OrderItemRequest orderItemRequest) {
         var user = SecurityUtils.getPrincipalUser();
         var userId = user.getUserId();
-        var draftOrder = orderService.getDraftOrder(userId);
 
+        var draftOrder = orderService.getDraftOrder(userId);
         var orderId = draftOrder.getId();
+
         var productId = orderItemRequest.getProductId();
+        log.info("Append order item attempted; userId={} orderId={}", userId, orderId);
 
         var product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> {
-                    log.warn("Add order item failed; userId={} orderId={} productId={}", userId, orderId, productId);
+                    log.warn("Add order item failed; userId={} orderId={} productId={} reason=product_not_found", userId, orderId, productId);
                     return new ResourceNotFoundException(
                             CommonConstants.PRODUCT,
                             "id",
