@@ -6,6 +6,7 @@ import com.design.order_management_system.service.OrderItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,5 +28,10 @@ public class OrderItemController {
     @PutMapping(path = "/{productId}")
     ResponseEntity<OrderResponse> editOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest, @PathVariable Long productId) {
         return ResponseEntity.ok(orderItemService.editOrderItem(orderItemRequest));
+    }
+
+    @DeleteMapping(path = "/{productId}")
+    ResponseEntity<OrderResponse> deleteOrderItem(@PathVariable Long productId) {
+        return ResponseEntity.ok(orderItemService.removeOrderItem(productId));
     }
 }

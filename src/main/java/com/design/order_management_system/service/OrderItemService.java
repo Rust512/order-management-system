@@ -145,6 +145,58 @@ public class OrderItemService {
         return orderToOrderResponse.apply(savedOrder);
     }
 
+    @Transactional
+    public OrderResponse removeOrderItem(Long productId) {
+        var user = SecurityUtils.getPrincipalUser();
+        var userId = user.getUserId();
+        log.debug("Remove order item attempted; userId={}", userId);
+
+        var product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> {
+                    log.warn("Delete order item failed; userId={} productId={} reason=product_not_found", userId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.PRODUCT,
+                            "id",
+                            String.valueOf(productId)
+                    );
+                });
+
+        var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
+                .orElseThrow(() -> {
+                    log.warn("Delete order item failed; userId={} reason=order_not_found", userId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.ORDER,
+                            "userId",
+                            String.valueOf(userId)
+                    );
+                });
+        var orderId = draftOrder.getId();
+
+        var orderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)
+                .orElseThrow(() -> {
+                    log.warn("Delete order item failed; userId={} orderId={} productId={} reason=order_item_not_found",
+                            userId, orderId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.ORDER_ITEM,
+                            "(orderId, productId)",
+                            String.format("(%s, %s)", orderId, productId)
+                    );
+                });
+        var orderItemId = orderItem.getId();
+
+        product.setReservedStock(product.getReservedStock() - orderItem.getQuantity());
+
+        draftOrder.getOrderItems()
+                .removeIf(item -> Objects.equals(item.getId(), orderItemId));
+
+        var savedOrder = orderRepository.save(draftOrder);
+
+        log.info("Order item deleted; userId={} productId={} orderId={} orderItemId={}",
+                userId, productId, orderId, orderItemId);
+
+        return orderToOrderResponse.apply(savedOrder);
+    }
+
     private void validateStockAvailability(Long userId, Product product, Long requestedQuantity) {
         var availableStock = product.getAvailableStock();
 
