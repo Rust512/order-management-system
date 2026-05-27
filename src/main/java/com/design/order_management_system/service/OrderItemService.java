@@ -31,13 +31,9 @@ public class OrderItemService {
     public OrderResponse addOrderItem(OrderItemRequest orderItemRequest) {
         var user = SecurityUtils.getPrincipalUser();
         var userId = user.getUserId();
-
-        var draftOrder = orderService.getDraftOrder(userId);
-        var orderId = draftOrder.getId();
+        log.info("Append order item attempted; userId={}", userId);
 
         var productId = orderItemRequest.getProductId();
-        log.info("Append order item attempted; userId={} orderId={}", userId, orderId);
-
         var product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> {
                     log.warn("Add order item failed; userId={} orderId={} productId={} reason=product_not_found", userId, orderId, productId);
@@ -47,6 +43,9 @@ public class OrderItemService {
                             String.valueOf(productId)
                     );
                 });
+
+        var draftOrder = orderService.getDraftOrder(userId);
+        var orderId = draftOrder.getId();
 
         var optionalOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
 
