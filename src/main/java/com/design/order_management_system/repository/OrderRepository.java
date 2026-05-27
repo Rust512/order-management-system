@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -35,4 +34,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
 
     Optional<Order> findOrderByUser_IdAndOrderStatus(Long userId, OrderStatus orderStatus);
+
+    @Query(value = """
+            SELECT o
+            FROM Order o
+            INNER JOIN o.user u
+            WHERE u.id = :userId
+            AND o.orderStatus = :orderStatus
+            """)
+    @EntityGraph(attributePaths = {"orderItems"})
+    Optional<Order> fetchDraftOrderWithOrderItems(Long userId, OrderStatus orderStatus);
 }

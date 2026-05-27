@@ -8,6 +8,7 @@ import com.design.order_management_system.exception.InsufficientResourcesExcepti
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
+import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
 import com.design.order_management_system.repository.ProductRepository;
@@ -16,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -71,6 +74,73 @@ public class OrderItemService {
         var savedOrder = orderRepository.save(draftOrder);
 
         log.info("Order item added; userId={} orderId={} productId={} quantity={}", userId, orderId, productId, quantity);
+
+        return orderToOrderResponse.apply(savedOrder);
+    }
+
+    @Transactional
+    public OrderResponse editOrderItem(OrderItemRequest orderItemRequest) {
+        var user = SecurityUtils.getPrincipalUser();
+        var userId = user.getUserId();
+        log.info("Edit order item attempted; userId={}", userId);
+
+        var productId = orderItemRequest.getProductId();
+        var product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> {
+                    log.warn("Edit order item failed; userId={} productId={} reason=product_not_found", userId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.PRODUCT,
+                            "id",
+                            String.valueOf(productId)
+                    );
+                });
+
+        var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
+                .orElseThrow(() -> {
+                    log.warn("Edit order item failed; userId={} reason=order_not_found", userId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.ORDER,
+                            "userId",
+                            String.valueOf(userId)
+                    );
+                });
+        var orderId = draftOrder.getId();
+
+        var lockedOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)
+                .orElseThrow(() -> {
+                    log.warn("Edit order item failed; userId={} orderId={} productId={} reason=order_item_not_found", userId, orderId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.ORDER_ITEM,
+                            "(orderId, productId)",
+                            String.format("(%s, %s)", orderId, productId)
+                    );
+                });
+        var orderItemId = lockedOrderItem.getId();
+
+        var orderItem = draftOrder.getOrderItems()
+                .stream()
+                .filter(item -> Objects.equals(item.getId(), orderItemId))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.error("Edit order item failed; userId={} orderId={} orderItemId={} productId={} reason=order_item_unexpectedly_missing",
+                            userId, orderId, orderItemId, productId);
+                    return new IllegalStateException(String.format("Order item with ID %s unexpectedly missing", orderItemId));
+                });
+
+        var quantityDelta = orderItemRequest.getQuantity() - orderItem.getQuantity();
+        if (quantityDelta > 0) {
+            validateStockAvailability(userId, product, quantityDelta);
+        }
+
+        product.setReservedStock(product.getReservedStock() + quantityDelta);
+
+        orderItem.setQuantity(orderItemRequest.getQuantity());
+        orderItem.setPurchasePrice(product.getPrice());
+
+        var savedOrder = orderRepository.save(draftOrder);
+
+        log.info("Order item edited; userId={} orderId={} orderItemId={} productId={} quantity={}",
+                userId, orderId, orderItemId, productId, orderItemRequest.getQuantity());
 
         return orderToOrderResponse.apply(savedOrder);
     }
