@@ -29,6 +29,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.UUID;
 
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -44,9 +45,9 @@ class UserControllerIntegrationTest extends DatabaseTest {
     private PasswordEncoder passwordEncoder;
 
     private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
-    private static final String ADMIN_USERNAME = "A";
+    private static final String ADMIN_USERNAME = UUID.randomUUID().toString();
     private static final String ADMIN_PASSWORD = "ADM@4103";
-    private static final String NORMAL_USERNAME = "B";
+    private static final String NORMAL_USERNAME = UUID.randomUUID().toString();
     private static final String NORMAL_PASSWORD = "NRL@5896";
 
     @BeforeAll
@@ -66,11 +67,6 @@ class UserControllerIntegrationTest extends DatabaseTest {
                 .build();
         normalUser.addRole(normalRole);
         userRepository.saveAll(List.of(adminUser, normalUser));
-    }
-
-    @AfterAll
-    void afterAll() {
-        userRepository.deleteAll();
     }
 
     @Test
