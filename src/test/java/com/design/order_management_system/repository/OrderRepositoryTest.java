@@ -7,10 +7,10 @@ import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.model.security.User;
+import com.design.order_management_system.utils.GeneratorUtils;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceUtil;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @DataJpaTest
 class OrderRepositoryTest extends DatabaseTest {
@@ -29,11 +30,6 @@ class OrderRepositoryTest extends DatabaseTest {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
-    
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-    }
 
     private static final PersistenceUtil PERSISTENCE_UTIL = Persistence.getPersistenceUtil();
 
@@ -52,10 +48,10 @@ class OrderRepositoryTest extends DatabaseTest {
 
         var role = roleRepository.findByName(CommonConstants.ROLE_USER)
                 .orElseThrow(() -> new IllegalStateException("Role not found"));
-        var user0 = User.builder().username("U0").password("P0").build();
+        var user0 = User.builder().username(GeneratorUtils.generateUUID()).password("P0").build();
         user0.addRole(role);
         var savedUser0 = entityManager.persist(user0);
-        var user1 = User.builder().username("U1").password("P1").build();
+        var user1 = User.builder().username(GeneratorUtils.generateUUID()).password("P1").build();
         user1.addRole(role);
         var savedUser1 = entityManager.persist(user1);
 

@@ -11,6 +11,7 @@ import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
+import com.design.order_management_system.utils.GeneratorUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,9 +46,9 @@ class UserControllerIntegrationTest extends DatabaseTest {
     private PasswordEncoder passwordEncoder;
 
     private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
-    private static final String ADMIN_USERNAME = UUID.randomUUID().toString();
+    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
     private static final String ADMIN_PASSWORD = "ADM@4103";
-    private static final String NORMAL_USERNAME = UUID.randomUUID().toString();
+    private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
     private static final String NORMAL_PASSWORD = "NRL@5896";
 
     @BeforeAll
