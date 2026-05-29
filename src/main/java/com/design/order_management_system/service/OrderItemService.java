@@ -1,7 +1,6 @@
 package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
-import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
@@ -67,7 +66,7 @@ public class OrderItemService {
                     .findFirst()
                     .orElseThrow(() -> {
                         log.error("Add order item failed; userId={} orderId={} productId={} reason=order_item_not_found", userId, orderId, productId);
-                        return new IllegalStateException(ErrorMessageConstants.ORDER_ITEM_NOT_FOUND);
+                        return new IllegalStateException(String.format("Order item with ID %d in order with ID %d is unexpectedly missing", orderItemId, orderId));
                     });
             orderItem.setQuantity(orderItem.getQuantity() + quantity);
             orderItem.setPurchasePrice(product.getPrice());
@@ -209,7 +208,6 @@ public class OrderItemService {
 
     private void validateStockAvailability(Long userId, Product product, Long requestedQuantity) {
         var availableStock = product.getAvailableStock();
-
         if (requestedQuantity > availableStock) {
             log.warn("Stock validation failed; userId={} productId={} reason=insufficient_stock", userId, product.getId());
             throw new InsufficientResourcesException(CommonConstants.PRODUCT, "stock - reserved_stock", requestedQuantity, availableStock);
