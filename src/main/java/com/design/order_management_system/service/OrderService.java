@@ -82,8 +82,8 @@ public class OrderService {
 
             log.info("Draft order retrieved; userId={} orderId={}", userId, orderId);
             return savedOrder;
-        } catch (DataIntegrityViolationException _) {
-            log.info("Draft order creation retried; userId={} reason=concurrent_creation", userId);
+        } catch (DataIntegrityViolationException ex) {
+            log.info("Draft order creation retried; userId={} reason=concurrent_creation", userId, ex);
             return orderRepository.findOrderByUser_IdAndOrderStatus(userId, OrderStatus.CREATED)
                     .orElseThrow(() -> new ResourceNotFoundException(CommonConstants.ORDER, "user", String.valueOf(userId)));
         }
