@@ -33,8 +33,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     })
     Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
 
-    Optional<Order> findOrderByUser_IdAndOrderStatus(Long userId, OrderStatus orderStatus);
-
     @Query(value = """
             SELECT o
             FROM Order o

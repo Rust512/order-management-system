@@ -1,6 +1,7 @@
 package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
@@ -52,13 +53,22 @@ public class OrderItemService {
         var draftOrder = orderService.getDraftOrder(userId);
         var orderId = draftOrder.getId();
 
-        var optionalOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
+        var lockedOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
 
         product.setReservedStock(product.getReservedStock() + quantity);
 
         OrderItem orderItem;
-        if (optionalOrderItem.isPresent()) {
-            orderItem = optionalOrderItem.get();
+        if (lockedOrderItem.isPresent()) {
+            var orderItemId = lockedOrderItem.get()
+                    .getId();
+            orderItem = draftOrder.getOrderItems()
+                    .stream()
+                    .filter(item -> Objects.equals(orderItemId, item.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        log.error("Add order item failed; userId={} orderId={} productId={} reason=order_item_not_found", userId, orderId, productId);
+                        return new IllegalStateException(ErrorMessageConstants.ORDER_ITEM_NOT_FOUND);
+                    });
             orderItem.setQuantity(orderItem.getQuantity() + quantity);
             orderItem.setPurchasePrice(product.getPrice());
         } else {

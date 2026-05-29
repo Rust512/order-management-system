@@ -60,7 +60,7 @@ public class OrderService {
 
     @Transactional
     public Order getDraftOrder(Long userId) {
-        var optionalOrder = orderRepository.findOrderByUser_IdAndOrderStatus(userId, OrderStatus.CREATED);
+        var optionalOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED);
         if (optionalOrder.isPresent()) {
             var order = optionalOrder.get();
             log.info("Draft order resolved; userId={} orderId={}", userId, order.getId());
@@ -84,7 +84,7 @@ public class OrderService {
             return savedOrder;
         } catch (DataIntegrityViolationException ex) {
             log.info("Draft order creation retried; userId={} reason=concurrent_creation", userId, ex);
-            return orderRepository.findOrderByUser_IdAndOrderStatus(userId, OrderStatus.CREATED)
+            return orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                     .orElseThrow(() -> new ResourceNotFoundException(CommonConstants.ORDER, "user", String.valueOf(userId)));
         }
     }

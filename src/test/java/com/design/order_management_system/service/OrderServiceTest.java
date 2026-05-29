@@ -55,7 +55,7 @@ class OrderServiceTest {
                 .orderItems(List.of())
                 .build();
 
-        when(orderRepository.findOrderByUser_IdAndOrderStatus(userId, OrderStatus.CREATED))
+        when(orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(order));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -65,7 +65,7 @@ class OrderServiceTest {
 
         Assertions.assertThat(result).isEqualTo(order);
 
-        verify(orderRepository, times(2)).findOrderByUser_IdAndOrderStatus(userId, OrderStatus.CREATED);
+        verify(orderRepository, times(2)).fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED);
         verify(userRepository).findById(userId);
 
         var saveOrderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
