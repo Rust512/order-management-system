@@ -7,7 +7,9 @@ import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.enumeration.OrderStatus;
+import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
+import com.design.order_management_system.repository.ProductRepository;
 import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,9 @@ public class OrderService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final OrderToOrderResponse orderToOrderResponse;
+    private final OrderItemRepository orderItemRepository;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
     public OrderResponse getOrderById(Long id) {
         var principalUser = SecurityUtils.getPrincipalUser();
@@ -98,5 +106,49 @@ public class OrderService {
             return orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                     .orElseThrow(() -> new ResourceNotFoundException(CommonConstants.ORDER, "user", String.valueOf(userId)));
         }
+    }
+
+    @Transactional
+    public OrderResponse checkoutOrder() {
+        var userId = SecurityUtils.getPrincipalUser()
+                .getUserId();
+
+        log.debug("Order checkout attempted; userId={}", userId);
+
+        var draftOrder = orderRepository.fetchDraftOrderByUserIdForUpdate(userId, OrderStatus.CREATED)
+                .orElseThrow(() -> {
+                    log.warn("Order checkout failed; userId={} reason=order_not_found", userId);
+                    return new ResourceNotFoundException(CommonConstants.ORDER, "id", String.valueOf(userId));
+                });
+        var orderId = draftOrder.getId();
+
+        var orderItems = orderItemRepository.findAllByOrder_IdForRead(orderId);
+
+        if (orderItems.isEmpty()) {
+            log.warn("Order checkout failed; userId={} reason=empty_order", userId);
+            throw new ResourceNotFoundException(CommonConstants.ORDER_ITEM, "order_id", String.valueOf(orderId));
+        }
+
+        var productIdToOrderItemMap = orderItems.stream()
+                .collect(Collectors.toMap(item -> item.getProduct().getId(), Function.identity()));
+
+        var productIds = productIdToOrderItemMap.keySet()
+                .stream()
+                .sorted()
+                .toList();
+
+        productRepository.findAllByIdInForWrite(productIds)
+                .forEach(product -> {
+                    var item = productIdToOrderItemMap.get(product.getId());
+                    var quantity = item.getQuantity();
+                    product.setReservedStock(product.getReservedStock() - quantity);
+                    product.setStock(product.getStock() - quantity);
+                });
+
+        draftOrder.setOrderStatus(OrderStatus.CONFIRMED);
+
+        log.info("Order checkout success; userId={} orderId={}", userId, orderId);
+
+        return orderToOrderResponse.apply(draftOrder);
     }
 }

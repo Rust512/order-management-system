@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -25,4 +26,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             WHERE product.id = :productId
             """)
     Optional<Product> findByIdForUpdate(Long productId);
+    
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(value = """
+            SELECT product
+            FROM Product product
+            WHERE product.id IN :productIds
+            ORDER BY product.id ASC
+            """)
+    List<Product> findAllByIdInForWrite(List<Long> productIds);
 }
