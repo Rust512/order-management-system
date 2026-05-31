@@ -4,6 +4,7 @@ import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.dto.response.OrderResponse;
 import com.design.order_management_system.exception.ResourceNotFoundException;
+import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.repository.OrderRepository;
@@ -41,15 +42,25 @@ public class OrderService {
             );
         }
 
+        if (!orderRepository.existsById(id)) {
+            log.warn("Fetch order failed; userId={} orderId={} reason=order_not_found", userId, id);
+            throw new ResourceNotFoundException(
+                    CommonConstants.ORDER,
+                    "id",
+                    String.valueOf(id)
+            );
+        }
+
         log.debug("Fetch order using ownership access; userId={} orderId={}", userId, id);
 
         var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(id, userId)
                 .orElseThrow(() -> {
                     log.warn("Fetch order failed; userId={} orderId={} reason=order_not_accessible", userId, id);
-                    return new ResourceNotFoundException(
+                    return new ResourceNotOwnedException(
                             CommonConstants.ORDER,
                             "id",
-                            String.valueOf(id)
+                            String.valueOf(id),
+                            userId
                     );
                 });
 

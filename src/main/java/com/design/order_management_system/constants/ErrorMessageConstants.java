@@ -12,5 +12,5 @@ public class ErrorMessageConstants {
     public static final String PRODUCT_STOCK_CANNOT_BE_NEGATIVE = "Product stock cannot be negative";
     public static final String BEARER_TOKEN_MISSING = "Bearer Token missing";
     public static final String BLACKLISTED_TOKEN = "Blacklisted Token";
-    public static final String ORDER_ITEM_NOT_FOUND = "Order item not found";
+    public static final String RESOURCE_NOT_OWNED = "Resource %s with %s matching %s not owned by %s";
 }

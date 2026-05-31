@@ -6,6 +6,7 @@ import com.design.order_management_system.exception.InsufficientResourcesExcepti
 import com.design.order_management_system.exception.InvalidCredentialsException;
 import com.design.order_management_system.exception.MissingTokenException;
 import com.design.order_management_system.exception.ResourceNotFoundException;
+import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.factory.ErrorMessageFactory;
 import io.jsonwebtoken.JwtException;
@@ -46,7 +47,10 @@ public class ExceptionHandlerAdvice {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED, request);
     }
 
-    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    @ExceptionHandler(value = {
+            AuthorizationDeniedException.class,
+            ResourceNotOwnedException.class
+    })
     ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(Exception ex, HttpServletRequest request) {
         return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN, request);
     }
