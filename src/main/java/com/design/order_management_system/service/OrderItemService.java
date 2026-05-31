@@ -36,8 +36,14 @@ public class OrderItemService {
         var userId = user.getUserId();
         log.debug("Add order item attempted; userId={}", userId);
 
+        var draftOrder = orderService.getDraftOrder(userId);
+        var orderId = draftOrder.getId();
+
         var productId = orderItemRequest.getProductId();
         var quantity = orderItemRequest.getQuantity();
+
+        var lockedOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
+
         var product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> {
                     log.warn("Add order item failed; userId={} productId={} reason=product_not_found", userId, productId);
@@ -48,11 +54,6 @@ public class OrderItemService {
                     );
                 });
         validateStockAvailability(userId, product, quantity);
-
-        var draftOrder = orderService.getDraftOrder(userId);
-        var orderId = draftOrder.getId();
-
-        var lockedOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
 
         product.setReservedStock(product.getReservedStock() + quantity);
 
@@ -93,17 +94,6 @@ public class OrderItemService {
         var userId = user.getUserId();
         log.debug("Edit order item attempted; userId={}", userId);
 
-        var productId = orderItemRequest.getProductId();
-        var product = productRepository.findByIdForUpdate(productId)
-                .orElseThrow(() -> {
-                    log.warn("Edit order item failed; userId={} productId={} reason=product_not_found", userId, productId);
-                    return new ResourceNotFoundException(
-                            CommonConstants.PRODUCT,
-                            "id",
-                            String.valueOf(productId)
-                    );
-                });
-
         var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                 .orElseThrow(() -> {
                     log.warn("Edit order item failed; userId={} reason=order_not_found", userId);
@@ -115,6 +105,8 @@ public class OrderItemService {
                 });
         var orderId = draftOrder.getId();
 
+        var productId = orderItemRequest.getProductId();
+
         var lockedOrderItem = orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)
                 .orElseThrow(() -> {
                     log.warn("Edit order item failed; userId={} orderId={} productId={} reason=order_item_not_found", userId, orderId, productId);
@@ -124,8 +116,8 @@ public class OrderItemService {
                             String.format("(%s, %s)", orderId, productId)
                     );
                 });
-        var orderItemId = lockedOrderItem.getId();
 
+        var orderItemId = lockedOrderItem.getId();
         var orderItem = draftOrder.getOrderItems()
                 .stream()
                 .filter(item -> Objects.equals(item.getId(), orderItemId))
@@ -134,6 +126,16 @@ public class OrderItemService {
                     log.error("Edit order item failed; userId={} orderId={} orderItemId={} productId={} reason=order_item_unexpectedly_missing",
                             userId, orderId, orderItemId, productId);
                     return new IllegalStateException(String.format("Order item with ID %s unexpectedly missing", orderItemId));
+                });
+
+        var product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> {
+                    log.warn("Edit order item failed; userId={} productId={} reason=product_not_found", userId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.PRODUCT,
+                            "id",
+                            String.valueOf(productId)
+                    );
                 });
 
         var quantityDelta = orderItemRequest.getQuantity() - orderItem.getQuantity();
@@ -160,16 +162,6 @@ public class OrderItemService {
         var userId = user.getUserId();
         log.debug("Remove order item attempted; userId={}", userId);
 
-        var product = productRepository.findByIdForUpdate(productId)
-                .orElseThrow(() -> {
-                    log.warn("Delete order item failed; userId={} productId={} reason=product_not_found", userId, productId);
-                    return new ResourceNotFoundException(
-                            CommonConstants.PRODUCT,
-                            "id",
-                            String.valueOf(productId)
-                    );
-                });
-
         var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                 .orElseThrow(() -> {
                     log.warn("Delete order item failed; userId={} reason=order_not_found", userId);
@@ -192,6 +184,16 @@ public class OrderItemService {
                     );
                 });
         var orderItemId = orderItem.getId();
+
+        var product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> {
+                    log.warn("Delete order item failed; userId={} productId={} reason=product_not_found", userId, productId);
+                    return new ResourceNotFoundException(
+                            CommonConstants.PRODUCT,
+                            "id",
+                            String.valueOf(productId)
+                    );
+                });
 
         product.setReservedStock(product.getReservedStock() - orderItem.getQuantity());
 

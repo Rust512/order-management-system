@@ -10,7 +10,6 @@ import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
-import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
 import com.design.order_management_system.repository.ProductRepository;
@@ -27,9 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -70,21 +67,27 @@ class OrderItemServiceTest {
             the addOrderItem method should throw a ResourceNotFoundException
             """)
     void addOrderItem_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var orderId = 1L;
         var productId = 2L;
         var orderItemRequest = OrderItemRequest.builder()
                 .productId(productId)
                 .quantity(1L)
                 .build();
+        var order = createOrder(orderId);
 
+        when(orderService.getDraftOrder(USER_ID)).thenReturn(order);
+        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.empty());
         when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderItemService.addOrderItem(orderItemRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.PRODUCT, "id", productId));
 
+        verify(orderService).getDraftOrder(USER_ID);
+        verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
         verify(productRepository).findByIdForUpdate(productId);
-        verifyNoMoreInteractions(productRepository);
-        verifyNoInteractions(orderService, orderItemRepository, orderRepository, orderToOrderResponse);
+        verifyNoMoreInteractions(orderService, orderItemRepository, productRepository);
+        verifyNoInteractions(orderRepository, orderToOrderResponse);
     }
 
     @Test
@@ -93,6 +96,7 @@ class OrderItemServiceTest {
             the addOrderItem method should throw a InsufficientResourcesException
             """)
     void addOrderItem_WhenProductStockInsufficient_ShouldThrowInsufficientResourcesException() {
+        var orderId = 1L;
         var productId = 2L;
         var stock = 3L;
         var reservedStock = 2L;
@@ -109,15 +113,78 @@ class OrderItemServiceTest {
                 .quantity(requestedQuantity)
                 .build();
 
+        var order = createOrder(orderId);
+
+        when(orderService.getDraftOrder(USER_ID)).thenReturn(order);
+        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.empty());
         when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
 
         Assertions.assertThatThrownBy(() -> orderItemService.addOrderItem(orderItemRequest))
                 .isInstanceOf(InsufficientResourcesException.class)
-                .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT, "stock - reserved_stock", requestedQuantity, product.getAvailableStock()));
+                .hasMessage(String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT,
+                        "stock - reserved_stock",
+                        requestedQuantity,
+                        product.getAvailableStock()));
 
+        verify(orderService).getDraftOrder(USER_ID);
+        verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
         verify(productRepository).findByIdForUpdate(productId);
         verifyNoMoreInteractions(productRepository);
-        verifyNoInteractions(orderService, orderItemRepository, orderRepository, orderToOrderResponse);
+        verifyNoInteractions(orderRepository, orderToOrderResponse);
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the draft order corresponding to the logged in user ID does not exist,
+            the editOrderItem method should throw a ResourceNotFoundException
+            """)
+    void editOrderItem_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var productId = 2L;
+        var orderItemRequest = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(1L)
+                .build();
+
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "userId", USER_ID));
+
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
+        verifyNoMoreInteractions(orderRepository);
+        verifyNoInteractions(orderItemRepository, productRepository, orderToOrderResponse);
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the order item corresponding to the requested product ID does not exist,
+            the editOrderItem method should throw a ResourceNotFoundException
+            """)
+    void editOrderItem_WhenOrderItemDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var productId = 2L;
+        var orderItemRequest = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(1L)
+                .build();
+        var orderId = 3L;
+        var order = createOrder(orderId);
+
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.empty());
+
+        var expectedMessage = String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER_ITEM,
+                "(orderId, productId)",
+                String.format("(%s, %s)", orderId, productId));
+
+        Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(expectedMessage);
+
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
+        verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
+        verifyNoMoreInteractions(orderRepository, orderItemRepository);
+        verifyNoInteractions(productRepository, orderToOrderResponse);
     }
 
     @Test
@@ -131,99 +198,24 @@ class OrderItemServiceTest {
                 .productId(productId)
                 .quantity(1L)
                 .build();
+        var orderId = 1L;
+        var order = createOrder(orderId);
+        var orderItemId = 3L;
+        var orderItem = createOrderItem(orderItemId, 3L, BigDecimal.TWO);
+        order.addOrderItem(orderItem);
 
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.of(orderItem));
         when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.PRODUCT, "id", productId));
 
-        verify(productRepository).findByIdForUpdate(productId);
-        verifyNoMoreInteractions(productRepository);
-        verifyNoInteractions(orderRepository, orderItemRepository, orderToOrderResponse);
-    }
-
-    @Test
-    @DisplayName(value = """
-            If the draft order corresponding to the logged in user ID does not exist,
-            the editOrderItem method should throw a ResourceNotFoundException
-            """)
-    void editOrderItem_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
-        var productId = 2L;
-        var stock = 3L;
-        var product = Product.builder()
-                .id(productId)
-                .name("lkweroiudsf809x8cvkj23l")
-                .price(BigDecimal.TEN)
-                .stock(stock)
-                .reservedStock(0L)
-                .build();
-        var orderItemRequest = OrderItemRequest.builder()
-                .productId(productId)
-                .quantity(1L)
-                .build();
-
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
-        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
-
-        Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "userId", USER_ID));
-
-        verify(productRepository).findByIdForUpdate(productId);
-        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
-        verifyNoMoreInteractions(productRepository, orderRepository);
-        verifyNoInteractions(orderItemRepository, orderToOrderResponse);
-    }
-
-    @Test
-    @DisplayName(value = """
-            If the order item corresponding to the requested product ID does not exist,
-            the editOrderItem method should throw a ResourceNotFoundException
-            """)
-    void editOrderItem_WhenOrderItemDoesNotExist_ShouldThrowResourceNotFoundException() {
-        var productId = 2L;
-        var stock = 3L;
-        var product = Product.builder()
-                .id(productId)
-                .name("lkweroiudsf809x8cvkj23l")
-                .price(BigDecimal.TEN)
-                .stock(stock)
-                .reservedStock(0L)
-                .build();
-        var orderItemRequest = OrderItemRequest.builder()
-                .productId(productId)
-                .quantity(1L)
-                .build();
-        var user = User.builder()
-                .id(USER_ID)
-                .username(GeneratorUtils.generateUUID())
-                .password("wre987sd98kejrkwmner")
-                .roles(Set.of())
-                .build();
-        var orderId = 3L;
-        var order = Order.builder()
-                .id(orderId)
-                .orderStatus(OrderStatus.CREATED)
-                .user(user)
-                .build();
-
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
-        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
-        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.empty());
-
-        var expectedMessage = String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER_ITEM,
-                "(orderId, productId)",
-                String.format("(%s, %s)", orderId, productId));
-
-        Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(expectedMessage);
-
-        verify(productRepository).findByIdForUpdate(productId);
         verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
-        verifyNoMoreInteractions(productRepository, orderRepository, orderItemRepository);
+        verify(productRepository).findByIdForUpdate(productId);
+        verifyNoMoreInteractions(orderRepository, orderItemRepository, productRepository);
         verifyNoInteractions(orderToOrderResponse);
     }
 
@@ -245,25 +237,17 @@ class OrderItemServiceTest {
                 .stock(stock)
                 .reservedStock(reservedStock)
                 .build();
-        var user = User.builder()
-                .id(USER_ID)
-                .username(GeneratorUtils.generateUUID())
-                .password("wre987sd98kejrkwmner")
-                .roles(Set.of())
-                .build();
+        var availableStock = stock - reservedStock;
         var orderItemId = 4L;
         var quantity = 2L;
         var orderItem = OrderItem.builder()
-                .id(orderItemId).product(product)
+                .id(orderItemId)
+                .product(product)
                 .quantity(quantity)
                 .purchasePrice(productPrice)
                 .build();
         var orderId = 3L;
-        var order = Order.builder()
-                .id(orderId)
-                .orderStatus(OrderStatus.CREATED)
-                .user(user)
-                .build();
+        var order = createOrder(orderId);
         order.addOrderItem(orderItem);
         var updatedQuantity = 4L;
         var orderItemRequest = OrderItemRequest.builder()
@@ -271,14 +255,14 @@ class OrderItemServiceTest {
                 .quantity(updatedQuantity)
                 .build();
 
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
         when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
         when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.of(orderItem));
+        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
 
         var expectedMessage = String.format(ErrorMessageConstants.INSUFFICIENT_RESOURCES, CommonConstants.PRODUCT,
                 "stock - reserved_stock",
                 updatedQuantity - quantity,
-                product.getAvailableStock());
+                availableStock);
 
         Assertions.assertThatThrownBy(() -> orderItemService.editOrderItem(orderItemRequest))
                 .isInstanceOf(InsufficientResourcesException.class)
@@ -293,50 +277,21 @@ class OrderItemServiceTest {
 
     @Test
     @DisplayName(value = """
-            If the product corresponding to the given product ID doesn't exist,
-            The removeOrderItem method should throw a ResourceNotFoundException
-            """)
-    void removeOrderItem_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
-        var productId = 2L;
-
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.empty());
-
-        Assertions.assertThatThrownBy(() -> orderItemService.removeOrderItem(productId))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.PRODUCT, "id", productId));
-
-        verify(productRepository).findByIdForUpdate(productId);
-        verifyNoMoreInteractions(productRepository);
-        verifyNoInteractions(orderRepository, orderItemRepository, orderToOrderResponse);
-    }
-
-    @Test
-    @DisplayName(value = """
             If the draft order corresponding to the logged in user ID does not exist,
             the removeOrderItem method should throw a ResourceNotFoundException
             """)
     void removeOrderItem_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
         var productId = 2L;
-        var stock = 3L;
-        var product = Product.builder()
-                .id(productId)
-                .name("lkweroiudsf809x8cvkj23l")
-                .price(BigDecimal.TEN)
-                .stock(stock)
-                .reservedStock(0L)
-                .build();
 
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
         when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderItemService.removeOrderItem(productId))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "userId", USER_ID));
 
-        verify(productRepository).findByIdForUpdate(productId);
         verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
-        verifyNoMoreInteractions(productRepository, orderRepository);
-        verifyNoInteractions(orderItemRepository, orderToOrderResponse);
+        verifyNoMoreInteractions(orderRepository);
+        verifyNoInteractions(productRepository, orderItemRepository, orderToOrderResponse);
     }
 
     @Test
@@ -346,29 +301,9 @@ class OrderItemServiceTest {
             """)
     void removeOrderItem_WhenOrderItemDoesNotExist_ShouldThrowResourceNotFoundException() {
         var productId = 2L;
-        var stock = 3L;
-        var product = Product.builder()
-                .id(productId)
-                .name("lkweroiudsf809x8cvkj23l")
-                .price(BigDecimal.TEN)
-                .stock(stock)
-                .reservedStock(0L)
-                .build();
-        var user = User.builder()
-                .id(USER_ID)
-                .username(GeneratorUtils.generateUUID())
-                .password("wre987sd98kejrkwmner")
-                .roles(Set.of())
-                .build();
         var orderId = 3L;
-        var order = Order.builder()
-                .id(orderId)
-                .orderStatus(OrderStatus.CREATED)
-                .user(user)
-                .orderItems(List.of())
-                .build();
+        var order = createOrder(orderId);
 
-        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.of(product));
         when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
         when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.empty());
 
@@ -380,10 +315,51 @@ class OrderItemServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(expectedMessage);
 
-        verify(productRepository).findByIdForUpdate(productId);
         verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
-        verifyNoMoreInteractions(productRepository, orderRepository, orderItemRepository);
+        verifyNoMoreInteractions(orderRepository, orderItemRepository);
+        verifyNoInteractions(productRepository, orderToOrderResponse);
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the product corresponding to the given product ID doesn't exist,
+            The removeOrderItem method should throw a ResourceNotFoundException
+            """)
+    void removeOrderItem_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var productId = 2L;
+        var orderId = 3L;
+        var order = createOrder(orderId);
+        var orderItemId = 4L;
+        var orderItem = createOrderItem(orderItemId, 2L, BigDecimal.ONE);
+
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findByOrder_IdAndProduct_IdForUpdate(orderId, productId)).thenReturn(Optional.of(orderItem));
+        when(productRepository.findByIdForUpdate(productId)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> orderItemService.removeOrderItem(productId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.PRODUCT, "id", productId));
+
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
+        verify(orderItemRepository).findByOrder_IdAndProduct_IdForUpdate(orderId, productId);
+        verify(productRepository).findByIdForUpdate(productId);
+        verifyNoMoreInteractions(orderRepository, orderItemRepository, productRepository);
         verifyNoInteractions(orderToOrderResponse);
+    }
+
+    private Order createOrder(Long orderId) {
+        return Order.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.CREATED)
+                .build();
+    }
+
+    private OrderItem createOrderItem(Long orderItemId, Long quantity, BigDecimal price) {
+        return OrderItem.builder()
+                .id(orderItemId)
+                .quantity(quantity)
+                .purchasePrice(price)
+                .build();
     }
 }
