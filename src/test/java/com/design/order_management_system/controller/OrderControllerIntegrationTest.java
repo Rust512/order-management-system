@@ -140,6 +140,7 @@ public class OrderControllerIntegrationTest extends DatabaseTest {
                     .orElseThrow();
 
             Assertions.assertThat(persistedOrder.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
+            Assertions.assertThat(persistedOrder.getOrderItems()).hasSize(1);
         });
     }
 
