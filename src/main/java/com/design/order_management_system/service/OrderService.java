@@ -117,7 +117,7 @@ public class OrderService {
         var draftOrder = orderRepository.fetchDraftOrderByUserIdForUpdate(userId, OrderStatus.CREATED)
                 .orElseThrow(() -> {
                     log.warn("Order checkout failed; userId={} reason=order_not_found", userId);
-                    return new ResourceNotFoundException(CommonConstants.ORDER, "id", String.valueOf(userId));
+                    return new ResourceNotFoundException(CommonConstants.ORDER, "user_id", String.valueOf(userId));
                 });
         var orderId = draftOrder.getId();
 
