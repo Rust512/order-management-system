@@ -285,4 +285,61 @@ class OrderServiceTest {
         verifyNoInteractions(productRepository, orderToOrderResponse);
         TestSecurityUtils.clearAuthenticationContext();
     }
+
+    @Test
+    @DisplayName(value = """
+            If the draft order corresponding to the logged in user ID does not exist,
+            the cancelOrder method should throw a ResourceNotFoundException
+            """)
+    void cancelOrder_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> orderService.cancelOrder())
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "user_id", USER_ID));
+
+        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verifyNoMoreInteractions(orderRepository);
+        verifyNoInteractions(orderItemRepository, productRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the draft order corresponding to the logged in user ID does exists without any items,
+            the cancelOrder method should return an order response after updating the order status to CANCELLED.
+            """)
+    void cancelOrder_WhenDraftOrderExistsWithNoItems_ShouldReturnAfterUpdatingOrderStatus() {
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+
+        var orderId = 1L;
+        var order = Order.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.CREATED)
+                .build();
+
+        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findAllByOrder_IdForRead(orderId)).thenReturn(Collections.emptyList());
+
+        var result = orderService.cancelOrder();
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.getOrderId()).isEqualTo(orderId);
+        Assertions.assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
+
+        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderItemRepository).findAllByOrder_IdForRead(orderId);
+
+        var draftOrderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderToOrderResponse).apply(draftOrderCaptor.capture());
+
+        var updatedOrder = draftOrderCaptor.getValue();
+        Assertions.assertThat(updatedOrder.getId()).isEqualTo(orderId);
+        Assertions.assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
+        Assertions.assertThat(updatedOrder.getOrderItems()).isEmpty();
+
+        verifyNoMoreInteractions(orderRepository, orderToOrderResponse, orderItemRepository);
+        verifyNoInteractions(productRepository);
+        TestSecurityUtils.clearAuthenticationContext();
+    }
 }
