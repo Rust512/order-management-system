@@ -70,4 +70,9 @@ public class OrderController {
     ResponseEntity<OrderResponse> checkout() {
         return ResponseEntity.ok(orderService.checkoutOrder());
     }
+
+    @DeleteMapping
+    ResponseEntity<OrderResponse> cancelOrder() {
+        return ResponseEntity.ok(orderService.cancelOrder());
+    }
 }

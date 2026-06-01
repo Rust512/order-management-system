@@ -150,4 +150,47 @@ public class OrderService {
 
         return orderToOrderResponse.apply(draftOrder);
     }
+
+    @Transactional
+    public OrderResponse cancelOrder() {
+        var userId = SecurityUtils.getPrincipalUser().getUserId();
+
+        log.debug("Order cancel attempted; userId={}", userId);
+
+        var draftOrder = orderRepository.fetchDraftOrderByUserIdForUpdate(userId, OrderStatus.CREATED)
+                .orElseThrow(() -> {
+                    log.warn("Order cancel failed; userId={} reason=order_not_found", userId);
+                    return new ResourceNotFoundException(CommonConstants.ORDER, "user_id", String.valueOf(userId));
+                });
+        var orderId = draftOrder.getId();
+
+        var orderItems = orderItemRepository.findAllByOrder_IdForRead(orderId);
+
+        if (orderItems.isEmpty()) {
+            draftOrder.setOrderStatus(OrderStatus.CANCELLED);
+            log.info("Order cancel succeeded; userId={} orderId={}", userId, orderId);
+            return orderToOrderResponse.apply(draftOrder);
+        }
+
+        var productIdToOrderItemMap = orderItems.stream()
+                .collect(Collectors.toMap(item -> item.getProduct().getId(), Function.identity()));
+
+        var productIds = productIdToOrderItemMap.keySet()
+                .stream()
+                .sorted()
+                .toList();
+
+        productRepository.findAllByIdInForWrite(productIds)
+                .forEach(product -> {
+                    var item = productIdToOrderItemMap.get(product.getId());
+                    var quantity = item.getQuantity();
+                    product.setReservedStock(product.getReservedStock() - quantity);
+                });
+
+        draftOrder.setOrderStatus(OrderStatus.CANCELLED);
+
+        log.info("Order cancel succeeded; userId={} orderId={}", userId, orderId);
+
+        return orderToOrderResponse.apply(draftOrder);
+    }
 }
