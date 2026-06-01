@@ -9,7 +9,9 @@ import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.model.security.User;
+import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
+import com.design.order_management_system.repository.ProductRepository;
 import com.design.order_management_system.repository.UserRepository;
 import com.design.order_management_system.utils.GeneratorUtils;
 import com.design.order_management_system.utils.TestSecurityUtils;
@@ -23,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +35,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -42,14 +46,20 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
     @Mock
+    private OrderItemRepository orderItemRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
     private OrderItemToOrderItemResponse orderItemToOrderItemResponse;
     private OrderToOrderResponse orderToOrderResponse;
     private OrderService orderService;
 
+    private static final long USER_ID = 2L;
+
     @BeforeEach
     void setUp() {
         orderToOrderResponse = spy(new OrderToOrderResponse(orderItemToOrderItemResponse));
-        orderService = new OrderService(userRepository, orderRepository, orderToOrderResponse);
+        orderService = new OrderService(userRepository, orderRepository, orderToOrderResponse, orderItemRepository, productRepository);
     }
 
     @Test
@@ -59,8 +69,7 @@ class OrderServiceTest {
             """)
     void getOrderById_WhenUserIsAdminAndOrderFound_ShouldReturnTheCorrespondingOrder() {
         var orderId = 1L;
-        var userId = 2L;
-        TestSecurityUtils.setAuthenticationContext(userId, GeneratorUtils.generateUUID(), CommonConstants.ROLE_ADMIN);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_ADMIN);
 
         var order = Order.builder()
                 .id(orderId)
@@ -80,11 +89,12 @@ class OrderServiceTest {
 
         var orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository).getOrderByIdWithItems(orderId);
-        verify(orderRepository, never()).getOrderByIdAndUserIdWithItems(orderId, userId);
+        verify(orderRepository, never()).getOrderByIdAndUserIdWithItems(orderId, USER_ID);
         verify(orderToOrderResponse).apply(orderCaptor.capture());
 
         Assertions.assertThat(orderCaptor.getValue()).isEqualTo(order);
         verifyNoMoreInteractions(orderRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 
     @Test
@@ -94,8 +104,7 @@ class OrderServiceTest {
             """)
     void getOrderById_WhenUserIsAdminAndOrderNotFound_ShouldThrowResourceNotFoundException() {
         var orderId = 1L;
-        var userId = 2L;
-        TestSecurityUtils.setAuthenticationContext(userId, GeneratorUtils.generateUUID(), CommonConstants.ROLE_ADMIN);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_ADMIN);
 
         when(orderRepository.getOrderByIdWithItems(orderId)).thenReturn(Optional.empty());
 
@@ -107,6 +116,7 @@ class OrderServiceTest {
 
         verify(orderRepository).getOrderByIdWithItems(orderId);
         verifyNoMoreInteractions(orderRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 
     @Test
@@ -116,8 +126,7 @@ class OrderServiceTest {
             """)
     void getOrderById_WhenUserNotAdminAndOrderFound_ShouldReturnTheCorrespondingOrder() {
         var orderId = 1L;
-        var userId = 2L;
-        TestSecurityUtils.setAuthenticationContext(userId, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
 
         var order = Order.builder()
                 .id(orderId)
@@ -126,7 +135,7 @@ class OrderServiceTest {
                 .build();
 
         when(orderRepository.existsById(orderId)).thenReturn(true);
-        when(orderRepository.getOrderByIdAndUserIdWithItems(orderId, userId)).thenReturn(Optional.of(order));
+        when(orderRepository.getOrderByIdAndUserIdWithItems(orderId, USER_ID)).thenReturn(Optional.of(order));
 
         var orderResponse = orderService.getOrderById(orderId);
         Assertions.assertThat(orderResponse).isNotNull();
@@ -138,11 +147,12 @@ class OrderServiceTest {
 
         var orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository, never()).getOrderByIdWithItems(orderId);
-        verify(orderRepository).getOrderByIdAndUserIdWithItems(orderId, userId);
+        verify(orderRepository).getOrderByIdAndUserIdWithItems(orderId, USER_ID);
         verify(orderToOrderResponse).apply(orderCaptor.capture());
 
         Assertions.assertThat(orderCaptor.getValue()).isEqualTo(order);
         verifyNoMoreInteractions(orderRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 
     @Test
@@ -152,8 +162,7 @@ class OrderServiceTest {
             """)
     void getOrderById_WhenUserNotAdminAndOrderNotFound_ShouldThrowResourceNotFoundException() {
         var orderId = 1L;
-        var userId = 2L;
-        TestSecurityUtils.setAuthenticationContext(userId, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
 
         when(orderRepository.existsById(orderId)).thenReturn(false);
 
@@ -165,6 +174,7 @@ class OrderServiceTest {
 
         verify(orderRepository).existsById(orderId);
         verifyNoMoreInteractions(orderRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 
     @Test
@@ -175,21 +185,21 @@ class OrderServiceTest {
             """)
     void getOrderById_WhenUserNotAdminAndOrderFoundButNowOwned_ShouldThrowResourceNotFoundException() {
         var orderId = 1L;
-        var userId = 2L;
-        TestSecurityUtils.setAuthenticationContext(userId, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
 
         when(orderRepository.existsById(orderId)).thenReturn(true);
-        when(orderRepository.getOrderByIdAndUserIdWithItems(orderId, userId)).thenReturn(Optional.empty());
+        when(orderRepository.getOrderByIdAndUserIdWithItems(orderId, USER_ID)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderService.getOrderById(orderId))
                 .isInstanceOf(ResourceNotOwnedException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_OWNED, CommonConstants.ORDER,
                         "id",
                         orderId,
-                        userId));
+                        USER_ID));
 
         verify(orderRepository).existsById(orderId);
         verifyNoMoreInteractions(orderRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 
     @Test
@@ -198,9 +208,8 @@ class OrderServiceTest {
             The getDraftOrder method should return the concurrently created draft order after handling DataIntegrityViolationException.
             """)
     void getDraftOrder_WhenConcurrentSaveOccurs_ShouldReturnExistingOrder() {
-        var userId = 1L;
         var user = User.builder()
-                .id(userId).username(GeneratorUtils.generateUUID()).password("lkjsemr,xc9809w").roles(Set.of()).build();
+                .id(USER_ID).username(GeneratorUtils.generateUUID()).password("lkjsemr,xc9809w").roles(Set.of()).build();
         var orderId = 1L;
         var order = Order.builder()
                 .id(orderId)
@@ -209,18 +218,18 @@ class OrderServiceTest {
                 .orderItems(List.of())
                 .build();
 
-        when(orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED))
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(order));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(orderRepository.save(any(Order.class))).thenThrow(new DataIntegrityViolationException("concurrent creation"));
 
-        var result = orderService.getDraftOrder(userId);
+        var result = orderService.getDraftOrder(USER_ID);
 
         Assertions.assertThat(result).isEqualTo(order);
 
-        verify(orderRepository, times(2)).fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED);
-        verify(userRepository).findById(userId);
+        verify(orderRepository, times(2)).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
+        verify(userRepository).findById(USER_ID);
 
         var saveOrderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository).save(saveOrderArgumentCaptor.capture());
@@ -228,5 +237,52 @@ class OrderServiceTest {
         Assertions.assertThat(failedOrder.getOrderStatus()).isEqualTo(OrderStatus.CREATED);
         Assertions.assertThat(failedOrder.getOrderItems()).isEmpty();
         Assertions.assertThat(failedOrder.getUser()).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the draft order corresponding to the logged in user ID does not exist,
+            the checkoutOrder method should throw a ResourceNotFoundException
+            """)
+    void checkoutOrder_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> orderService.checkoutOrder())
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "user_id", USER_ID));
+
+        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verifyNoMoreInteractions(orderRepository);
+        verifyNoInteractions(orderItemRepository, productRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
+    }
+
+    @Test
+    @DisplayName(value = """
+            If the draft order corresponding to the logged in user ID does not have any order items in it,
+            the checkoutOrder method should throw a ResourceNotFoundException
+            """)
+    void checkoutOrder_WhenDraftOrderIsEmpty_ShouldThrowResourceNotFoundException() {
+        TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
+
+        var orderId = 1L;
+        var order = Order.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.CREATED)
+                .build();
+
+        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findAllByOrder_IdForRead(orderId)).thenReturn(Collections.emptyList());
+
+        Assertions.assertThatThrownBy(() -> orderService.checkoutOrder())
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER_ITEM, "order_id", orderId));
+
+        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderItemRepository).findAllByOrder_IdForRead(orderId);
+        verifyNoMoreInteractions(orderRepository, orderItemRepository);
+        verifyNoInteractions(productRepository, orderToOrderResponse);
+        TestSecurityUtils.clearAuthenticationContext();
     }
 }
