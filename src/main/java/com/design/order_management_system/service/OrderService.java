@@ -29,7 +29,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderToOrderResponse orderToOrderResponse;
     private final OrderItemRepository orderItemRepository;
-    private final ProductService productService;
     private final ProductRepository productRepository;
 
     public OrderResponse getOrderById(Long id) {
