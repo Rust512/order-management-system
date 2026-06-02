@@ -48,15 +48,15 @@ class ProductControllerIntegrationTest extends DatabaseTest {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private ProductRepository productRepository;
 
     private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
     private static final String ADMIN_PASSWORD = "ADM@4103";
     private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
     private static final String NORMAL_PASSWORD = "NRL@5896";
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-    @Autowired
-    private ProductRepository productRepository;
 
     @BeforeAll
     void beforeAll() {
