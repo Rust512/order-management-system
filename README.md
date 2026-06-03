@@ -10,7 +10,8 @@ The application supports:
 - Role-Based Access Control (RBAC)
 - User Management
 - Product Management
-- Order Registration
+- Product audit logs
+- Cart management
 - Stock Validation
 - Pagination
 - Centralized Exception Handling
@@ -47,7 +48,9 @@ Built while surviving Spring Security pain 😵‍💫
 
 ### Order Management
 
-- Register orders
+- Register add item to cart
+- Update item in cart
+- remove item from cart
 - Automatic stock deduction
 - Inventory validation
 - Prevention of negative stock
@@ -69,6 +72,14 @@ Built while surviving Spring Security pain 😵‍💫
 - Repository testing
 - Controller validation testing
 - Transaction behavior testing
+
+### Tests
+
+- Unit tests
+- Integration tests
+- Happy-path tests
+- Negative tests
+- 100% branch coverage (From JaCoco report)
 
 ---
 
@@ -100,6 +111,7 @@ Built while surviving Spring Security pain 😵‍💫
 - **Mockito**
 - **Spring Boot Test**
 - **MockMvc**
+- **JaCoCo**
 
 ---
 
@@ -115,16 +127,18 @@ Controller → Service → Repository → Database
 
 ```text
 src/main/java
-├── controller
-├── service
-├── repository
-├── model
+├── advice
+├── config
+├── constants
+├── converter
 ├── documentation
 ├── dto
-├── converter
-├── security
 ├── exception
-├── config
+├── factory
+├── model
+├── repository
+├── security
+├── service
 └── utils
 ```
 
@@ -300,14 +314,6 @@ docker compose up postgres-db -d
 ```
 3.1.2 Run spring boot app from IntelliJ IDEA using the `dev` profile.
 
-### Seeded Admin Credentials
-
-Use the following credentials to test secured endpoints:
-
-| Username | Password  | Role  |
-|----------| --------- | ----- |
-| admin    | Admin@123 | ADMIN |
-
 ### Stopping the Application
 
 To stop the containers:
@@ -347,10 +353,12 @@ The PostgreSQL volume persistence is enabled; your data will remain intact betwe
 
 ### Orders
 
-| Method | Endpoint          |
-| ------ | ----------------- |
-| POST   | `/v1/orders`      |
-| GET    | `/v1/orders/{id}` |
+| Method | Endpoint                       |
+|--------|--------------------------------|
+| POST   | `/v1/orders/items`             |
+| PUT    | `/v1/orders/items`             |
+| DELETE | `/v1/orders/items/{productId}` |
+| GET    | `/v1/orders/{id}`              |
 
 ---
 
@@ -392,16 +400,23 @@ The project currently includes:
 * Controller Validation Tests
 * Transaction Tests
 * Security-related test utilities
+* 100% branch coverage
 
-**Current test count: 55 tests** ✅
+**Current test count: 84 tests** ✅
 
 Testing helped catch regressions during refactors — including a logging change that unexpectedly introduced a security context dependency 😄
 
 Run tests using:
 
 ```bash
-mvn test
+mvn clean test
+
 ```
+
+**How to get the coverage report?**
+
+After running the tests using above steps, open the `target/site/index.html` file in a browser.
+This opens the JaCoCo test coverage report.
 
 ---
 
@@ -434,6 +449,7 @@ Planned improvements include:
 * Rate limiting for authentication and sensitive endpoints
 * API caching for read-heavy endpoints
 * Email/notification integration for operational workflows
+* Order Audit logs.
 
 ---
 
@@ -474,5 +490,4 @@ Along the way:
 
 And somehow... it became a backend worth shipping 🚀
 
-```
-```
+---
