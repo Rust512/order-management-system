@@ -6,7 +6,7 @@ import com.design.order_management_system.model.security.RevokedToken;
 import com.design.order_management_system.repository.RevokedTokenRepository;
 import com.design.order_management_system.utils.HashUtils;
 import com.design.order_management_system.utils.SecurityUtils;
-import com.design.order_management_system.utils.TestSecurityUtils;
+import com.design.order_management_system.test_utils.TestSecurityUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

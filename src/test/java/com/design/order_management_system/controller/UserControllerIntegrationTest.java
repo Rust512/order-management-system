@@ -11,9 +11,8 @@ import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
-import com.design.order_management_system.utils.GeneratorUtils;
+import com.design.order_management_system.test_utils.GeneratorUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,6 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
-import java.util.UUID;
 
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

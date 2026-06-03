@@ -7,7 +7,7 @@ import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.model.security.User;
-import com.design.order_management_system.utils.GeneratorUtils;
+import com.design.order_management_system.test_utils.GeneratorUtils;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceUtil;
 import org.assertj.core.api.Assertions;
@@ -18,7 +18,6 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @DataJpaTest
 class OrderRepositoryTest extends DatabaseTest {

@@ -10,7 +10,7 @@ import com.design.order_management_system.exception.RevokedTokenException;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
-import com.design.order_management_system.utils.GeneratorUtils;
+import com.design.order_management_system.test_utils.GeneratorUtils;
 import io.jsonwebtoken.MalformedJwtException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

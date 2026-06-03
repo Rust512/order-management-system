@@ -1,4 +1,4 @@
-package com.design.order_management_system.utils;
+package com.design.order_management_system.test_utils;
 
 import java.util.UUID;
 
