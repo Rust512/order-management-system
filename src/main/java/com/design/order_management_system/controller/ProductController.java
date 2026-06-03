@@ -1,6 +1,7 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.documentation.annotation.AdminErrorResponses;
+import com.design.order_management_system.documentation.annotation.BadRequest;
 import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
 import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
@@ -136,14 +137,6 @@ public class ProductController {
             )
     )
     @ApiResponse(
-            responseCode = "400",
-            description = "Validation failed",
-            content = @Content(
-                    schema = @Schema(implementation = ApiErrorResponse.class),
-                    examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
-            )
-    )
-    @ApiResponse(
             responseCode = "401",
             description = "Authentication required",
             content = @Content(
@@ -151,6 +144,7 @@ public class ProductController {
                     examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN)
             )
     )
+    @BadRequest
     ResponseEntity<PagedResponse<ProductResponse>> getProducts(
             @RequestParam
             @Parameter(

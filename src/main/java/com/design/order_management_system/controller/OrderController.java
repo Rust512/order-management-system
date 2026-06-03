@@ -1,6 +1,7 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
+import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.response.OrderResponse;
@@ -10,8 +11,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,11 +70,73 @@ public class OrderController {
     }
 
     @PostMapping(path = "/checkout")
+    @Operation(
+            summary = "Checkout draft order",
+            description = """
+                    This API confirms the draft order corresponding to the logged-in user
+                    and updates the stock of all products corresponding to the items in the order.
+                    """,
+            requestBody = @RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Order checkout successful",
+                            content = @Content(
+                                    schema = @Schema(implementation = OrderResponse.class),
+                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Order not found",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_NOT_FOUND)
+                            )
+                    )
+            }
+    )
     ResponseEntity<OrderResponse> checkout() {
         return ResponseEntity.ok(orderService.checkoutOrder());
     }
 
     @DeleteMapping
+    @Operation(
+            summary = "Cancel draft order",
+            description = """
+                    This API cancels the draft order corresponding to the logged-in user
+                    and releases the reserved stock of all products corresponding to the items in the order.
+                    """,
+            requestBody = @RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Order checkout successful",
+                            content = @Content(
+                                    schema = @Schema(implementation = OrderResponse.class),
+                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Order not found",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_NOT_FOUND)
+                            )
+                    )
+            }
+    )
     ResponseEntity<OrderResponse> cancelOrder() {
         return ResponseEntity.ok(orderService.cancelOrder());
     }

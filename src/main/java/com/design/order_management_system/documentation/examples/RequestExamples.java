@@ -32,6 +32,13 @@ public class RequestExamples {
             }
             """;
 
+    public static final String ORDER_REQUEST = """
+            {
+                "dProductId": 1,
+                "dQuantity": 1
+            }
+            """;
+
     public static final String REGISTER_ORDER = """
             {
                 "aOrderItems": [
