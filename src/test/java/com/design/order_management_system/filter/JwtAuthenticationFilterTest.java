@@ -174,7 +174,7 @@ class JwtAuthenticationFilterTest extends DatabaseTest {
         var headers = new HttpHeaders();
         headers.setBearerAuth(token);
         var logoutRequest = new HttpEntity<>(headers);
-        ResponseEntity<String> loginResponse = this.restTemplate.postForEntity("/auth/logout", logoutRequest, String.class);
-        Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        ResponseEntity<String> logoutResponse = this.restTemplate.postForEntity("/auth/logout", logoutRequest, String.class);
+        Assertions.assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
