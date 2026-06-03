@@ -44,14 +44,15 @@ Built while surviving Spring Security pain 😵‍💫
 - Update product information
 - Stock management
 - Duplicate product prevention
-- Get Product audit entries
+- Product audit history
 
 ### Order Management
 
-- Register add item to cart
-- Update item in cart
-- remove item from cart
-- Automatic stock deduction
+- Add item to cart
+- Update cart item quantity
+- Remove item from cart
+- Order checkout
+- Order cancellation
 - Inventory validation
 - Prevention of negative stock
 - Insufficient resource handling
@@ -79,7 +80,7 @@ Built while surviving Spring Security pain 😵‍💫
 - Integration tests
 - Happy-path tests
 - Negative tests
-- 100% branch coverage (From JaCoco report)
+- 91% instruction coverage and 100% branch coverage (From JaCoco report)
 
 ---
 
@@ -219,7 +220,7 @@ POST /auth/logout
 The application ships with a seeded admin account for testing.
 
 | Username | Password  | Role  |
-| -------- | --------- | ----- |
+|----------|-----------|-------|
 | ADMIN    | Admin@123 | ADMIN |
 
 These credentials are intentionally exposed for demonstration and testing purposes.
@@ -243,14 +244,7 @@ Ensure the following are installed:
 * Docker
 * Docker Compose
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Rust512/order-management-system.git
-cd order-management-system
-```
-
-### 2. Create the environment file
+### 1. Create the environment file
 
 Copy:
 
@@ -274,9 +268,9 @@ DB_USERNAME=postgres
 DB_PASSWORD=your_password
 ```
 
-### 3. Start the application
+### 2. Start the application
 
-#### 3.1 Using Docker (Recommended)
+#### 2.1 Using Docker (Recommended)
 
 Run:
 
@@ -305,14 +299,14 @@ http://localhost:8080/swagger-ui/index.html
 
 ```
 
-#### 3.2 Local development
+#### 2.2 Local development
 
-3.1.1 Start postgres container:
+-  Start postgres container:
 
 ```bash
 docker compose up postgres-db -d
 ```
-3.1.2 Run spring boot app from IntelliJ IDEA using the `dev` profile.
+-  Run spring boot app from IntelliJ IDEA using the `dev` profile.
 
 ### Stopping the Application
 
@@ -331,20 +325,20 @@ The PostgreSQL volume persistence is enabled; your data will remain intact betwe
 ### Authentication
 
 | Method | Endpoint       |
-| ------ |----------------|
+|--------|----------------|
 | POST   | `/auth/login`  |
 | POST   | `/auth/logout` |
 
 ### Users
 
 | Method | Endpoint    |
-| ------ | ----------- |
+|--------|-------------|
 | POST   | `/v1/users` |
 
 ### Products
 
 | Method | Endpoint                            |
-| ------ |-------------------------------------|
+|--------|-------------------------------------|
 | POST   | `/v1/products`                      |
 | PUT    | `/v1/products/{id}`                 |
 | GET    | `/v1/products`                      |
@@ -359,6 +353,61 @@ The PostgreSQL volume persistence is enabled; your data will remain intact betwe
 | PUT    | `/v1/orders/items`             |
 | DELETE | `/v1/orders/items/{productId}` |
 | GET    | `/v1/orders/{id}`              |
+| POST   | `/v1/orders/checkout`          |
+| DELETE | `/v1/orders`                   |
+
+---
+
+## Cart workflow
+
+### NOTES:
+
+**1. This application ensures that a user can have no more than one orders with status `CREATED` (This will be referred to as a `draft order`).**
+
+**2. Product reserved stock is always greater than zero and less than or equal to the stock**
+
+### 1. Add item to a cart
+
+If a user calls the `POST /v1/orders/items` API, if no draft order exists, a draft order will be created, and the provided order item
+will be added to the new draft order.
+
+If a draft order exists, and no order item has the same product ID as provided in the request, a new order item is added to the existing draft order.
+
+If a draft order exists, and an order item with the provided product ID exists, the order item purchase price will be synchronized with the current product price.
+Also, the quantity in the existing order item will be increased by exactly the provided quantity in the request body.
+
+### 2. Edit item in cart
+
+This API updates the draft order corresponding to the logged-in user.
+
+If a user calls the `PUT /v1/orders/items` API, the quantity in the order item corresponding to the provided product ID will be updated with the provided quantity
+Also, the purchase price will be synchronized with the current product price.
+
+### 3. Remove item from cart
+
+If a user calls the `DELETE /v1/orders/items/{productId}` API, the order item corresponding to the provided product ID will be deleted from the
+draft order corresponding to the logged-in user
+
+**Up to this point, only the reserved stock in a product is updated.**
+
+### 4. Checkout order
+
+If a user calls the `POST /v1/orders/checkout` API, the order status of the draft order corresponding to the logged-in user
+is updated to `CONFIRMED`.
+
+For all products corresponding to all order items in the draft order, the stock and reserved stock is updated.
+
+stock ← stock - quantity
+
+reserved_stock ← reserved_stock - quantity
+
+### 5. Cancel order
+
+Cancels the user's active draft order.
+
+For all products corresponding to all order items in the draft order, the reserved stock is updated. The stock remains unchanged.
+
+reserved_stock ← reserved_stock - quantity
 
 ---
 
@@ -400,9 +449,12 @@ The project currently includes:
 * Controller Validation Tests
 * Transaction Tests
 * Security-related test utilities
-* 100% branch coverage
 
 **Current test count: 84 tests** ✅
+
+### JaCoCo coverage:
+* 91% instruction coverage 😝
+* 100% branch coverage 🤩
 
 Testing helped catch regressions during refactors — including a logging change that unexpectedly introduced a security context dependency 😄
 
@@ -415,7 +467,7 @@ mvn clean test
 
 **How to get the coverage report?**
 
-After running the tests using above steps, open the `target/site/index.html` file in a browser.
+After running the tests using above steps, open the `target/site/jacoco/index.html` file in a browser.
 This opens the JaCoCo test coverage report.
 
 ---
@@ -426,7 +478,10 @@ The application includes structured logging for:
 
 * Authentication attempts
 * Product registration & updates
-* Order registration
+* Product audit history
+* Cart operations
+* Order checkout
+* Cancel order
 * Security failures
 * Resource lookup failures
 * Business rule violations
@@ -449,7 +504,6 @@ Planned improvements include:
 * Rate limiting for authentication and sensitive endpoints
 * API caching for read-heavy endpoints
 * Email/notification integration for operational workflows
-* Order Audit logs.
 
 ---
 
