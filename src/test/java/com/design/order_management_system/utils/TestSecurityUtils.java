@@ -27,4 +27,8 @@ public class TestSecurityUtils {
     public static void clearAuthenticationContext() {
         SecurityContextHolder.clearContext();
     }
+    
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 }
