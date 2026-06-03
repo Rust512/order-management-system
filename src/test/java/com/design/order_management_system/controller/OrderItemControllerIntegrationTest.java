@@ -227,8 +227,7 @@ public class OrderItemControllerIntegrationTest extends DatabaseTest {
                 .build();
 
         var updateRequest = new HttpEntity<>(updateRequestBody, headers);
-        URI uri = UriComponentsBuilder.fromUriString("/v1/orders/items/{productId}").buildAndExpand(productId).toUri();
-        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange(uri, HttpMethod.PUT, updateRequest, OrderResponse.class);
+        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange("/v1/orders/items", HttpMethod.PUT, updateRequest, OrderResponse.class);
 
         Assertions.assertThat(updatedResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(updatedResponse.getBody()).isNotNull();
@@ -285,8 +284,7 @@ public class OrderItemControllerIntegrationTest extends DatabaseTest {
                 .build();
 
         var updateRequest = new HttpEntity<>(updateRequestBody, headers);
-        URI uri = UriComponentsBuilder.fromUriString("/v1/orders/items/{productId}").buildAndExpand(productId).toUri();
-        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange(uri, HttpMethod.PUT, updateRequest, OrderResponse.class);
+        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange("/v1/orders/items", HttpMethod.PUT, updateRequest, OrderResponse.class);
 
         Assertions.assertThat(updatedResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(updatedResponse.getBody()).isNotNull();

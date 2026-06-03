@@ -70,7 +70,7 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemService.addOrderItem(orderItemRequest));
     }
 
-    @PutMapping(path = "/{productId}")
+    @PutMapping
     @Operation(
             summary = "Update order item",
             description = """
@@ -103,7 +103,7 @@ public class OrderItemController {
             }
     )
     @BadRequest
-    ResponseEntity<OrderResponse> editOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest, @PathVariable Long productId) {
+    ResponseEntity<OrderResponse> editOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
         return ResponseEntity.ok(orderItemService.editOrderItem(orderItemRequest));
     }
 
