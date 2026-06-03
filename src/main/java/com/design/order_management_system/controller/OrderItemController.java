@@ -1,85 +1,49 @@
 package com.design.order_management_system.controller;
 
+import com.design.order_management_system.documentation.annotation.BadRequest;
 import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
 import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
+import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.response.OrderResponse;
-import com.design.order_management_system.service.OrderService;
+import com.design.order_management_system.service.OrderItemService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/v1/orders")
-public class OrderController {
+@RequestMapping(path = "/v1/orders/items")
+public class OrderItemController {
+    private final OrderItemService orderItemService;
 
-    private final OrderService orderService;
-
-    @GetMapping(path = "/{id}")
+    @PostMapping
     @Operation(
-            summary = "Fetch order by ID",
+            summary = "Add order item",
             description = """
-                    Fetch an order by ID.
-                    If the user has the ADMIN authority, they can fetch any order.
-                    If the user does not have the ADMIN authority, the order will be fetched only if
-                    the user owns the order.
+                    This API adds an order item to the draft order corresponding to the logged in user.
+                    If none of the existing items correspond to the provided product ID, a new item entry is added.
+                    If an order item with the provided product ID exists,
+                    the quantity is increased (old quantity + provided quantity) and price are updated.
                     """,
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Order fetch successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = OrderResponse.class),
-                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Order not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_NOT_FOUND)
-                            )
-                    )
-            }
-    )
-    ResponseEntity<OrderResponse> getOrder(
-            @PathVariable
-            @Parameter(
-                    description = "The order ID",
-                    example = "2"
-            )
-            Long id
-    ) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
-    }
-
-    @PostMapping(path = "/checkout")
-    @Operation(
-            summary = "Checkout draft order",
-            description = """
-                    This API confirms the draft order corresponding to the logged-in user
-                    and updates the stock of all products corresponding to the items in the order.
-                    """,
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
+                            examples = @ExampleObject(value = RequestExamples.ORDER_REQUEST)
                     )
             ),
             responses = {
@@ -101,21 +65,22 @@ public class OrderController {
                     )
             }
     )
-    ResponseEntity<OrderResponse> checkout() {
-        return ResponseEntity.ok(orderService.checkoutOrder());
+    @BadRequest
+    ResponseEntity<OrderResponse> addOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
+        return ResponseEntity.ok(orderItemService.addOrderItem(orderItemRequest));
     }
 
-    @DeleteMapping
+    @PutMapping
     @Operation(
-            summary = "Cancel draft order",
+            summary = "Update order item",
             description = """
-                    This API cancels the draft order corresponding to the logged-in user
-                    and releases the reserved stock of all products corresponding to the items in the order.
+                    This API updates the product price and quantity of the order item corresponding to the
+                    provided product ID in the draft order corresponding to the logged-in user.
                     """,
-            requestBody = @RequestBody(
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = RequestExamples.REGISTER_ORDER)
+                            examples = @ExampleObject(value = RequestExamples.ORDER_REQUEST)
                     )
             ),
             responses = {
@@ -137,7 +102,38 @@ public class OrderController {
                     )
             }
     )
-    ResponseEntity<OrderResponse> cancelOrder() {
-        return ResponseEntity.ok(orderService.cancelOrder());
+    @BadRequest
+    ResponseEntity<OrderResponse> editOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
+        return ResponseEntity.ok(orderItemService.editOrderItem(orderItemRequest));
+    }
+
+    @DeleteMapping(path = "/{productId}")
+    @Operation(
+            summary = "Remove order item",
+            description = """
+                    This API removes the item corresponding to the provided product ID
+                    in the draft order corresponding to the logged-in user.
+                    """,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Order checkout successful",
+                            content = @Content(
+                                    schema = @Schema(implementation = OrderResponse.class),
+                                    examples = @ExampleObject(value = ResponseExamples.REGISTER_ORDER)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Order not found",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_NOT_FOUND)
+                            )
+                    )
+            }
+    )
+    ResponseEntity<OrderResponse> deleteOrderItem(@PathVariable Long productId) {
+        return ResponseEntity.ok(orderItemService.removeOrderItem(productId));
     }
 }

@@ -1,7 +1,8 @@
 package com.design.order_management_system.controller;
 
-import com.design.order_management_system.config.DataSeeder;
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
+import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
 import com.design.order_management_system.dto.request.CreateUserRequest;
 import com.design.order_management_system.dto.request.LoginRequest;
@@ -10,8 +11,8 @@ import com.design.order_management_system.dto.response.UserResponse;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
+import com.design.order_management_system.test_utils.GeneratorUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ import java.util.List;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerIntegrationTest {
+class UserControllerIntegrationTest extends DatabaseTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -42,20 +43,18 @@ class UserControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private List<Long> userIds;
-
     private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
-    private static final String ADMIN_USERNAME = "A";
+    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
     private static final String ADMIN_PASSWORD = "ADM@4103";
-    private static final String NORMAL_USERNAME = "B";
+    private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
     private static final String NORMAL_PASSWORD = "NRL@5896";
 
     @BeforeAll
     void beforeAll() {
         var adminRole = roleRepository.findByName(CommonConstants.ROLE_ADMIN)
-                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
         var normalRole = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(DataSeeder.ROLE_USER_WAS_NOT_SEEDED));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
         var adminUser = User.builder()
                 .username(ADMIN_USERNAME)
                 .password(passwordEncoder.encode(ADMIN_PASSWORD))
@@ -66,15 +65,7 @@ class UserControllerIntegrationTest {
                 .password(passwordEncoder.encode(NORMAL_PASSWORD))
                 .build();
         normalUser.addRole(normalRole);
-        userIds = userRepository.saveAll(List.of(adminUser, normalUser))
-                .stream()
-                .map(User::getId)
-                .toList();
-    }
-
-    @AfterAll
-    void afterAll() {
-        userRepository.deleteAllById(userIds);
+        userRepository.saveAll(List.of(adminUser, normalUser));
     }
 
     @Test

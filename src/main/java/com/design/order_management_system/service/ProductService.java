@@ -88,12 +88,12 @@ public class ProductService {
                 });
 
         String newProductName = productUpdateRequest.getNewProductName();
-        if (newProductName != null && !newProductName.equalsIgnoreCase(product.getName())) {
+        if (newProductName != null) {
             product.setName(newProductName);
         }
 
         BigDecimal updatedPrice = productUpdateRequest.getUpdatedPrice();
-        if (updatedPrice != null && updatedPrice.compareTo(product.getPrice()) != 0) {
+        if (updatedPrice != null) {
             product.setPrice(updatedPrice);
         }
 

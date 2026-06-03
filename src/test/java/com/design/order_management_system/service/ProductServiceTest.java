@@ -7,9 +7,10 @@ import com.design.order_management_system.converter.ProductToProductResponse;
 import com.design.order_management_system.dto.request.CreateProductRequest;
 import com.design.order_management_system.dto.request.ProductUpdateRequest;
 import com.design.order_management_system.exception.DuplicateResourceException;
+import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.repository.ProductRepository;
-import com.design.order_management_system.utils.TestSecurityUtils;
+import com.design.order_management_system.test_utils.TestSecurityUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,6 +82,27 @@ class ProductServiceTest {
         verify(productRepository, never()).save(any());
         verifyNoMoreInteractions(productRepository);
         verifyNoInteractions(createProductRequestToProduct, productToProductResponse);
+    }
+
+    @Test
+    @DisplayName(value = """
+            When the updateProduct request received a product ID that does not exist,
+            the service should throw a ResourceNotFoundException.
+            """)
+    void updateProduct_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        Long productId = 1L;
+        var updateProductRequest = ProductUpdateRequest.builder()
+                .build();
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        Assertions.assertThatThrownBy(() -> productService.updateProduct(productId, updateProductRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.PRODUCT, "id", productId));
+
+        verify(productRepository).findById(productId);
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(productAuditEntryService, productToProductResponse);
     }
 
     @Test

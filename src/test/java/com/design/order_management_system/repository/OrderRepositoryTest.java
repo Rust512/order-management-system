@@ -1,12 +1,13 @@
 package com.design.order_management_system.repository;
 
+import com.design.order_management_system.config.DatabaseTest;
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
 import com.design.order_management_system.model.enumeration.OrderStatus;
-import com.design.order_management_system.model.security.Role;
 import com.design.order_management_system.model.security.User;
+import com.design.order_management_system.test_utils.GeneratorUtils;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceUtil;
 import org.assertj.core.api.Assertions;
@@ -19,11 +20,15 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import java.math.BigDecimal;
 
 @DataJpaTest
-class OrderRepositoryTest {
+class OrderRepositoryTest extends DatabaseTest {
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private static final PersistenceUtil PERSISTENCE_UTIL = Persistence.getPersistenceUtil();
 
@@ -40,11 +45,12 @@ class OrderRepositoryTest {
                 .build()
         );
 
-        var role = entityManager.persist(Role.builder().name(CommonConstants.ROLE_USER).build());
-        var user0 = User.builder().username("U0").password("P0").build();
+        var role = roleRepository.findByName(CommonConstants.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("Role not found"));
+        var user0 = User.builder().username(GeneratorUtils.generateUUID()).password("P0").build();
         user0.addRole(role);
         var savedUser0 = entityManager.persist(user0);
-        var user1 = User.builder().username("U1").password("P1").build();
+        var user1 = User.builder().username(GeneratorUtils.generateUUID()).password("P1").build();
         user1.addRole(role);
         var savedUser1 = entityManager.persist(user1);
 
@@ -76,7 +82,8 @@ class OrderRepositoryTest {
             given order ID does not exist, it should return an empty Optional object.
             """)
     void getOrderByIdAndUserIdWithItems_WhenOrderDoesNotExist_ShouldReturnEmpty() {
-        var role = entityManager.persist(Role.builder().name(CommonConstants.ROLE_USER).build());
+        var role = roleRepository.findByName(CommonConstants.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("Role not found"));
         var user0 = User.builder().username("U0").password("P0").build();
         user0.addRole(role);
         var savedUser0 = entityManager.persist(user0);
@@ -108,7 +115,8 @@ class OrderRepositoryTest {
                 .build()
         );
 
-        var role = entityManager.persist(Role.builder().name(CommonConstants.ROLE_USER).build());
+        var role = roleRepository.findByName(CommonConstants.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("Role not found"));
         var user0 = User.builder().username("U0").password("P0").build();
         user0.addRole(role);
         var savedUser0 = entityManager.persist(user0);

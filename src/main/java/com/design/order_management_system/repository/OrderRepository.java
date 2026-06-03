@@ -1,8 +1,11 @@
 package com.design.order_management_system.repository;
 
 import com.design.order_management_system.model.domain.Order;
+import com.design.order_management_system.model.enumeration.OrderStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
@@ -31,4 +34,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "orderItems.product",
     })
     Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
+
+    @Query(value = """
+            SELECT o
+            FROM Order o
+            INNER JOIN o.user u
+            WHERE u.id = :userId
+            AND o.orderStatus = :orderStatus
+            """)
+    @EntityGraph(attributePaths = {"orderItems"})
+    Optional<Order> fetchDraftOrderWithOrderItems(Long userId, OrderStatus orderStatus);
+    
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(value = """
+            SELECT o
+            FROM Order o
+            WHERE o.user.id = :userId
+            AND o.orderStatus = :orderStatus
+            """)
+    Optional<Order> fetchDraftOrderByUserIdForUpdate(Long userId, OrderStatus orderStatus);
 }

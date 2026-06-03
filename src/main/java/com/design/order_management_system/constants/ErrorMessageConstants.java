@@ -1,6 +1,8 @@
 package com.design.order_management_system.constants;
 
 public class ErrorMessageConstants {
+    public static final String ROLE_USER_WAS_NOT_SEEDED = "ROLE_USER was not seeded";
+
     private ErrorMessageConstants() {
     }
     public static final String ALREADY_EXISTS = "Resource %s with %s matching %s already exists";
@@ -10,4 +12,5 @@ public class ErrorMessageConstants {
     public static final String PRODUCT_STOCK_CANNOT_BE_NEGATIVE = "Product stock cannot be negative";
     public static final String BEARER_TOKEN_MISSING = "Bearer Token missing";
     public static final String BLACKLISTED_TOKEN = "Blacklisted Token";
+    public static final String RESOURCE_NOT_OWNED = "Resource %s with %s matching %s not owned by %s";
 }

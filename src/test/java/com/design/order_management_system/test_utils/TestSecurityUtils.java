@@ -1,4 +1,4 @@
-package com.design.order_management_system.utils;
+package com.design.order_management_system.test_utils;
 
 import com.design.order_management_system.model.security.PrincipalUser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,5 +26,9 @@ public class TestSecurityUtils {
 
     public static void clearAuthenticationContext() {
         SecurityContextHolder.clearContext();
+    }
+    
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }
