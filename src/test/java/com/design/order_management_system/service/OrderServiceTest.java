@@ -51,6 +51,8 @@ class OrderServiceTest {
     private ProductRepository productRepository;
     @Mock
     private OrderItemToOrderItemResponse orderItemToOrderItemResponse;
+    @Mock
+    private OrderAuditEntryService orderAuditEntryService;
     private OrderToOrderResponse orderToOrderResponse;
     private OrderService orderService;
 
@@ -59,7 +61,7 @@ class OrderServiceTest {
     @BeforeEach
     void setUp() {
         orderToOrderResponse = spy(new OrderToOrderResponse(orderItemToOrderItemResponse));
-        orderService = new OrderService(userRepository, orderRepository, orderToOrderResponse, orderItemRepository, productRepository);
+        orderService = new OrderService(userRepository, orderRepository, orderToOrderResponse, orderItemRepository, productRepository, orderAuditEntryService);
     }
 
     @Test

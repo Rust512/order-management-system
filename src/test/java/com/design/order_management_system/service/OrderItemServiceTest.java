@@ -45,6 +45,8 @@ class OrderItemServiceTest {
     private ProductRepository productRepository;
     @Mock
     private OrderToOrderResponse orderToOrderResponse;
+    @Mock
+    private OrderAuditEntryService orderAuditEntryService;
 
     @InjectMocks
     private OrderItemService orderItemService;
