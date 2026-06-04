@@ -8,6 +8,7 @@ import com.design.order_management_system.exception.InsufficientResourcesExcepti
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.Product;
+import com.design.order_management_system.model.enumeration.OrderOperation;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
@@ -29,6 +30,7 @@ public class OrderItemService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final OrderToOrderResponse orderToOrderResponse;
+    private final OrderAuditEntryService orderAuditEntryService;
 
     @Transactional
     public OrderResponse addOrderItem(OrderItemRequest orderItemRequest) {
@@ -58,6 +60,7 @@ public class OrderItemService {
         product.setReservedStock(product.getReservedStock() + quantity);
 
         OrderItem orderItem;
+        OrderOperation operation;
         if (lockedOrderItem.isPresent()) {
             var orderItemId = lockedOrderItem.get()
                     .getId();
@@ -71,6 +74,7 @@ public class OrderItemService {
                     });
             orderItem.setQuantity(orderItem.getQuantity() + quantity);
             orderItem.setPurchasePrice(product.getPrice());
+            operation = OrderOperation.EDIT_ITEM;
         } else {
             log.info("Creating new order item; userId={} productId={} orderId={}", userId, productId, orderId);
             orderItem = OrderItem.builder()
@@ -79,9 +83,12 @@ public class OrderItemService {
                     .purchasePrice(product.getPrice())
                     .build();
             draftOrder.addOrderItem(orderItem);
+            operation = OrderOperation.ADD_ITEM;
         }
 
         var savedOrder = orderRepository.save(draftOrder);
+
+        orderAuditEntryService.saveOrderAuditEntry(userId, savedOrder, operation);
 
         log.info("Order item added; userId={} orderId={} productId={} quantity={}", userId, orderId, productId, quantity);
 
@@ -150,6 +157,8 @@ public class OrderItemService {
 
         var savedOrder = orderRepository.save(draftOrder);
 
+        orderAuditEntryService.saveOrderAuditEntry(userId, savedOrder, OrderOperation.EDIT_ITEM);
+
         log.info("Order item edited; userId={} orderId={} orderItemId={} productId={} quantity={}",
                 userId, orderId, orderItemId, productId, orderItemRequest.getQuantity());
 
@@ -201,6 +210,8 @@ public class OrderItemService {
                 .removeIf(item -> Objects.equals(item.getId(), orderItemId));
 
         var savedOrder = orderRepository.save(draftOrder);
+
+        orderAuditEntryService.saveOrderAuditEntry(orderId, savedOrder, OrderOperation.REMOVE_ITEM);
 
         log.info("Order item deleted; userId={} productId={} orderId={} orderItemId={}",
                 userId, productId, orderId, orderItemId);

@@ -6,6 +6,7 @@ import com.design.order_management_system.dto.response.OrderResponse;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.model.domain.Order;
+import com.design.order_management_system.model.enumeration.OrderOperation;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.repository.OrderItemRepository;
 import com.design.order_management_system.repository.OrderRepository;
@@ -30,6 +31,7 @@ public class OrderService {
     private final OrderToOrderResponse orderToOrderResponse;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final OrderAuditEntryService orderAuditEntryService;
 
     public OrderResponse getOrderById(Long id) {
         var principalUser = SecurityUtils.getPrincipalUser();
@@ -98,6 +100,8 @@ public class OrderService {
             var savedOrder = orderRepository.save(order);
             var orderId = savedOrder.getId();
 
+            orderAuditEntryService.saveOrderAuditEntry(userId, savedOrder, OrderOperation.CREATE_ORDER);
+
             log.info("Draft order retrieved; userId={} orderId={}", userId, orderId);
             return savedOrder;
         } catch (DataIntegrityViolationException ex) {
@@ -146,6 +150,8 @@ public class OrderService {
 
         draftOrder.setOrderStatus(OrderStatus.CONFIRMED);
 
+        orderAuditEntryService.saveOrderAuditEntry(userId, draftOrder, OrderOperation.CHECKOUT);
+
         log.info("Order checkout success; userId={} orderId={}", userId, orderId);
 
         return orderToOrderResponse.apply(draftOrder);
@@ -188,6 +194,8 @@ public class OrderService {
                 });
 
         draftOrder.setOrderStatus(OrderStatus.CANCELLED);
+
+        orderAuditEntryService.saveOrderAuditEntry(userId, draftOrder, OrderOperation.CANCEL);
 
         log.info("Order cancel succeeded; userId={} orderId={}", userId, orderId);
 
