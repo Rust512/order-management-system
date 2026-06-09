@@ -35,6 +35,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     })
     Optional<Order> getOrderByIdAndUserIdWithItems(Long orderId, Long userId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = """
             SELECT o
             FROM Order o

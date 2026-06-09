@@ -211,7 +211,7 @@ public class OrderItemService {
 
         var savedOrder = orderRepository.save(draftOrder);
 
-        orderAuditEntryService.saveOrderAuditEntry(orderId, savedOrder, OrderOperation.REMOVE_ITEM);
+        orderAuditEntryService.saveOrderAuditEntry(userId, savedOrder, OrderOperation.REMOVE_ITEM);
 
         log.info("Order item deleted; userId={} productId={} orderId={} orderItemId={}",
                 userId, productId, orderId, orderItemId);
