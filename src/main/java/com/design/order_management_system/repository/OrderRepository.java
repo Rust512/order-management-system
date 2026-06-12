@@ -43,7 +43,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             WHERE u.id = :userId
             AND o.orderStatus = :orderStatus
             """)
-    @EntityGraph(attributePaths = {"orderItems"})
+    @EntityGraph(attributePaths = {
+            "orderItems",
+            "orderItems.product"
+    })
     Optional<Order> fetchDraftOrderWithOrderItems(Long userId, OrderStatus orderStatus);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
