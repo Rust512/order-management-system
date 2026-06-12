@@ -118,7 +118,7 @@ public class OrderService {
 
         log.debug("Order checkout attempted; userId={}", userId);
 
-        var draftOrder = orderRepository.fetchDraftOrderByUserIdForUpdate(userId, OrderStatus.CREATED)
+        var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                 .orElseThrow(() -> {
                     log.warn("Order checkout failed; userId={} reason=order_not_found", userId);
                     return new ResourceNotFoundException(CommonConstants.ORDER, "user_id", String.valueOf(userId));
@@ -163,7 +163,7 @@ public class OrderService {
 
         log.debug("Order cancel attempted; userId={}", userId);
 
-        var draftOrder = orderRepository.fetchDraftOrderByUserIdForUpdate(userId, OrderStatus.CREATED)
+        var draftOrder = orderRepository.fetchDraftOrderWithOrderItems(userId, OrderStatus.CREATED)
                 .orElseThrow(() -> {
                     log.warn("Order cancel failed; userId={} reason=order_not_found", userId);
                     return new ResourceNotFoundException(CommonConstants.ORDER, "user_id", String.valueOf(userId));

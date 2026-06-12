@@ -248,13 +248,13 @@ class OrderServiceTest {
             """)
     void checkoutOrder_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
         TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
-        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderService.checkoutOrder())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "user_id", USER_ID));
 
-        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verifyNoMoreInteractions(orderRepository);
         verifyNoInteractions(orderItemRepository, productRepository, orderToOrderResponse);
         TestSecurityUtils.clearAuthenticationContext();
@@ -274,14 +274,14 @@ class OrderServiceTest {
                 .orderStatus(OrderStatus.CREATED)
                 .build();
 
-        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
         when(orderItemRepository.findAllByOrder_IdForRead(orderId)).thenReturn(Collections.emptyList());
 
         Assertions.assertThatThrownBy(() -> orderService.checkoutOrder())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER_ITEM, "order_id", orderId));
 
-        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verify(orderItemRepository).findAllByOrder_IdForRead(orderId);
         verifyNoMoreInteractions(orderRepository, orderItemRepository);
         verifyNoInteractions(productRepository, orderToOrderResponse);
@@ -295,13 +295,13 @@ class OrderServiceTest {
             """)
     void cancelOrder_WhenDraftOrderDoesNotExist_ShouldThrowResourceNotFoundException() {
         TestSecurityUtils.setAuthenticationContext(USER_ID, GeneratorUtils.generateUUID(), CommonConstants.ROLE_USER);
-        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> orderService.cancelOrder())
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage(String.format(ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.ORDER, "user_id", USER_ID));
 
-        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verifyNoMoreInteractions(orderRepository);
         verifyNoInteractions(orderItemRepository, productRepository, orderToOrderResponse);
         TestSecurityUtils.clearAuthenticationContext();
@@ -321,7 +321,7 @@ class OrderServiceTest {
                 .orderStatus(OrderStatus.CREATED)
                 .build();
 
-        when(orderRepository.fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
+        when(orderRepository.fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED)).thenReturn(Optional.of(order));
         when(orderItemRepository.findAllByOrder_IdForRead(orderId)).thenReturn(Collections.emptyList());
 
         var result = orderService.cancelOrder();
@@ -329,7 +329,7 @@ class OrderServiceTest {
         Assertions.assertThat(result.getOrderId()).isEqualTo(orderId);
         Assertions.assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
 
-        verify(orderRepository).fetchDraftOrderByUserIdForUpdate(USER_ID, OrderStatus.CREATED);
+        verify(orderRepository).fetchDraftOrderWithOrderItems(USER_ID, OrderStatus.CREATED);
         verify(orderItemRepository).findAllByOrder_IdForRead(orderId);
 
         var draftOrderCaptor = ArgumentCaptor.forClass(Order.class);

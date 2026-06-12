@@ -60,7 +60,7 @@ public class OrderAuditEntry {
 
     @JdbcTypeCode(value = SqlTypes.JSON)
     @Column(columnDefinition = "JSONB")
-    private String snapshot;
+    private OrderSnapshot snapshot;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

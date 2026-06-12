@@ -3,14 +3,12 @@ package com.design.order_management_system.service;
 import com.design.order_management_system.model.domain.OrderItem;
 import com.design.order_management_system.model.domain.OrderItemSnapshot;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.function.Function;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderItemSnapshotService implements Function<OrderItem, OrderItemSnapshot> {

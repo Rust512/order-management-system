@@ -1,29 +1,30 @@
 package com.design.order_management_system.service;
 
 import com.design.order_management_system.constants.CommonConstants;
-import com.design.order_management_system.converter.OrderToOrderResponse;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.domain.OrderAuditEntry;
+import com.design.order_management_system.model.domain.OrderSnapshot;
 import com.design.order_management_system.model.enumeration.OrderOperation;
 import com.design.order_management_system.repository.OrderAuditEntryRepository;
 import com.design.order_management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderAuditEntryService {
-    private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final OrderToOrderResponse orderToOrderResponse;
     private final OrderAuditEntryRepository orderAuditEntryRepository;
+    private final OrderItemSnapshotService orderItemSnapshotService;
 
-    @Transactional
+    @Transactional(propagation = Propagation.MANDATORY)
     public void saveOrderAuditEntry(Long userId, Order order, OrderOperation operation) {
         var orderId = order.getId();
         var user = userRepository.findById(userId)
@@ -32,9 +33,23 @@ public class OrderAuditEntryService {
                     return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(userId));
                 });
 
-        var nextVersion = orderAuditEntryRepository.getNextAuditVersionByOrderId(order.getId());
-        var orderSnapshot = objectMapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(orderToOrderResponse.apply(order));
+        var nextVersion = orderAuditEntryRepository.getNextAuditVersionByOrderId(orderId);
+
+        var itemSnapshots = order.getOrderItems()
+                .stream()
+                .map(orderItemSnapshotService)
+                .toList();
+
+        var totalPrice = itemSnapshots.stream()
+                .map(item -> BigDecimal.valueOf(item.getQuantity()).multiply(item.getPurchasePrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        var orderSnapshot = OrderSnapshot.builder()
+                .orderId(orderId)
+                .orderStatus(order.getOrderStatus())
+                .totalPrice(totalPrice)
+                .orderItemSnapshots(itemSnapshots)
+                .build();
 
         var orderAuditEntry = OrderAuditEntry.builder()
                 .version(nextVersion)

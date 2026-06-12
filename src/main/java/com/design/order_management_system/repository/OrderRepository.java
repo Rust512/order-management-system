@@ -48,13 +48,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "orderItems.product"
     })
     Optional<Order> fetchDraftOrderWithOrderItems(Long userId, OrderStatus orderStatus);
-    
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = """
-            SELECT o
-            FROM Order o
-            WHERE o.user.id = :userId
-            AND o.orderStatus = :orderStatus
-            """)
-    Optional<Order> fetchDraftOrderByUserIdForUpdate(Long userId, OrderStatus orderStatus);
 }
