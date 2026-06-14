@@ -4,7 +4,10 @@ import com.design.order_management_system.documentation.examples.ErrorResponseEx
 import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
 import com.design.order_management_system.dto.common.ApiErrorResponse;
+import com.design.order_management_system.dto.response.OrderAuditEntryResponse;
 import com.design.order_management_system.dto.response.OrderResponse;
+import com.design.order_management_system.dto.response.PagedResponse;
+import com.design.order_management_system.service.OrderAuditEntryService;
 import com.design.order_management_system.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +17,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderAuditEntryService orderAuditEntryService;
 
     @GetMapping(path = "/{id}")
     @Operation(
@@ -139,5 +147,17 @@ public class OrderController {
     )
     ResponseEntity<OrderResponse> cancelOrder() {
         return ResponseEntity.ok(orderService.cancelOrder());
+    }
+
+    @GetMapping(path = "/{orderId}/audit")
+    ResponseEntity<PagedResponse<OrderAuditEntryResponse>> getAudit(
+            @PathVariable
+            Long orderId,
+
+            @ParameterObject
+            @PageableDefault(size = 5, sort = "version", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(orderAuditEntryService.getOrderAuditEntries(orderId, pageable));
     }
 }

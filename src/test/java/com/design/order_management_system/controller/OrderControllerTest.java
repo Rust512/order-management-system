@@ -5,6 +5,7 @@ import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.exception.ResourceNotFoundException;
 import com.design.order_management_system.exception.ResourceNotOwnedException;
+import com.design.order_management_system.service.OrderAuditEntryService;
 import com.design.order_management_system.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private OrderAuditEntryService orderAuditEntryService;
 
     @MockitoBean
     private OrderService orderService;
