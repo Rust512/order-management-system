@@ -12,6 +12,7 @@ The application supports:
 - Product Management
 - Product audit logs
 - Cart management
+- Order audit logs
 - Stock Validation
 - Pagination
 - Centralized Exception Handling
@@ -56,6 +57,7 @@ Built while surviving Spring Security pain 😵‍💫
 - Inventory validation
 - Prevention of negative stock
 - Insufficient resource handling
+- Order audit logs
 
 ### API Features
 
@@ -80,7 +82,7 @@ Built while surviving Spring Security pain 😵‍💫
 - Integration tests
 - Happy-path tests
 - Negative tests
-- 91% instruction coverage and 100% branch coverage (From JaCoco report)
+- 93% instruction coverage and 100% branch coverage (From JaCoco report)
 
 ---
 
@@ -347,14 +349,16 @@ The PostgreSQL volume persistence is enabled; your data will remain intact betwe
 
 ### Orders
 
-| Method | Endpoint                       |
-|--------|--------------------------------|
-| POST   | `/v1/orders/items`             |
-| PUT    | `/v1/orders/items`             |
-| DELETE | `/v1/orders/items/{productId}` |
-| GET    | `/v1/orders/{id}`              |
-| POST   | `/v1/orders/checkout`          |
-| DELETE | `/v1/orders`                   |
+| Method | Endpoint                               |
+|--------|----------------------------------------|
+| POST   | `/v1/orders/items`                     |
+| PUT    | `/v1/orders/items`                     |
+| DELETE | `/v1/orders/items/{productId}`         |
+| GET    | `/v1/orders/{id}`                      |
+| POST   | `/v1/orders/checkout`                  |
+| DELETE | `/v1/orders`                           |
+| GET    | `/v1/orders/{orderId}/audit`           |
+| DELETE | `/v1/orders/{orderId}/audit/{version}` |
 
 ---
 
@@ -409,6 +413,8 @@ For all products corresponding to all order items in the draft order, the reserv
 
 reserved_stock ← reserved_stock - quantity
 
+**All cart lifecycle APIs add an order audit entry to the database**
+
 ---
 
 ## Error Handling
@@ -450,10 +456,10 @@ The project currently includes:
 * Transaction Tests
 * Security-related test utilities
 
-**Current test count: 84 tests** ✅
+**Current test count: 93 tests** ✅
 
 ### JaCoCo coverage:
-* 91% instruction coverage 😝
+* 93% instruction coverage 😝
 * 100% branch coverage 🤩
 
 Testing helped catch regressions during refactors — including a logging change that unexpectedly introduced a security context dependency 😄
