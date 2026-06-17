@@ -358,7 +358,7 @@ The PostgreSQL volume persistence is enabled; your data will remain intact betwe
 | POST   | `/v1/orders/checkout`                  |
 | DELETE | `/v1/orders`                           |
 | GET    | `/v1/orders/{orderId}/audit`           |
-| DELETE | `/v1/orders/{orderId}/audit/{version}` |
+| GET    | `/v1/orders/{orderId}/audit/{version}` |
 
 ---
 
