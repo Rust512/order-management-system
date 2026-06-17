@@ -160,4 +160,15 @@ public class OrderController {
     ) {
         return ResponseEntity.ok(orderAuditEntryService.getOrderAuditEntries(orderId, pageable));
     }
+
+    @GetMapping(path = "/{orderId}/audit/{version}")
+    ResponseEntity<OrderAuditEntryResponse> getAuditByVersion(
+            @PathVariable
+            Long orderId,
+
+            @PathVariable
+            Long version
+    ) {
+        return ResponseEntity.ok(orderAuditEntryService.getOrderAuditEntryByVersion(orderId, version));
+    }
 }

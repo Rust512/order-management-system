@@ -5,6 +5,7 @@ import com.design.order_management_system.converter.OrderAuditEntryToResponse;
 import com.design.order_management_system.dto.response.OrderAuditEntryResponse;
 import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.exception.ResourceNotFoundException;
+import com.design.order_management_system.exception.ResourceNotOwnedException;
 import com.design.order_management_system.model.domain.Order;
 import com.design.order_management_system.model.domain.OrderAuditEntry;
 import com.design.order_management_system.model.domain.OrderSnapshot;
@@ -91,5 +92,35 @@ public class OrderAuditEntryService {
                 .totalElements(pages.getTotalElements())
                 .totalPages(pages.getTotalPages())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public OrderAuditEntryResponse getOrderAuditEntryByVersion(Long orderId, Long version) {
+        var principalUser = SecurityUtils.getPrincipalUser();
+        var userId = principalUser.getUserId();
+
+        if (SecurityUtils.isAdmin(principalUser)) {
+            log.debug("Get order audit entry with admin access; userId={} orderId={} version={}", userId, orderId, version);
+            return orderAuditEntryRepository.findByOrderIdAndVersion(orderId, version)
+                    .map(orderAuditEntryToResponse)
+                    .orElseThrow(() -> {
+                        log.warn("Get order audit entry failed; userId={} orderId={} version={} reason=audit_entry_not_found", userId, orderId, version);
+                        return new ResourceNotFoundException(CommonConstants.ORDER_AUDIT_ENTRY, "(orderId, version)", String.format("(%d, %d)", orderId, version));
+                    });
+        }
+
+        log.debug("Get order audit entry with ownership access; userId={} orderId={} version={}", userId, orderId, version);
+
+        if (!orderAuditEntryRepository.existsByOrderIdAndVersion(orderId, version)) {
+            log.warn("Get order audit entry failed; userId={} orderId={} version={} reason=audit_entry_not_found", userId, orderId, version);
+            throw new ResourceNotFoundException(CommonConstants.ORDER_AUDIT_ENTRY, "(orderId, version)", String.format("(%d, %d)", orderId, version));
+        }
+
+        return orderAuditEntryRepository.findByOrderIdAndUserIdAndVersion(orderId, userId, version)
+                .map(orderAuditEntryToResponse)
+                .orElseThrow(() -> {
+                    log.warn("Get order audit entry failed; userId={} orderId={} version={} reason=order_not_owned", userId, orderId, version);
+                    return new ResourceNotOwnedException(CommonConstants.ORDER_AUDIT_ENTRY, "(orderId, version)", String.format("(%d, %d)", orderId, version), userId);
+                });
     }
 }

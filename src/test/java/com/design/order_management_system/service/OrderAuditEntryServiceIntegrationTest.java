@@ -6,9 +6,11 @@ import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.dto.request.LoginRequest;
 import com.design.order_management_system.dto.request.OrderItemRequest;
 import com.design.order_management_system.dto.response.LoginResponse;
+import com.design.order_management_system.dto.response.OrderAuditEntryResponse;
 import com.design.order_management_system.dto.response.OrderResponse;
 import com.design.order_management_system.dto.response.PagedResponse;
 import com.design.order_management_system.model.domain.Product;
+import com.design.order_management_system.model.enumeration.OrderOperation;
 import com.design.order_management_system.model.enumeration.OrderStatus;
 import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.repository.OrderRepository;
@@ -49,17 +51,17 @@ class OrderAuditEntryServiceIntegrationTest extends DatabaseTest {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
-
-    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
-    private static final String ADMIN_PASSWORD = "ADM@4103";
-    private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
-    private static final String NORMAL_PASSWORD = "NRL@5896";
     @Autowired
     private ProductRepository productRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
     @Autowired
     private OrderRepository orderRepository;
+
+    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
+    private static final String ADMIN_PASSWORD = "ADM@4103";
+    private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
+    private static final String NORMAL_PASSWORD = "NRL@5896";
 
     @BeforeAll
     void beforeAll() {
@@ -324,6 +326,202 @@ class OrderAuditEntryServiceIntegrationTest extends DatabaseTest {
         Assertions.assertThat(pagedAuditLogs.getSize()).isEqualTo(size);
         Assertions.assertThat(pagedAuditLogs.getTotalElements()).isEqualTo(0);
         Assertions.assertThat(pagedAuditLogs.getTotalPages()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName(value = """
+            The GET /v1/orders/{orderId}/audit/{version} API should return the corresponding audit entry for the given order ID and version
+            regardless of ownership, if the logged-in user is an ADMIN.
+            """)
+    void getOrderAuditEntriesByVersion_WithAdminUser_ShouldReturnOrderAuditEntry() {
+        String productName = "Prd01";
+        BigDecimal productPrice = BigDecimal.TEN;
+        long stock = 6L;
+        long reservedStock = 0L;
+
+        var product = productRepository.save(Product.builder()
+                .name(productName)
+                .price(productPrice)
+                .stock(stock)
+                .reservedStock(reservedStock)
+                .build());
+        var productId = product.getId();
+        var quantity = 2L;
+
+        var createdByUserId = userRepository.findByUsername(NORMAL_USERNAME).
+                orElseThrow()
+                .getId();
+
+        var orderItemRequest = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(quantity)
+                .build();
+
+        var headers = new HttpHeaders();
+        setAuthorizationHeader(headers, NORMAL_USERNAME, NORMAL_PASSWORD);
+        var requestEntity = new HttpEntity<>(orderItemRequest, headers);
+
+
+        ResponseEntity<OrderResponse> response = restTemplate.postForEntity("/v1/orders/items", requestEntity, OrderResponse.class);
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody()).isNotNull();
+
+        var body = response.getBody();
+        Assertions.assertThat(body.getOrderId()).isNotNull();
+        var orderId = body.getOrderId();
+        validateOrderResponse(body, quantity, productPrice, productName, productId, orderId);
+
+        var updatedQuantity = 3L;
+        var updateRequestBody = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(updatedQuantity)
+                .build();
+
+        var updateRequest = new HttpEntity<>(updateRequestBody, headers);
+        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange("/v1/orders/items", HttpMethod.PUT, updateRequest, OrderResponse.class);
+
+        Assertions.assertThat(updatedResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(updatedResponse.getBody()).isNotNull();
+        var updatedResponseBody = updatedResponse.getBody();
+        Assertions.assertThat(updatedResponseBody.getOrderId()).isEqualTo(orderId);
+        validateOrderResponse(updatedResponseBody, updatedQuantity, productPrice, productName, productId, orderId);
+
+        var adminHeaders = new HttpHeaders();
+        setAuthorizationHeader(adminHeaders, ADMIN_USERNAME, ADMIN_PASSWORD);
+
+        var auditEntryRequest = new HttpEntity<>(adminHeaders);
+
+        var version = 2;
+
+        var auditLogsUri = UriComponentsBuilder.fromUriString("/v1/orders/{orderId}/audit/{version}")
+                .buildAndExpand(orderId, version)
+                .toUri();
+
+        var auditLogResponse = restTemplate.exchange(auditLogsUri, HttpMethod.GET, auditEntryRequest, OrderAuditEntryResponse.class);
+
+        Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
+
+        var orderAuditEntry = auditLogResponse.getBody();
+
+        Assertions.assertThat(orderAuditEntry.version()).isEqualTo(version);
+        Assertions.assertThat(orderAuditEntry.operation()).isEqualTo(OrderOperation.ADD_ITEM);
+        Assertions.assertThat(orderAuditEntry.createdAt()).isNotNull();
+        Assertions.assertThat(orderAuditEntry.changedByUserId()).isEqualTo(createdByUserId);
+        Assertions.assertThat(orderAuditEntry.changedByUsername()).isEqualTo(NORMAL_USERNAME);
+
+        var orderSnapshot = orderAuditEntry.snapshot();
+
+        Assertions.assertThat(orderSnapshot.getOrderId()).isEqualTo(orderId);
+        Assertions.assertThat(orderSnapshot.getOrderStatus()).isEqualTo(OrderStatus.CREATED);
+        var totalPrice = BigDecimal.valueOf(quantity).multiply(productPrice);
+        Assertions.assertThat(orderSnapshot.getTotalPrice()).isEqualByComparingTo(totalPrice);
+        Assertions.assertThat(orderSnapshot.getOrderItemSnapshots())
+                .singleElement()
+                .satisfies(orderItem -> {
+                    Assertions.assertThat(orderItem.getProductId()).isEqualTo(productId);
+                    Assertions.assertThat(orderItem.getProductName()).isEqualTo(productName);
+                    Assertions.assertThat(orderItem.getQuantity()).isEqualTo(quantity);
+                });
+    }
+
+    @Test
+    @DisplayName(value = """
+            The GET /v1/orders/{orderId}/audit/{version} API should return the corresponding audit entry for the given order ID and version
+            after checking ownership ownership, if the logged-in user is not an ADMIN.
+            """)
+    void getOrderAuditEntriesByVersion_WithoutAdminUser_ShouldReturnOrderAuditEntryIfOwned() {
+        String productName = "Prd01";
+        BigDecimal productPrice = BigDecimal.TEN;
+        long stock = 6L;
+        long reservedStock = 0L;
+
+        var product = productRepository.save(Product.builder()
+                .name(productName)
+                .price(productPrice)
+                .stock(stock)
+                .reservedStock(reservedStock)
+                .build());
+        var productId = product.getId();
+        var quantity = 2L;
+
+        var createdByUserId = userRepository.findByUsername(NORMAL_USERNAME).
+                orElseThrow()
+                .getId();
+
+        var orderItemRequest = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(quantity)
+                .build();
+
+        var headers = new HttpHeaders();
+        setAuthorizationHeader(headers, NORMAL_USERNAME, NORMAL_PASSWORD);
+        var requestEntity = new HttpEntity<>(orderItemRequest, headers);
+
+
+        ResponseEntity<OrderResponse> response = restTemplate.postForEntity("/v1/orders/items", requestEntity, OrderResponse.class);
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody()).isNotNull();
+
+        var body = response.getBody();
+        Assertions.assertThat(body.getOrderId()).isNotNull();
+        var orderId = body.getOrderId();
+        validateOrderResponse(body, quantity, productPrice, productName, productId, orderId);
+
+        var updatedQuantity = 3L;
+        var updateRequestBody = OrderItemRequest.builder()
+                .productId(productId)
+                .quantity(updatedQuantity)
+                .build();
+
+        var updateRequest = new HttpEntity<>(updateRequestBody, headers);
+        ResponseEntity<OrderResponse> updatedResponse = restTemplate.exchange("/v1/orders/items", HttpMethod.PUT, updateRequest, OrderResponse.class);
+
+        Assertions.assertThat(updatedResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(updatedResponse.getBody()).isNotNull();
+        var updatedResponseBody = updatedResponse.getBody();
+        Assertions.assertThat(updatedResponseBody.getOrderId()).isEqualTo(orderId);
+        validateOrderResponse(updatedResponseBody, updatedQuantity, productPrice, productName, productId, orderId);
+
+        var adminHeaders = new HttpHeaders();
+        setAuthorizationHeader(adminHeaders, NORMAL_USERNAME, NORMAL_PASSWORD);
+
+        var auditEntryRequest = new HttpEntity<>(adminHeaders);
+
+        var version = 2;
+
+        var auditLogsUri = UriComponentsBuilder.fromUriString("/v1/orders/{orderId}/audit/{version}")
+                .buildAndExpand(orderId, version)
+                .toUri();
+
+        var auditLogResponse = restTemplate.exchange(auditLogsUri, HttpMethod.GET, auditEntryRequest, OrderAuditEntryResponse.class);
+
+        Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
+
+        var orderAuditEntry = auditLogResponse.getBody();
+
+        Assertions.assertThat(orderAuditEntry.version()).isEqualTo(version);
+        Assertions.assertThat(orderAuditEntry.operation()).isEqualTo(OrderOperation.ADD_ITEM);
+        Assertions.assertThat(orderAuditEntry.createdAt()).isNotNull();
+        Assertions.assertThat(orderAuditEntry.changedByUserId()).isEqualTo(createdByUserId);
+        Assertions.assertThat(orderAuditEntry.changedByUsername()).isEqualTo(NORMAL_USERNAME);
+
+        var orderSnapshot = orderAuditEntry.snapshot();
+
+        Assertions.assertThat(orderSnapshot.getOrderId()).isEqualTo(orderId);
+        Assertions.assertThat(orderSnapshot.getOrderStatus()).isEqualTo(OrderStatus.CREATED);
+        var totalPrice = BigDecimal.valueOf(quantity).multiply(productPrice);
+        Assertions.assertThat(orderSnapshot.getTotalPrice()).isEqualByComparingTo(totalPrice);
+        Assertions.assertThat(orderSnapshot.getOrderItemSnapshots())
+                .singleElement()
+                .satisfies(orderItem -> {
+                    Assertions.assertThat(orderItem.getProductId()).isEqualTo(productId);
+                    Assertions.assertThat(orderItem.getProductName()).isEqualTo(productName);
+                    Assertions.assertThat(orderItem.getQuantity()).isEqualTo(quantity);
+                });
     }
 
     private void validateOrderResponse(OrderResponse body,
