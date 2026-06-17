@@ -184,7 +184,7 @@ Example request:
 
 ```json
 {
-  "sUsername": "ADMIN",
+  "sUsername": "admin",
   "sPassword": "Admin@123"
 }
 ```
@@ -221,7 +221,7 @@ The application ships with a seeded admin account for testing.
 
 | Username | Password  | Role  |
 |----------|-----------|-------|
-| ADMIN    | Admin@123 | ADMIN |
+| admin    | Admin@123 | ADMIN |
 
 These credentials are intentionally exposed for demonstration and testing purposes.
 

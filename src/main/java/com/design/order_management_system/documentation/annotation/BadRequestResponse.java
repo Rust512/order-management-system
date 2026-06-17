@@ -15,5 +15,5 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
                 examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST)
         )
 )
-public @interface BadRequest {
+public @interface BadRequestResponse {
 }

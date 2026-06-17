@@ -225,7 +225,6 @@ public class OrderController {
                     )
             }
     )
-
     ResponseEntity<OrderAuditEntryResponse> getAuditByVersion(
             @PathVariable
             @Positive
