@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -150,8 +151,38 @@ public class OrderController {
     }
 
     @GetMapping(path = "/{orderId}/audit")
+    @Operation(
+            summary = "Get audit entries",
+            description = """
+                    This API retrieves all the audit entries for the given order ID.
+                    """,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Order audit entries retrieval successful",
+                            content = @Content(
+                                    schema = @Schema(implementation = OrderResponse.class),
+                                    examples = @ExampleObject(value = ResponseExamples.GET_ORDER_AUDIT_ENTRIES)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Order not found",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_AUDIT_ENTRIES_NOT_FOUND)
+                            )
+                    )
+            }
+    )
+
     ResponseEntity<PagedResponse<OrderAuditEntryResponse>> getAudit(
             @PathVariable
+            @Positive
+            @Parameter(
+                    description = "The order ID",
+                    example = "2"
+            )
             Long orderId,
 
             @ParameterObject
@@ -162,11 +193,54 @@ public class OrderController {
     }
 
     @GetMapping(path = "/{orderId}/audit/{version}")
+    @Operation(
+            summary = "Get audit entry by version",
+            description = """
+                    This API retrieves an audit entry for the given order ID by version.
+                    """,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Order audit entries retrieval successful",
+                            content = @Content(
+                                    schema = @Schema(implementation = OrderResponse.class),
+                                    examples = @ExampleObject(value = ResponseExamples.GET_ORDER_AUDIT_ENTRY)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Order audit entry not found",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_AUDIT_ENTRIES_NOT_FOUND)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Order audit entry not owned",
+                            content = @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples = @ExampleObject(value = ErrorResponseExamples.ORDER_AUDIT_ENTRY_NOT_OWNED)
+                            )
+                    )
+            }
+    )
+
     ResponseEntity<OrderAuditEntryResponse> getAuditByVersion(
             @PathVariable
+            @Positive
+            @Parameter(
+                    description = "The order ID",
+                    example = "2"
+            )
             Long orderId,
 
             @PathVariable
+            @Positive
+            @Parameter(
+                    description = "The audit entry version",
+                    example = "3"
+            )
             Long version
     ) {
         return ResponseEntity.ok(orderAuditEntryService.getOrderAuditEntryByVersion(orderId, version));

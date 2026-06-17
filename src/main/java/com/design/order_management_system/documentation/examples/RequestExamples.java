@@ -6,7 +6,7 @@ public class RequestExamples {
 
     public static final String LOGIN = """
             {
-                "sUsername": "ADMIN",
+                "sUsername": "admin",
                 "sPassword": "Admin@123"
             }
             """;

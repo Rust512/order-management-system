@@ -98,6 +98,29 @@ public class ErrorResponseExamples {
             }
             """;
 
+    public static final String ORDER_AUDIT_ENTRIES_NOT_FOUND = """
+            {
+                "dStatusCode": 404,
+                "sError": "Not Found",
+                "sExceptionName": "ResourceNotFoundException",
+                "sMessage": "Resource ORDER_AUDIT_ENTRIES with orderId matching 3 not found",
+                "sPath": "/v1/orders/3/audit",
+                "dtTimeStamp": "2026-05-15T02:36:25.603Z"
+            }
+            """;
+
+    public static final String ORDER_AUDIT_ENTRY_NOT_OWNED = """
+            {
+                "dStatusCode": 403,
+                "sError": "Forbidden",
+                "sExceptionName": "ResourceNotOwnedException",
+                "sMessage": "Resource ORDER_AUDIT_ENTRIES with (orderId, version) matching (3, 2) not owned by user with ID 1",
+                "sPath": "/v1/orders/3/audit/2",
+                "dtTimeStamp": "2026-05-15T02:36:25.603Z"
+            }
+            """;
+
+
     public static final String INSUFFICIENT_RESOURCES = """
             {
                 "dStatusCode": 422,

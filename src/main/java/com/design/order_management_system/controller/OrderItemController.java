@@ -1,6 +1,7 @@
 package com.design.order_management_system.controller;
 
 import com.design.order_management_system.documentation.annotation.BadRequest;
+import com.design.order_management_system.documentation.annotation.InsufficientResourcesResponse;
 import com.design.order_management_system.documentation.examples.ErrorResponseExamples;
 import com.design.order_management_system.documentation.examples.RequestExamples;
 import com.design.order_management_system.documentation.examples.ResponseExamples;
@@ -66,6 +67,7 @@ public class OrderItemController {
             }
     )
     @BadRequest
+    @InsufficientResourcesResponse
     ResponseEntity<OrderResponse> addOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
         return ResponseEntity.ok(orderItemService.addOrderItem(orderItemRequest));
     }
@@ -103,6 +105,7 @@ public class OrderItemController {
             }
     )
     @BadRequest
+    @InsufficientResourcesResponse
     ResponseEntity<OrderResponse> editOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
         return ResponseEntity.ok(orderItemService.editOrderItem(orderItemRequest));
     }
