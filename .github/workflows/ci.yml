@@ -30,7 +30,7 @@ jobs:
         
       - name: Cache Docker Images
         id: cache-docker
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.testcontainers-cache
           # Invalidates cache when dependencies change, or weekly to avoid stale images
