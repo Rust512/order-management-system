@@ -26,45 +26,45 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/auth")
-@Tag(name = "Authentication", description = "Endpoints for user authentication and token generation")
+@Tag(
+    name = "Authentication",
+    description = "Endpoints for user authentication and token generation")
 public class LoginController {
 
-    private final LoginService loginService;
+  private final LoginService loginService;
 
-    @PostMapping(path = "/login")
-    @SecurityRequirements
-    @Operation(
-            summary = "Generate JWT Token",
-            description = """
+  @PostMapping(path = "/login")
+  @SecurityRequirements
+  @Operation(
+      summary = "Generate JWT Token",
+      description =
+          """
                     Submit user credentials to generate a bearer token.
                     Use the provided seeded user credentials for testing.
                     """,
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(value = RequestExamples.LOGIN)
-                    )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Authentication successful",
-                            content = @Content(
-                                    schema = @Schema(implementation = LoginResponse.class),
-                                    examples = @ExampleObject(value = ResponseExamples.LOGIN)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Invalid credentials",
-                            content = @Content(
-                                    schema = @Schema(implementation = ApiErrorResponse.class),
-                                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_CREDENTIALS)
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
-        return ResponseEntity.ok(loginService.getToken(loginRequest));
-    }
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @Content(
+                      mediaType = MediaType.APPLICATION_JSON_VALUE,
+                      examples = @ExampleObject(value = RequestExamples.LOGIN))),
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Authentication successful",
+            content =
+                @Content(
+                    schema = @Schema(implementation = LoginResponse.class),
+                    examples = @ExampleObject(value = ResponseExamples.LOGIN))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Invalid credentials",
+            content =
+                @Content(
+                    schema = @Schema(implementation = ApiErrorResponse.class),
+                    examples = @ExampleObject(value = ErrorResponseExamples.INVALID_CREDENTIALS)))
+      })
+  public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    return ResponseEntity.ok(loginService.getToken(loginRequest));
+  }
 }

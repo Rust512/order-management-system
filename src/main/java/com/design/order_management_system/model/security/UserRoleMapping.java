@@ -21,17 +21,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "user_role_mappings")
 public class UserRoleMapping {
-    @EmbeddedId
-    @Builder.Default
-    private UserRoleMappingKey id = new UserRoleMappingKey();
+  @EmbeddedId @Builder.Default private UserRoleMappingKey id = new UserRoleMappingKey();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId(value = "userId")
-    @JoinColumn(name = "user_id")
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @MapsId(value = "userId")
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId(value = "roleId")
-    @JoinColumn(name = "role_id")
-    private Role role;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @MapsId(value = "roleId")
+  @JoinColumn(name = "role_id")
+  private Role role;
 }

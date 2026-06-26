@@ -22,49 +22,54 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    @ExceptionHandler(value = DuplicateResourceException.class)
-    ResponseEntity<ApiErrorResponse> handleDuplicateResourceException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.CONFLICT, request);
-    }
+  @ExceptionHandler(value = DuplicateResourceException.class)
+  ResponseEntity<ApiErrorResponse> handleDuplicateResourceException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.CONFLICT, request);
+  }
 
-    @ExceptionHandler(value = ResourceNotFoundException.class)
-    ResponseEntity<ApiErrorResponse> handleResourceNotFoundException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.NOT_FOUND, request);
-    }
+  @ExceptionHandler(value = ResourceNotFoundException.class)
+  ResponseEntity<ApiErrorResponse> handleResourceNotFoundException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.NOT_FOUND, request);
+  }
 
-    @ExceptionHandler(value = InsufficientResourcesException.class)
-    ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNPROCESSABLE_CONTENT, request);
-    }
+  @ExceptionHandler(value = InsufficientResourcesException.class)
+  ResponseEntity<ApiErrorResponse> handleInsufficientResourcesException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(
+        ex, HttpStatus.UNPROCESSABLE_CONTENT, request);
+  }
 
-    @ExceptionHandler(value = {
-            InvalidCredentialsException.class,
-            RevokedTokenException.class,
-            MissingTokenException.class,
-            JwtException.class
-    })
-    ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED, request);
-    }
+  @ExceptionHandler(
+      value = {
+        InvalidCredentialsException.class,
+        RevokedTokenException.class,
+        MissingTokenException.class,
+        JwtException.class
+      })
+  ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.UNAUTHORIZED, request);
+  }
 
-    @ExceptionHandler(value = {
-            AuthorizationDeniedException.class,
-            ResourceNotOwnedException.class
-    })
-    ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN, request);
-    }
+  @ExceptionHandler(value = {AuthorizationDeniedException.class, ResourceNotOwnedException.class})
+  ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.FORBIDDEN, request);
+  }
 
-    @ExceptionHandler(value = {
-            MethodArgumentNotValidException.class,
-            HandlerMethodValidationException.class
-    })
-    ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST, request);
-    }
+  @ExceptionHandler(
+      value = {MethodArgumentNotValidException.class, HandlerMethodValidationException.class})
+  ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.BAD_REQUEST, request);
+  }
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        return ErrorMessageFactory.getApiErrorResponseEntity(ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
+  @ExceptionHandler(value = Exception.class)
+  ResponseEntity<ApiErrorResponse> handleGenericException(
+      Exception ex, HttpServletRequest request) {
+    return ErrorMessageFactory.getApiErrorResponseEntity(
+        ex, HttpStatus.INTERNAL_SERVER_ERROR, request);
+  }
 }

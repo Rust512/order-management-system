@@ -1,16 +1,17 @@
 package com.design.order_management_system.documentation.examples;
 
 public class ResponseExamples {
-    private ResponseExamples() {
-    }
+  private ResponseExamples() {}
 
-    public static final String LOGIN = """
+  public static final String LOGIN =
+      """
             {
                 "sToken": "The JWT token"
             }
             """;
 
-    public static final String REGISTER_PRODUCT = """
+  public static final String REGISTER_PRODUCT =
+      """
             {
                 "sProductId": 1,
                 "sProductName": "Protein bar",
@@ -19,9 +20,10 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String UPDATE_PRODUCT = REGISTER_PRODUCT;
+  public static final String UPDATE_PRODUCT = REGISTER_PRODUCT;
 
-    public static final String REGISTER_USER = """
+  public static final String REGISTER_USER =
+      """
             {
                 "sUsername": "JohnDoe",
                 "aRoles": [
@@ -30,7 +32,8 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String REGISTER_ORDER = """
+  public static final String REGISTER_ORDER =
+      """
             {
                 "dOrderId": 1,
                 "sOrderStatus": "CREATED",
@@ -51,7 +54,8 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String GET_PRODUCTS = """
+  public static final String GET_PRODUCTS =
+      """
             {
                 "aContent": [
                     {
@@ -74,7 +78,8 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String GET_PRODUCT_AUDIT_ENTRIES = """
+  public static final String GET_PRODUCT_AUDIT_ENTRIES =
+      """
             {
                 "aContent": [
                     {
@@ -105,7 +110,8 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String GET_PRODUCT_AUDIT_ENTRY = """
+  public static final String GET_PRODUCT_AUDIT_ENTRY =
+      """
             {
                 "dVersion": 1,
                 "sProductName": "Coca-Cola",
@@ -118,7 +124,8 @@ public class ResponseExamples {
             }
             """;
 
-    public static final String GET_ORDER_AUDIT_ENTRIES = """
+  public static final String GET_ORDER_AUDIT_ENTRIES =
+      """
             {
                 "aContent": [
                     {
@@ -161,8 +168,9 @@ public class ResponseExamples {
                 "dTotalPages": 1
             }
             """;
-    
-    public static final String GET_ORDER_AUDIT_ENTRY = """
+
+  public static final String GET_ORDER_AUDIT_ENTRY =
+      """
             {
                 "dVersion": 2,
                 "sOperation": "ADD_ITEM",

@@ -1,5 +1,10 @@
 package com.design.order_management_system.service;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.design.order_management_system.constants.CommonConstants;
 import com.design.order_management_system.constants.ErrorMessageConstants;
 import com.design.order_management_system.converter.CreateUserRequestToUser;
@@ -12,6 +17,8 @@ import com.design.order_management_system.model.security.User;
 import com.design.order_management_system.model.security.UserRoleMapping;
 import com.design.order_management_system.repository.RoleRepository;
 import com.design.order_management_system.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,126 +28,100 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private RoleRepository roleRepository;
-    @Mock
-    private UserToUserResponse userToUserResponse;
-    @Mock
-    private CreateUserRequestToUser createUserRequestToUser;
-    @Mock
-    private PasswordEncoder passwordEncoder;
+  @Mock private UserRepository userRepository;
+  @Mock private RoleRepository roleRepository;
+  @Mock private UserToUserResponse userToUserResponse;
+  @Mock private CreateUserRequestToUser createUserRequestToUser;
+  @Mock private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    private UserService userService;
+  @InjectMocks private UserService userService;
 
-    @Test
-    @DisplayName(value = """
+  @Test
+  @DisplayName(
+      value =
+          """
             When a user with the given username already exists,
             the method should throw a DuplicateResourceException.
             """)
-    void userRegistration_WhenUsernameExists_ShouldThrowException() {
-        String username = "U0";
-        var createUserRequest = new CreateUserRequest(username, null);
-        when(userRepository.existsByUsername(username)).thenReturn(true);
-        Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
-                .isInstanceOf(DuplicateResourceException.class)
-                .hasMessageContaining(username);
-        verify(userRepository).existsByUsername(username);
-        verifyNoMoreInteractions(userRepository);
-        verifyNoInteractions(passwordEncoder, createUserRequestToUser, roleRepository, userToUserResponse);
-    }
+  void userRegistration_WhenUsernameExists_ShouldThrowException() {
+    String username = "U0";
+    var createUserRequest = new CreateUserRequest(username, null);
+    when(userRepository.existsByUsername(username)).thenReturn(true);
+    Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
+        .isInstanceOf(DuplicateResourceException.class)
+        .hasMessageContaining(username);
+    verify(userRepository).existsByUsername(username);
+    verifyNoMoreInteractions(userRepository);
+    verifyNoInteractions(
+        passwordEncoder, createUserRequestToUser, roleRepository, userToUserResponse);
+  }
 
-    @Test
-    @DisplayName(value = """
+  @Test
+  @DisplayName(
+      value =
+          """
             When a user with the given username does not exist, and USER_ROLE exists,
             the method should return a UserResponse object without saving any role.
             """)
-    void userRegistration_WhenUsernameDoesNotExistAndRoleExists_ShouldReturnUserResponseWithoutSavingRole() {
-        String username = "U0";
-        String password = "P0";
-        String hashedPassword = "HP0";
-        var createUserRequest = new CreateUserRequest(username, password);
-        var unsavedUser = User.builder()
-                .username(username)
-                .password(password)
-                .build();
-        var savedUser = User.builder()
-                .id(1L)
-                .username(username)
-                .password(password)
-                .build();
-        var role = Role.builder()
-                .id(1L)
-                .name(CommonConstants.ROLE_USER)
-                .build();
-        savedUser.addRole(role);
-        var response = UserResponse.builder()
-                .username(username)
-                .roles(List.of(CommonConstants.ROLE_USER))
-                .build();
+  void
+      userRegistration_WhenUsernameDoesNotExistAndRoleExists_ShouldReturnUserResponseWithoutSavingRole() {
+    String username = "U0";
+    String password = "P0";
+    String hashedPassword = "HP0";
+    var createUserRequest = new CreateUserRequest(username, password);
+    var unsavedUser = User.builder().username(username).password(password).build();
+    var savedUser = User.builder().id(1L).username(username).password(password).build();
+    var role = Role.builder().id(1L).name(CommonConstants.ROLE_USER).build();
+    savedUser.addRole(role);
+    var response =
+        UserResponse.builder().username(username).roles(List.of(CommonConstants.ROLE_USER)).build();
 
-        when(userRepository.existsByUsername(username)).thenReturn(false);
-        when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
-        when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
-        when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.of(role));
-        when(userRepository.save(unsavedUser)).thenReturn(savedUser);
-        when(userToUserResponse.apply(savedUser)).thenReturn(response);
+    when(userRepository.existsByUsername(username)).thenReturn(false);
+    when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
+    when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
+    when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.of(role));
+    when(userRepository.save(unsavedUser)).thenReturn(savedUser);
+    when(userToUserResponse.apply(savedUser)).thenReturn(response);
 
-        var actualResponse = userService.userRegistration(createUserRequest);
+    var actualResponse = userService.userRegistration(createUserRequest);
 
-        Assertions.assertThat(actualResponse)
-                .isEqualTo(response);
-        Assertions.assertThat(savedUser.getRoles()
-                        .stream()
-                        .map(UserRoleMapping::getRole)
-                        .toList())
-                .containsExactly(role);
-        Assertions.assertThat(actualResponse.getRoles())
-                .containsExactly(CommonConstants.ROLE_USER);
+    Assertions.assertThat(actualResponse).isEqualTo(response);
+    Assertions.assertThat(savedUser.getRoles().stream().map(UserRoleMapping::getRole).toList())
+        .containsExactly(role);
+    Assertions.assertThat(actualResponse.getRoles()).containsExactly(CommonConstants.ROLE_USER);
 
-        verify(passwordEncoder).encode(password);
-        verify(roleRepository).findByName(CommonConstants.ROLE_USER);
-        verify(userRepository).save(unsavedUser);
-    }
+    verify(passwordEncoder).encode(password);
+    verify(roleRepository).findByName(CommonConstants.ROLE_USER);
+    verify(userRepository).save(unsavedUser);
+  }
 
-    @Test
-    @DisplayName(value = """
+  @Test
+  @DisplayName(
+      value =
+          """
             When a user with the given username does not exist, and USER_ROLE does not exist,
             the method should throw an IllegalStateException.
             """)
-    void userRegistration_WhenUsernameDoesNotExistAndRoleDoesNotExist_ShouldThrowException() {
-        String username = "U0";
-        String password = "P0";
-        String hashedPassword = "HP0";
-        var createUserRequest = new CreateUserRequest(username, password);
-        var unsavedUser = User.builder()
-                .username(username)
-                .password(password)
-                .build();
+  void userRegistration_WhenUsernameDoesNotExistAndRoleDoesNotExist_ShouldThrowException() {
+    String username = "U0";
+    String password = "P0";
+    String hashedPassword = "HP0";
+    var createUserRequest = new CreateUserRequest(username, password);
+    var unsavedUser = User.builder().username(username).password(password).build();
 
-        when(userRepository.existsByUsername(username)).thenReturn(false);
-        when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
-        when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
-        when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.empty());
+    when(userRepository.existsByUsername(username)).thenReturn(false);
+    when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
+    when(createUserRequestToUser.apply(createUserRequest)).thenReturn(unsavedUser);
+    when(roleRepository.findByName(CommonConstants.ROLE_USER)).thenReturn(Optional.empty());
 
-        Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
+    Assertions.assertThatThrownBy(() -> userService.userRegistration(createUserRequest))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
 
-        verify(userRepository).existsByUsername(username);
-        verifyNoMoreInteractions(userRepository);
-        verifyNoInteractions(userToUserResponse);
-    }
+    verify(userRepository).existsByUsername(username);
+    verifyNoMoreInteractions(userRepository);
+    verifyNoInteractions(userToUserResponse);
+  }
 }

@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +25,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.Instant;
-
 @Entity
 @Getter
 @Setter
@@ -33,52 +32,39 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
-        name = "order_audit_entries",
-        uniqueConstraints = @UniqueConstraint(
-                name = "unique_order_audit_entries_order_id_version",
-                columnNames = {"order_id", "version"}
-        )
-)
+    name = "order_audit_entries",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "unique_order_audit_entries_order_id_version",
+            columnNames = {"order_id", "version"}))
 public class OrderAuditEntry {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(
-            nullable = false,
-            updatable = false,
-            check = @CheckConstraint(
-                    name = "order_version_positive",
-                    constraint = "version > 0"
-            )
-    )
-    private Long version;
+  @Column(
+      nullable = false,
+      updatable = false,
+      check = @CheckConstraint(name = "order_version_positive", constraint = "version > 0"))
+  private Long version;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false, updatable = false)
-    private OrderOperation operation;
+  @Enumerated(value = EnumType.STRING)
+  @Column(nullable = false, updatable = false)
+  private OrderOperation operation;
 
-    @JdbcTypeCode(value = SqlTypes.JSON)
-    @Column(columnDefinition = "JSONB")
-    private OrderSnapshot snapshot;
+  @JdbcTypeCode(value = SqlTypes.JSON)
+  @Column(columnDefinition = "JSONB")
+  private OrderSnapshot snapshot;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+  @CreationTimestamp
+  @Column(nullable = false, updatable = false)
+  private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            updatable = false
-    )
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false, updatable = false)
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "order_id",
-            nullable = false,
-            updatable = false
-    )
-    private Order order;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "order_id", nullable = false, updatable = false)
+  private Order order;
 }

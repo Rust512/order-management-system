@@ -21,48 +21,48 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtLogoutHandler jwtLogoutHandler;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final JwtLogoutHandler jwtLogoutHandler;
 
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
-        return httpSecurity.formLogin(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(
-                                    "/auth/login",
-                                    "/v3/api-docs/**",
-                                    "/swagger-ui/**",
-                                    "/swagger-ui.html"
-                            )
-                            .permitAll();
-                    auth.anyRequest()
-                            .authenticated();
-                })
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(
-                                ((_, response, _) -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
-                        ).accessDeniedHandler(
-                                ((_, response, _) -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))
-                        )
-                )
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        LogoutFilter.class
-                )
-                .logout(logout -> logout.logoutUrl("/auth/logout")
-                        .addLogoutHandler(jwtLogoutHandler)
-                        .logoutSuccessHandler((_, response, _) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write(CommonConstants.LOGOUT_SUCCESS_MESSAGE);
+  @Bean
+  SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
+    return httpSecurity
+        .formLogin(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth -> {
+              auth.requestMatchers(
+                      "/auth/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                  .permitAll();
+              auth.anyRequest().authenticated();
+            })
+        .exceptionHandling(
+            exception ->
+                exception
+                    .authenticationEntryPoint(
+                        ((_, response, _) ->
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)))
+                    .accessDeniedHandler(
+                        ((_, response, _) -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))))
+        .addFilterBefore(jwtAuthenticationFilter, LogoutFilter.class)
+        .logout(
+            logout ->
+                logout
+                    .logoutUrl("/auth/logout")
+                    .addLogoutHandler(jwtLogoutHandler)
+                    .logoutSuccessHandler(
+                        (_, response, _) -> {
+                          response.setStatus(HttpServletResponse.SC_OK);
+                          response.getWriter().write(CommonConstants.LOGOUT_SUCCESS_MESSAGE);
                         }))
-                .build();
-    }
+        .build();
+  }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

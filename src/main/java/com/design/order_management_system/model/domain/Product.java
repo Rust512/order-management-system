@@ -10,13 +10,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -26,29 +25,25 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Table(name = "products")
 public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotBlank
-    @Column(unique = true)
-    private String name;
+  @NotBlank
+  @Column(unique = true)
+  private String name;
 
-    @NotNull
-    @Positive
-    private BigDecimal price;
+  @NotNull @Positive private BigDecimal price;
 
-    @NotNull
-    @PositiveOrZero
-    private Long stock;
-    
-    @NotNull
-    @PositiveOrZero
-    @Builder.Default
-    @Column(nullable = false)
-    private Long reservedStock = 0L;
-    
-    public Long getAvailableStock() {
-        return stock - reservedStock;
-    }
+  @NotNull @PositiveOrZero private Long stock;
+
+  @NotNull
+  @PositiveOrZero
+  @Builder.Default
+  @Column(nullable = false)
+  private Long reservedStock = 0L;
+
+  public Long getAvailableStock() {
+    return stock - reservedStock;
+  }
 }

@@ -8,12 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @ApiResponse(
-        responseCode = "400",
-        description = "Insufficient resources",
-        content = @Content(
-                schema = @Schema(implementation = ApiErrorResponse.class),
-                examples = @ExampleObject(value = ErrorResponseExamples.INSUFFICIENT_RESOURCES)
-        )
-)
-public @interface InsufficientResourcesResponse {
-}
+    responseCode = "400",
+    description = "Insufficient resources",
+    content =
+        @Content(
+            schema = @Schema(implementation = ApiErrorResponse.class),
+            examples = @ExampleObject(value = ErrorResponseExamples.INSUFFICIENT_RESOURCES)))
+public @interface InsufficientResourcesResponse {}

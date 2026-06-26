@@ -1,10 +1,10 @@
 package com.design.order_management_system.documentation.examples;
 
 public class ErrorResponseExamples {
-    private ErrorResponseExamples() {
-    }
+  private ErrorResponseExamples() {}
 
-    public static final String INVALID_CREDENTIALS = """
+  public static final String INVALID_CREDENTIALS =
+      """
             {
                 "dStatusCode": 401,
                 "sError": "Unauthorized",
@@ -14,7 +14,8 @@ public class ErrorResponseExamples {
                 "dtTimeStamp": "2026-05-15T01:48:56.930Z"
             }
             """;
-    public static final String INVALID_TOKEN = """
+  public static final String INVALID_TOKEN =
+      """
             {
               "dStatusCode": 401,
               "sError": "Unauthorized",
@@ -24,7 +25,8 @@ public class ErrorResponseExamples {
               "dtTimeStamp": "2026-05-15T01:45:27.033039428Z"
             }
             """;
-    public static final String ACCESS_DENIED = """
+  public static final String ACCESS_DENIED =
+      """
             {
                 "dStatusCode": 403,
                 "sError": "Forbidden",
@@ -34,7 +36,8 @@ public class ErrorResponseExamples {
                 "dtTimeStamp": "2026-05-15T02:11:26.925Z"
             }
             """;
-    public static final String USER_ALREADY_EXISTS = """
+  public static final String USER_ALREADY_EXISTS =
+      """
             {
                 "dStatusCode": 409,
                 "sError": "Conflict",
@@ -44,7 +47,8 @@ public class ErrorResponseExamples {
                 "dtTimeStamp": "2026-05-15T03:29:47.680Z"
             }
             """;
-    public static final String PRODUCT_ALREADY_EXISTS = """
+  public static final String PRODUCT_ALREADY_EXISTS =
+      """
             {
                 "dStatusCode": 409,
                 "sError": "Conflict",
@@ -54,7 +58,8 @@ public class ErrorResponseExamples {
                 "dtTimeStamp": "2026-05-15T03:29:47.680Z"
             }
             """;
-    public static final String PRODUCT_NOT_FOUND = """
+  public static final String PRODUCT_NOT_FOUND =
+      """
             {
                 "dStatusCode": 404,
                 "sError": "Not Found",
@@ -65,7 +70,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String PRODUCT_NOT_FOUND_FOR_AUDIT = """
+  public static final String PRODUCT_NOT_FOUND_FOR_AUDIT =
+      """
             {
                 "dStatusCode": 404,
                 "sError": "Not Found",
@@ -76,7 +82,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String PRODUCT_AUDIT_ENTRY_NOT_FOUND = """
+  public static final String PRODUCT_AUDIT_ENTRY_NOT_FOUND =
+      """
             {
                 "dStatusCode": 404,
                 "sError": "Not Found",
@@ -87,7 +94,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String ORDER_NOT_FOUND = """
+  public static final String ORDER_NOT_FOUND =
+      """
             {
                 "dStatusCode": 404,
                 "sError": "Not Found",
@@ -98,7 +106,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String ORDER_AUDIT_ENTRIES_NOT_FOUND = """
+  public static final String ORDER_AUDIT_ENTRIES_NOT_FOUND =
+      """
             {
                 "dStatusCode": 404,
                 "sError": "Not Found",
@@ -109,7 +118,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String ORDER_AUDIT_ENTRY_NOT_OWNED = """
+  public static final String ORDER_AUDIT_ENTRY_NOT_OWNED =
+      """
             {
                 "dStatusCode": 403,
                 "sError": "Forbidden",
@@ -120,8 +130,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-
-    public static final String INSUFFICIENT_RESOURCES = """
+  public static final String INSUFFICIENT_RESOURCES =
+      """
             {
                 "dStatusCode": 422,
                 "sError": "Unprocessable Content",
@@ -132,7 +142,8 @@ public class ErrorResponseExamples {
             }
             """;
 
-    public static final String BAD_REQUEST = """
+  public static final String BAD_REQUEST =
+      """
             {
                 "dStatusCode": 400,
                 "sError": "Unprocessable Content",

@@ -26,58 +26,68 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final UserToUserResponse userToUserResponse;
-    private final CreateUserRequestToUser createUserRequestToUser;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
+  private final UserToUserResponse userToUserResponse;
+  private final CreateUserRequestToUser createUserRequestToUser;
+  private final PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public UserResponse userRegistration(CreateUserRequest createUserRequest) {
-        String username = createUserRequest.getUsername();
-        log.info("User registration requested; username={}", username);
-        boolean userExists = userRepository.existsByUsername(username);
-        if (userExists) {
-            log.warn("User registration failed; username={}, reason=username_already_exists", username);
-            throw new DuplicateResourceException(CommonConstants.USER, "username", username);
-        }
+  @Transactional
+  public UserResponse userRegistration(CreateUserRequest createUserRequest) {
+    String username = createUserRequest.getUsername();
+    log.info("User registration requested; username={}", username);
+    boolean userExists = userRepository.existsByUsername(username);
+    if (userExists) {
+      log.warn("User registration failed; username={}, reason=username_already_exists", username);
+      throw new DuplicateResourceException(CommonConstants.USER, "username", username);
+    }
 
-        String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
-        var user = createUserRequestToUser.apply(createUserRequest);
-        user.setPassword(hashedPassword);
+    String hashedPassword = passwordEncoder.encode(createUserRequest.getPassword());
+    var user = createUserRequestToUser.apply(createUserRequest);
+    user.setPassword(hashedPassword);
 
-        var role = roleRepository.findByName(CommonConstants.ROLE_USER)
-                .orElseThrow(() -> {
-                    log.error("Seeding error for role={}; reason=role_not_seeded", CommonConstants.ROLE_USER);
-                    return new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
+    var role =
+        roleRepository
+            .findByName(CommonConstants.ROLE_USER)
+            .orElseThrow(
+                () -> {
+                  log.error(
+                      "Seeding error for role={}; reason=role_not_seeded",
+                      CommonConstants.ROLE_USER);
+                  return new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED);
                 });
 
-        user.addRole(role);
+    user.addRole(role);
 
-        var savedUser = userRepository.save(user);
+    var savedUser = userRepository.save(user);
 
-        log.info("User registered; userId={}, username={}", savedUser.getId(), username);
+    log.info("User registered; userId={}, username={}", savedUser.getId(), username);
 
-        return userToUserResponse.apply(savedUser);
-    }
+    return userToUserResponse.apply(savedUser);
+  }
 
-    @Transactional(readOnly = true)
-    public UserResponse getById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("User fetch failed; userId={}, reason=user_not_found", id);
-                    return new ResourceNotFoundException(CommonConstants.USER, "id", String.valueOf(id));
+  @Transactional(readOnly = true)
+  public UserResponse getById(Long id) {
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(
+                () -> {
+                  log.warn("User fetch failed; userId={}, reason=user_not_found", id);
+                  return new ResourceNotFoundException(
+                      CommonConstants.USER, "id", String.valueOf(id));
                 });
 
-        return userToUserResponse.apply(user);
-    }
+    return userToUserResponse.apply(user);
+  }
 
-    @Override
-    @NullMarked
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .map(PrincipalUser::new)
-                .orElseThrow(() -> UsernameNotFoundException.fromUsername(username));
-    }
+  @Override
+  @NullMarked
+  @Transactional(readOnly = true)
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepository
+        .findByUsername(username)
+        .map(PrincipalUser::new)
+        .orElseThrow(() -> UsernameNotFoundException.fromUsername(username));
+  }
 }

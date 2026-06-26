@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -16,8 +15,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderRequest {
 
-    @Valid
-    @NotEmpty
-    @JsonProperty(value = "aOrderItems")
-    private List<OrderItemRequest> orderItems;
+  @Valid
+  @NotEmpty
+  @JsonProperty(value = "aOrderItems")
+  private List<OrderItemRequest> orderItems;
 }

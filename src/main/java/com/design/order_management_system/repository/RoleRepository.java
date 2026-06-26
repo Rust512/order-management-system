@@ -1,20 +1,21 @@
 package com.design.order_management_system.repository;
 
 import com.design.order_management_system.model.security.Role;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    @Query(value = """
+  @Query(
+      value =
+          """
             SELECT role
             FROM Role role
             WHERE role.name = :name
             """)
-    Optional<Role> findByName(@Param("name") String name);
+  Optional<Role> findByName(@Param("name") String name);
 
-    List<Role> findAllByNameIn(List<String> requiredRoles);
+  List<Role> findAllByNameIn(List<String> requiredRoles);
 }

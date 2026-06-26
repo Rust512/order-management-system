@@ -6,12 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -20,17 +19,17 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateProductRequest {
 
-    @NotBlank
-    @JsonProperty(value = "sProductName")
-    private String productName;
+  @NotBlank
+  @JsonProperty(value = "sProductName")
+  private String productName;
 
-    @NotNull
-    @Positive
-    @JsonProperty(value = "dPrice")
-    private BigDecimal price;
+  @NotNull
+  @Positive
+  @JsonProperty(value = "dPrice")
+  private BigDecimal price;
 
-    @NotNull
-    @PositiveOrZero
-    @JsonProperty(value = "dStock")
-    private Long stock;
+  @NotNull
+  @PositiveOrZero
+  @JsonProperty(value = "dStock")
+  private Long stock;
 }

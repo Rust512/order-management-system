@@ -15,15 +15,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 @Entity
 @Getter
@@ -32,57 +31,44 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
-        name = "product_audit_entries",
-        uniqueConstraints = @UniqueConstraint(
-                name = "unique_product_audit_entries_product_id_version",
-                columnNames = {"product_id", "version"}
-        )
-)
+    name = "product_audit_entries",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "unique_product_audit_entries_product_id_version",
+            columnNames = {"product_id", "version"}))
 public class ProductAuditEntry {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(
-            nullable = false,
-            updatable = false,
-            check = @CheckConstraint(
-                    name = "version_positive",
-                    constraint = "version > 0"
-            )
-    )
-    private Long version;
+  @Column(
+      nullable = false,
+      updatable = false,
+      check = @CheckConstraint(name = "version_positive", constraint = "version > 0"))
+  private Long version;
 
-    @Column(nullable = false, updatable = false)
-    private String productName;
+  @Column(nullable = false, updatable = false)
+  private String productName;
 
-    @Column(nullable = false, updatable = false)
-    private BigDecimal price;
+  @Column(nullable = false, updatable = false)
+  private BigDecimal price;
 
-    @Column(nullable = false, updatable = false)
-    private Long stock;
+  @Column(nullable = false, updatable = false)
+  private Long stock;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false, updatable = false)
-    private OperationType operationType;
+  @Enumerated(value = EnumType.STRING)
+  @Column(nullable = false, updatable = false)
+  private OperationType operationType;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+  @CreationTimestamp
+  @Column(nullable = false, updatable = false)
+  private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            updatable = false
-    )
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false, updatable = false)
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "product_id",
-            nullable = false,
-            updatable = false
-    )
-    private Product product;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id", nullable = false, updatable = false)
+  private Product product;
 }

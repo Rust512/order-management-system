@@ -6,11 +6,11 @@ import lombok.Data;
 
 @Data
 public class LoginRequest {
-    @NotBlank
-    @JsonProperty(value = "sUsername")
-    private String username;
+  @NotBlank
+  @JsonProperty(value = "sUsername")
+  private String username;
 
-    @NotBlank
-    @JsonProperty(value = "sPassword")
-    private String password;
+  @NotBlank
+  @JsonProperty(value = "sPassword")
+  private String password;
 }
