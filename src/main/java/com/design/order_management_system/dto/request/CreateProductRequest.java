@@ -19,17 +19,17 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateProductRequest {
 
-  @NotBlank
-  @JsonProperty(value = "sProductName")
-  private String productName;
+    @NotBlank
+    @JsonProperty(value = "sProductName")
+    private String productName;
 
-  @NotNull
-  @Positive
-  @JsonProperty(value = "dPrice")
-  private BigDecimal price;
+    @NotNull
+    @Positive
+    @JsonProperty(value = "dPrice")
+    private BigDecimal price;
 
-  @NotNull
-  @PositiveOrZero
-  @JsonProperty(value = "dStock")
-  private Long stock;
+    @NotNull
+    @PositiveOrZero
+    @JsonProperty(value = "dStock")
+    private Long stock;
 }

@@ -25,25 +25,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "products")
 public class Product {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotBlank
-  @Column(unique = true)
-  private String name;
+    @NotBlank
+    @Column(unique = true)
+    private String name;
 
-  @NotNull @Positive private BigDecimal price;
+    @NotNull @Positive private BigDecimal price;
 
-  @NotNull @PositiveOrZero private Long stock;
+    @NotNull @PositiveOrZero private Long stock;
 
-  @NotNull
-  @PositiveOrZero
-  @Builder.Default
-  @Column(nullable = false)
-  private Long reservedStock = 0L;
+    @NotNull
+    @PositiveOrZero
+    @Builder.Default
+    @Column(nullable = false)
+    private Long reservedStock = 0L;
 
-  public Long getAvailableStock() {
-    return stock - reservedStock;
-  }
+    public Long getAvailableStock() {
+        return stock - reservedStock;
+    }
 }

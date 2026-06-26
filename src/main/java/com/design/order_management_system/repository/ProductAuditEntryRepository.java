@@ -9,18 +9,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ProductAuditEntryRepository extends JpaRepository<ProductAuditEntry, Long> {
-  @Query(
-      value =
-          """
+    @Query(
+            value =
+                    """
             SELECT COALESCE(MAX(pae.version), 0) + 1
             FROM ProductAuditEntry pae
             WHERE pae.product.id = :productId
             """)
-  Long getNextAuditVersionByProductId(Long productId);
+    Long getNextAuditVersionByProductId(Long productId);
 
-  @EntityGraph(attributePaths = "user")
-  Page<ProductAuditEntry> findByProduct_Id(Long productId, Pageable pageable);
+    @EntityGraph(attributePaths = "user")
+    Page<ProductAuditEntry> findByProduct_Id(Long productId, Pageable pageable);
 
-  @EntityGraph(attributePaths = "user")
-  Optional<ProductAuditEntry> findByProduct_IdAndVersion(Long productId, Long version);
+    @EntityGraph(attributePaths = "user")
+    Optional<ProductAuditEntry> findByProduct_IdAndVersion(Long productId, Long version);
 }

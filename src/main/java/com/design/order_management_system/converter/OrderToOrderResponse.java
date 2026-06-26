@@ -10,28 +10,31 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderToOrderResponse implements Function<Order, OrderResponse> {
-  private final OrderItemToOrderItemResponse orderItemToOrderItemResponse;
+    private final OrderItemToOrderItemResponse orderItemToOrderItemResponse;
 
-  @Override
-  public OrderResponse apply(Order order) {
-    var orderItemList = order.getOrderItems().stream().map(orderItemToOrderItemResponse).toList();
+    @Override
+    public OrderResponse apply(Order order) {
+        var orderItemList =
+                order.getOrderItems().stream().map(orderItemToOrderItemResponse).toList();
 
-    var totalPrice =
-        orderItemList.stream()
-            .map(
-                orderItem ->
-                    orderItem
-                        .getPurchasePrice()
-                        .multiply(BigDecimal.valueOf(orderItem.getQuantity())))
-            .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO);
+        var totalPrice =
+                orderItemList.stream()
+                        .map(
+                                orderItem ->
+                                        orderItem
+                                                .getPurchasePrice()
+                                                .multiply(
+                                                        BigDecimal.valueOf(
+                                                                orderItem.getQuantity())))
+                        .reduce(BigDecimal::add)
+                        .orElse(BigDecimal.ZERO);
 
-    return OrderResponse.builder()
-        .orderId(order.getId())
-        .orderStatus(order.getOrderStatus())
-        .createdAt(order.getCreatedAt())
-        .totalPrice(totalPrice)
-        .orderItems(orderItemList)
-        .build();
-  }
+        return OrderResponse.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getOrderStatus())
+                .createdAt(order.getCreatedAt())
+                .totalPrice(totalPrice)
+                .orderItems(orderItemList)
+                .build();
+    }
 }

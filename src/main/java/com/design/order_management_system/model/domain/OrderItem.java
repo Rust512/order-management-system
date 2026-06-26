@@ -26,26 +26,26 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "order_items")
 public class OrderItem {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "product_id", nullable = false)
-  private Product product;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "order_id", nullable = false)
-  private Order order;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-  @NotNull
-  @Positive
-  @Column(nullable = false)
-  @Builder.Default
-  private Long quantity = 0L;
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    @Builder.Default
+    private Long quantity = 0L;
 
-  @NotNull
-  @Positive
-  @Column(nullable = false)
-  private BigDecimal purchasePrice;
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    private BigDecimal purchasePrice;
 }

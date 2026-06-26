@@ -22,22 +22,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
-    name = "revoked_tokens",
-    indexes = {
-      @Index(name = "idx_revoked_tokens_token_hash", columnList = "token_hash"),
-      @Index(name = "idx_revoked_tokens_expires_at", columnList = "expires_at")
-    })
+        name = "revoked_tokens",
+        indexes = {
+            @Index(name = "idx_revoked_tokens_token_hash", columnList = "token_hash"),
+            @Index(name = "idx_revoked_tokens_expires_at", columnList = "expires_at")
+        })
 public class RevokedToken {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(unique = true, nullable = false)
-  private String tokenHash;
+    @Column(unique = true, nullable = false)
+    private String tokenHash;
 
-  @Column(nullable = false)
-  private Instant expiresAt;
+    @Column(nullable = false)
+    private Instant expiresAt;
 
-  @Column(nullable = false)
-  private Instant revokedAt;
+    @Column(nullable = false)
+    private Instant revokedAt;
 }

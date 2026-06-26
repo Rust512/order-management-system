@@ -30,73 +30,73 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc(addFilters = false)
 class ProductControllerSecurityTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean private ProductService productService;
+    @MockitoBean private ProductService productService;
 
-  @MockitoBean private ProductAuditEntryService productAuditEntryService;
+    @MockitoBean private ProductAuditEntryService productAuditEntryService;
 
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DisplayName(
-      value = "POST /v1/products by a user with the ADMIN role should respond with HTTP status 201")
-  void registerProduct_WithAdminRole_ShouldReturn201() throws Exception {
-    String productName = "P0";
-    BigDecimal price = BigDecimal.valueOf(1.0);
-    Long stock = 0L;
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName(
+            value =
+                    "POST /v1/products by a user with the ADMIN role should respond with HTTP status 201")
+    void registerProduct_WithAdminRole_ShouldReturn201() throws Exception {
+        String productName = "P0";
+        BigDecimal price = BigDecimal.valueOf(1.0);
+        Long stock = 0L;
 
-    var request = new CreateProductRequest();
-    request.setProductName(productName);
-    request.setPrice(price);
-    request.setStock(stock);
+        var request = new CreateProductRequest();
+        request.setProductName(productName);
+        request.setPrice(price);
+        request.setStock(stock);
 
-    var response =
-        ProductResponse.builder()
-            .productId(1L)
-            .productName(productName)
-            .price(price)
-            .stock(stock)
-            .build();
+        var response =
+                ProductResponse.builder()
+                        .productId(1L)
+                        .productName(productName)
+                        .price(price)
+                        .stock(stock)
+                        .build();
 
-    when(productService.registerProduct(any(CreateProductRequest.class))).thenReturn(response);
+        when(productService.registerProduct(any(CreateProductRequest.class))).thenReturn(response);
 
-    mockMvc
-        .perform(
-            post("/v1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.sProductId").value(1L))
-        .andExpect(jsonPath("$.sProductName").value(productName))
-        .andExpect(jsonPath("$.dPrice").value(price))
-        .andExpect(jsonPath("$.dStock").value(stock));
+        mockMvc.perform(
+                        post("/v1/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.sProductId").value(1L))
+                .andExpect(jsonPath("$.sProductName").value(productName))
+                .andExpect(jsonPath("$.dPrice").value(price))
+                .andExpect(jsonPath("$.dStock").value(stock));
 
-    verify(productService).registerProduct(any(CreateProductRequest.class));
-  }
+        verify(productService).registerProduct(any(CreateProductRequest.class));
+    }
 
-  @Test
-  @WithMockUser(roles = "USER")
-  @DisplayName(
-      value = "POST /v1/products by a user with the USER role should respond with HTTP status 403")
-  void registerProduct_WithUserRole_ShouldReturn403() throws Exception {
-    String productName = "P0";
-    BigDecimal price = BigDecimal.valueOf(1.0);
-    Long stock = 0L;
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName(
+            value =
+                    "POST /v1/products by a user with the USER role should respond with HTTP status 403")
+    void registerProduct_WithUserRole_ShouldReturn403() throws Exception {
+        String productName = "P0";
+        BigDecimal price = BigDecimal.valueOf(1.0);
+        Long stock = 0L;
 
-    var request = new CreateProductRequest();
-    request.setProductName(productName);
-    request.setPrice(price);
-    request.setStock(stock);
+        var request = new CreateProductRequest();
+        request.setProductName(productName);
+        request.setPrice(price);
+        request.setStock(stock);
 
-    mockMvc
-        .perform(
-            post("/v1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isForbidden());
+        mockMvc.perform(
+                        post("/v1/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 }

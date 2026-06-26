@@ -11,11 +11,11 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @Import(DatabaseCleanupExtension.class)
 @ExtendWith(DatabaseCleanupExtension.class)
 public abstract class DatabaseTest {
-  @ServiceConnection
-  protected static final PostgreSQLContainer postgreSQLContainer =
-      new PostgreSQLContainer("postgres:latest");
+    @ServiceConnection
+    protected static final PostgreSQLContainer postgreSQLContainer =
+            new PostgreSQLContainer("postgres:latest");
 
-  static {
-    postgreSQLContainer.start();
-  }
+    static {
+        postgreSQLContainer.start();
+    }
 }

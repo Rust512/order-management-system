@@ -18,54 +18,52 @@ import tools.jackson.databind.ObjectMapper;
 @WebMvcSliceTest(LoginController.class)
 class LoginControllerValidationTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean private LoginService loginService;
+    @MockitoBean private LoginService loginService;
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /auth/login with a missing (null) username
             should respond with HTTP status 400
             Note: token validity is tested in LoginServiceTest
             """)
-  void login_WhenUsernameMissing_ShouldReturnStatus400() throws Exception {
-    var request = new LoginRequest();
-    request.setPassword("P0");
+    void login_WhenUsernameMissing_ShouldReturnStatus400() throws Exception {
+        var request = new LoginRequest();
+        request.setPassword("P0");
 
-    mockMvc
-        .perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+        mockMvc.perform(
+                        post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
 
-    verifyNoInteractions(loginService);
-  }
+        verifyNoInteractions(loginService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /auth/login with a blank password
             should respond with HTTP status 400
             Note: token validity is tested in LoginServiceTest
             """)
-  void login_WhenBlankPassword_ShouldReturnStatus400() throws Exception {
-    var request = new LoginRequest();
-    request.setUsername("U0");
-    request.setPassword("");
+    void login_WhenBlankPassword_ShouldReturnStatus400() throws Exception {
+        var request = new LoginRequest();
+        request.setUsername("U0");
+        request.setPassword("");
 
-    mockMvc
-        .perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+        mockMvc.perform(
+                        post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
 
-    verifyNoInteractions(loginService);
-  }
+        verifyNoInteractions(loginService);
+    }
 }

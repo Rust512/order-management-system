@@ -14,13 +14,13 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderItemRequest {
 
-  @NotNull
-  @Positive
-  @JsonProperty(value = "dProductId")
-  private Long productId;
+    @NotNull
+    @Positive
+    @JsonProperty(value = "dProductId")
+    private Long productId;
 
-  @NotNull
-  @Positive
-  @JsonProperty(value = "dQuantity")
-  private Long quantity;
+    @NotNull
+    @Positive
+    @JsonProperty(value = "dQuantity")
+    private Long quantity;
 }

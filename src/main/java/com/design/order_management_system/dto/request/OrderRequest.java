@@ -15,8 +15,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderRequest {
 
-  @Valid
-  @NotEmpty
-  @JsonProperty(value = "aOrderItems")
-  private List<OrderItemRequest> orderItems;
+    @Valid
+    @NotEmpty
+    @JsonProperty(value = "aOrderItems")
+    private List<OrderItemRequest> orderItems;
 }

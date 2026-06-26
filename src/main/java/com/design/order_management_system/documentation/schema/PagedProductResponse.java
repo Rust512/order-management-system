@@ -7,8 +7,12 @@ import java.util.List;
 
 @Schema(name = "pagedProductResponse")
 public class PagedProductResponse extends PagedResponse<ProductResponse> {
-  public PagedProductResponse(
-      List<ProductResponse> content, int page, int size, long totalElements, long totalPages) {
-    super(content, page, size, totalElements, totalPages);
-  }
+    public PagedProductResponse(
+            List<ProductResponse> content,
+            int page,
+            int size,
+            long totalElements,
+            long totalPages) {
+        super(content, page, size, totalElements, totalPages);
+    }
 }

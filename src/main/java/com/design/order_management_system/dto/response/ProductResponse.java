@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
-  @JsonProperty(value = "sProductId")
-  private Long productId;
+    @JsonProperty(value = "sProductId")
+    private Long productId;
 
-  @JsonProperty(value = "sProductName")
-  private String productName;
+    @JsonProperty(value = "sProductName")
+    private String productName;
 
-  @JsonProperty(value = "dPrice")
-  private BigDecimal price;
+    @JsonProperty(value = "dPrice")
+    private BigDecimal price;
 
-  @JsonProperty(value = "dStock")
-  private Long stock;
+    @JsonProperty(value = "dStock")
+    private Long stock;
 }

@@ -15,12 +15,12 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @WebMvcTest(
-    excludeFilters =
-        @ComponentScan.Filter(
-            type = FilterType.ASSIGNABLE_TYPE,
-            classes = {JwtAuthenticationFilter.class, LogoutFilter.class}))
+        excludeFilters =
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        classes = {JwtAuthenticationFilter.class, LogoutFilter.class}))
 public @interface WebMvcSliceTest {
 
-  @AliasFor(annotation = WebMvcTest.class, attribute = "controllers")
-  Class<?>[] value() default {};
+    @AliasFor(annotation = WebMvcTest.class, attribute = "controllers")
+    Class<?>[] value() default {};
 }

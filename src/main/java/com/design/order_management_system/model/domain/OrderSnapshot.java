@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderSnapshot {
-  private Long orderId;
-  private OrderStatus orderStatus;
-  private BigDecimal totalPrice;
-  private List<OrderItemSnapshot> orderItemSnapshots;
+    private Long orderId;
+    private OrderStatus orderStatus;
+    private BigDecimal totalPrice;
+    private List<OrderItemSnapshot> orderItemSnapshots;
 }

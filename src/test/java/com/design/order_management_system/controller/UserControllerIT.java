@@ -33,134 +33,140 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerIT extends DatabaseTest {
-  @Autowired private TestRestTemplate restTemplate;
-  @Autowired private UserRepository userRepository;
-  @Autowired private RoleRepository roleRepository;
-  @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private TestRestTemplate restTemplate;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RoleRepository roleRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
-  private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
-  private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
-  private static final String ADMIN_PASSWORD = "ADM@4103";
-  private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
-  private static final String NORMAL_PASSWORD = "NRL@5896";
+    private static final String REGISTER_USERS_ENDPOINT = "/v1/users";
+    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
+    private static final String ADMIN_PASSWORD = "ADM@4103";
+    private static final String NORMAL_USERNAME = GeneratorUtils.generateUUID();
+    private static final String NORMAL_PASSWORD = "NRL@5896";
 
-  @BeforeAll
-  void beforeAll() {
-    var adminRole =
-        roleRepository
-            .findByName(CommonConstants.ROLE_ADMIN)
-            .orElseThrow(
-                () -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
-    var normalRole =
-        roleRepository
-            .findByName(CommonConstants.ROLE_USER)
-            .orElseThrow(
-                () -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
-    var adminUser =
-        User.builder()
-            .username(ADMIN_USERNAME)
-            .password(passwordEncoder.encode(ADMIN_PASSWORD))
-            .build();
-    adminUser.addRole(adminRole);
-    var normalUser =
-        User.builder()
-            .username(NORMAL_USERNAME)
-            .password(passwordEncoder.encode(NORMAL_PASSWORD))
-            .build();
-    normalUser.addRole(normalRole);
-    userRepository.saveAll(List.of(adminUser, normalUser));
-  }
+    @BeforeAll
+    void beforeAll() {
+        var adminRole =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_ADMIN)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
+        var normalRole =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_USER)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
+        var adminUser =
+                User.builder()
+                        .username(ADMIN_USERNAME)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .build();
+        adminUser.addRole(adminRole);
+        var normalUser =
+                User.builder()
+                        .username(NORMAL_USERNAME)
+                        .password(passwordEncoder.encode(NORMAL_PASSWORD))
+                        .build();
+        normalUser.addRole(normalRole);
+        userRepository.saveAll(List.of(adminUser, normalUser));
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             the POST /v1/user API, with an admin token
             should respond with HTTP status 201 CREATED
             """)
-  void registerUser_WithAdminToken_ShouldReturnStatus201() {
-    HttpHeaders headers = new HttpHeaders();
-    setAuthorizationHeader(ADMIN_USERNAME, ADMIN_PASSWORD, headers);
+    void registerUser_WithAdminToken_ShouldReturnStatus201() {
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(ADMIN_USERNAME, ADMIN_PASSWORD, headers);
 
-    String username1 = "U1";
-    String password1 = "P1";
-    var createUserRequest = new CreateUserRequest(username1, password1);
-    HttpEntity<CreateUserRequest> createUserRequestEntity =
-        new HttpEntity<>(createUserRequest, headers);
+        String username1 = "U1";
+        String password1 = "P1";
+        var createUserRequest = new CreateUserRequest(username1, password1);
+        HttpEntity<CreateUserRequest> createUserRequestEntity =
+                new HttpEntity<>(createUserRequest, headers);
 
-    ResponseEntity<UserResponse> createUserResponse =
-        this.restTemplate.postForEntity(
-            REGISTER_USERS_ENDPOINT, createUserRequestEntity, UserResponse.class);
-    Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    Assertions.assertThat(createUserResponse.getBody()).isNotNull();
-    var body = createUserResponse.getBody();
-    Assertions.assertThat(body.getUsername()).isEqualTo(username1);
-    Assertions.assertThat(body.getRoles()).containsExactly(CommonConstants.ROLE_USER);
-  }
+        ResponseEntity<UserResponse> createUserResponse =
+                this.restTemplate.postForEntity(
+                        REGISTER_USERS_ENDPOINT, createUserRequestEntity, UserResponse.class);
+        Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Assertions.assertThat(createUserResponse.getBody()).isNotNull();
+        var body = createUserResponse.getBody();
+        Assertions.assertThat(body.getUsername()).isEqualTo(username1);
+        Assertions.assertThat(body.getRoles()).containsExactly(CommonConstants.ROLE_USER);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             the POST /v1/user API, with a normal user token
             should respond with HTTP status 403 FORBIDDEN
             """)
-  void registerUser_WithUserToken_ShouldReturnStatus403() {
-    HttpHeaders headers = new HttpHeaders();
-    setAuthorizationHeader(NORMAL_USERNAME, NORMAL_PASSWORD, headers);
+    void registerUser_WithUserToken_ShouldReturnStatus403() {
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(NORMAL_USERNAME, NORMAL_PASSWORD, headers);
 
-    String username1 = "U1";
-    String password1 = "P1";
-    var createUserRequest = new CreateUserRequest(username1, password1);
-    HttpEntity<CreateUserRequest> createUserRequestEntity =
-        new HttpEntity<>(createUserRequest, headers);
+        String username1 = "U1";
+        String password1 = "P1";
+        var createUserRequest = new CreateUserRequest(username1, password1);
+        HttpEntity<CreateUserRequest> createUserRequestEntity =
+                new HttpEntity<>(createUserRequest, headers);
 
-    HttpStatus expectedStatus = HttpStatus.FORBIDDEN;
+        HttpStatus expectedStatus = HttpStatus.FORBIDDEN;
 
-    ResponseEntity<ApiErrorResponse> response =
-        this.restTemplate.postForEntity(
-            REGISTER_USERS_ENDPOINT, createUserRequestEntity, ApiErrorResponse.class);
-    Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
+        ResponseEntity<ApiErrorResponse> response =
+                this.restTemplate.postForEntity(
+                        REGISTER_USERS_ENDPOINT, createUserRequestEntity, ApiErrorResponse.class);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
 
-    var body = response.getBody();
-    Assertions.assertThat(body).isNotNull();
-    Assertions.assertThat(body.getStatusCode()).isEqualTo(expectedStatus.value());
-    Assertions.assertThat(body.getExceptionName())
-        .isEqualTo(AuthorizationDeniedException.class.getSimpleName());
-    Assertions.assertThat(body.getPath()).isEqualTo(REGISTER_USERS_ENDPOINT);
-    Assertions.assertThat(body.getTimestamp()).isNotNull();
-  }
+        var body = response.getBody();
+        Assertions.assertThat(body).isNotNull();
+        Assertions.assertThat(body.getStatusCode()).isEqualTo(expectedStatus.value());
+        Assertions.assertThat(body.getExceptionName())
+                .isEqualTo(AuthorizationDeniedException.class.getSimpleName());
+        Assertions.assertThat(body.getPath()).isEqualTo(REGISTER_USERS_ENDPOINT);
+        Assertions.assertThat(body.getTimestamp()).isNotNull();
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             the POST /v1/user API, without a token
             should respond with HTTP status 401 UNAUTHORIZED
             """)
-  void registerUser_WithoutToken_ShouldReturnStatus401() {
-    String username1 = "U1";
-    String password1 = "P1";
-    var createUserRequest = new CreateUserRequest(username1, password1);
+    void registerUser_WithoutToken_ShouldReturnStatus401() {
+        String username1 = "U1";
+        String password1 = "P1";
+        var createUserRequest = new CreateUserRequest(username1, password1);
 
-    ResponseEntity<String> createUserResponse =
-        this.restTemplate.postForEntity(REGISTER_USERS_ENDPOINT, createUserRequest, String.class);
-    Assertions.assertThat(createUserResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-    Assertions.assertThat(createUserResponse.getBody()).isNull();
-  }
+        ResponseEntity<String> createUserResponse =
+                this.restTemplate.postForEntity(
+                        REGISTER_USERS_ENDPOINT, createUserRequest, String.class);
+        Assertions.assertThat(createUserResponse.getStatusCode())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+        Assertions.assertThat(createUserResponse.getBody()).isNull();
+    }
 
-  private void setAuthorizationHeader(String username, String password, HttpHeaders headers) {
-    var loginRequest = new LoginRequest();
-    loginRequest.setUsername(username);
-    loginRequest.setPassword(password);
+    private void setAuthorizationHeader(String username, String password, HttpHeaders headers) {
+        var loginRequest = new LoginRequest();
+        loginRequest.setUsername(username);
+        loginRequest.setPassword(password);
 
-    ResponseEntity<LoginResponse> loginResponse =
-        this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
-    Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(loginResponse.getBody()).isNotNull();
+        ResponseEntity<LoginResponse> loginResponse =
+                this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
+        Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(loginResponse.getBody()).isNotNull();
 
-    String jwtToken = loginResponse.getBody().token();
-    Assertions.assertThat(jwtToken).isNotBlank();
-    headers.setBearerAuth(jwtToken);
-  }
+        String jwtToken = loginResponse.getBody().token();
+        Assertions.assertThat(jwtToken).isNotBlank();
+        headers.setBearerAuth(jwtToken);
+    }
 }

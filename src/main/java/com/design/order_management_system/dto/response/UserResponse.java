@@ -10,9 +10,9 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class UserResponse {
-  @JsonProperty(value = "sUsername")
-  private String username;
+    @JsonProperty(value = "sUsername")
+    private String username;
 
-  @JsonProperty(value = "aRoles")
-  private List<String> roles;
+    @JsonProperty(value = "aRoles")
+    private List<String> roles;
 }

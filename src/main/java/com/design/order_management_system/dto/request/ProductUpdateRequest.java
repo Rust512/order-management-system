@@ -11,13 +11,13 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class ProductUpdateRequest {
-  @JsonProperty(value = "sNewProductName")
-  private String newProductName;
+    @JsonProperty(value = "sNewProductName")
+    private String newProductName;
 
-  @Positive
-  @JsonProperty(value = "dUpdatedPrice")
-  private BigDecimal updatedPrice;
+    @Positive
+    @JsonProperty(value = "dUpdatedPrice")
+    private BigDecimal updatedPrice;
 
-  @JsonProperty(value = "dStockToAdd")
-  private Long stockToAdd;
+    @JsonProperty(value = "dStockToAdd")
+    private Long stockToAdd;
 }

@@ -31,249 +31,241 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc(addFilters = false)
 class ProductControllerValidationTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean private ProductService productService;
+    @MockitoBean private ProductService productService;
 
-  @MockitoBean private ProductAuditEntryService productAuditEntryService;
+    @MockitoBean private ProductAuditEntryService productAuditEntryService;
 
-  private static final String PRODUCT_REGISTRATION_ENDPOINT = "/v1/products";
-  private static final String AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION = "/v1/products/%d/audit/%d";
+    private static final String PRODUCT_REGISTRATION_ENDPOINT = "/v1/products";
+    private static final String AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION = "/v1/products/%d/audit/%d";
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with a missing (null) product name
             should return HTTP status 400
             """)
-  void registerProduct_WithMissingProductName_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setPrice(BigDecimal.valueOf(1.0));
-    request.setStock(0L);
+    void registerProduct_WithMissingProductName_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setPrice(BigDecimal.valueOf(1.0));
+        request.setStock(0L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with an empty product name
             should return HTTP status 400
             """)
-  void registerProduct_WithBlankProductName_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setProductName("");
-    request.setPrice(BigDecimal.valueOf(1.0));
-    request.setStock(0L);
+    void registerProduct_WithBlankProductName_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setProductName("");
+        request.setPrice(BigDecimal.valueOf(1.0));
+        request.setStock(0L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with a whitespaces-only product name
             should return HTTP status 400
             """)
-  void registerProduct_WithWhitespaceProductName_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setProductName(" \r\n\t\f");
-    request.setPrice(BigDecimal.valueOf(1.0));
-    request.setStock(0L);
+    void registerProduct_WithWhitespaceProductName_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setProductName(" \r\n\t\f");
+        request.setPrice(BigDecimal.valueOf(1.0));
+        request.setStock(0L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with zero price
             should return HTTP status 400
             """)
-  void registerProduct_WithZeroPrice_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setProductName("P0");
-    request.setPrice(BigDecimal.ZERO);
-    request.setStock(0L);
+    void registerProduct_WithZeroPrice_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setProductName("P0");
+        request.setPrice(BigDecimal.ZERO);
+        request.setStock(0L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with negative price
             should return HTTP status 400
             """)
-  void registerProduct_WithNegativePrice_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setProductName("P0");
-    request.setPrice(BigDecimal.valueOf(-1L));
-    request.setStock(0L);
+    void registerProduct_WithNegativePrice_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setProductName("P0");
+        request.setPrice(BigDecimal.valueOf(-1L));
+        request.setStock(0L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             POST /v1/products with negative stock
             should return HTTP status 400
             """)
-  void registerProduct_WithNegativeStock_ShouldReturn400() throws Exception {
-    var request = new CreateProductRequest();
-    request.setProductName("P0");
-    request.setPrice(BigDecimal.valueOf(1.0));
-    request.setStock(-1L);
+    void registerProduct_WithNegativeStock_ShouldReturn400() throws Exception {
+        var request = new CreateProductRequest();
+        request.setProductName("P0");
+        request.setPrice(BigDecimal.valueOf(1.0));
+        request.setStock(-1L);
 
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(
-            post(PRODUCT_REGISTRATION_ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(MethodArgumentNotValidException.class.getSimpleName()));
+        mockMvc.perform(
+                        post(PRODUCT_REGISTRATION_ENDPOINT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(PRODUCT_REGISTRATION_ENDPOINT))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(MethodArgumentNotValidException.class.getSimpleName()));
 
-    verifyNoInteractions(productService);
-  }
+        verifyNoInteractions(productService);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             GET /v1/products/{id}/audit/{version}, with zero product ID
             should response with HTTP status 400
             """)
-  void getProductAuditEntry_WhenProductIdZero_ShouldReturnStatus400() throws Exception {
-    long productId = 0L;
-    long version = 1L;
+    void getProductAuditEntry_WhenProductIdZero_ShouldReturnStatus400() throws Exception {
+        long productId = 0L;
+        long version = 1L;
 
-    var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(get(endpoint).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(endpoint))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(HandlerMethodValidationException.class.getSimpleName()));
-  }
+        mockMvc.perform(get(endpoint).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(endpoint))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(HandlerMethodValidationException.class.getSimpleName()));
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             GET /v1/products/{id}/audit/{version}, with negative version
             should response with HTTP status 400
             """)
-  void getProductAuditEntry_WhenNegativeVersion_ShouldReturnStatus400() throws Exception {
-    long productId = 1L;
-    long version = -1L;
+    void getProductAuditEntry_WhenNegativeVersion_ShouldReturnStatus400() throws Exception {
+        long productId = 1L;
+        long version = -1L;
 
-    var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
-    HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        var endpoint = String.format(AUDIT_LOG_BY_PRODUCT_ID_AND_VERSION, productId, version);
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
 
-    mockMvc
-        .perform(get(endpoint).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(expectedStatus.value()))
-        .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
-        .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
-        .andExpect(jsonPath("$.sPath").value(endpoint))
-        .andExpect(
-            jsonPath("$.sExceptionName")
-                .value(HandlerMethodValidationException.class.getSimpleName()));
-  }
+        mockMvc.perform(get(endpoint).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(expectedStatus.value()))
+                .andExpect(jsonPath("$.dStatusCode").value(expectedStatus.value()))
+                .andExpect(jsonPath("$.sError").value(expectedStatus.getReasonPhrase()))
+                .andExpect(jsonPath("$.sPath").value(endpoint))
+                .andExpect(
+                        jsonPath("$.sExceptionName")
+                                .value(HandlerMethodValidationException.class.getSimpleName()));
+    }
 }

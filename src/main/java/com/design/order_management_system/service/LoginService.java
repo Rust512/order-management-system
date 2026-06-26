@@ -17,28 +17,30 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoginService {
 
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-  @Transactional(readOnly = true)
-  public LoginResponse getToken(LoginRequest loginRequest) {
-    log.info("Login attempt by username={}.", loginRequest.getUsername());
-    String username = loginRequest.getUsername();
-    var user =
-        userRepository
-            .findByUsername(username)
-            .orElseThrow(
-                () -> {
-                  log.warn("Login failed for username={} reason=user_not_found", username);
-                  return InvalidCredentialsException.forUsername(username);
-                });
-    boolean match = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-    if (!match) {
-      log.warn("Login failed for username={} reason=invalid_password", username);
-      throw InvalidCredentialsException.forUsername(username);
+    @Transactional(readOnly = true)
+    public LoginResponse getToken(LoginRequest loginRequest) {
+        log.info("Login attempt by username={}.", loginRequest.getUsername());
+        String username = loginRequest.getUsername();
+        var user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(
+                                () -> {
+                                    log.warn(
+                                            "Login failed for username={} reason=user_not_found",
+                                            username);
+                                    return InvalidCredentialsException.forUsername(username);
+                                });
+        boolean match = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        if (!match) {
+            log.warn("Login failed for username={} reason=invalid_password", username);
+            throw InvalidCredentialsException.forUsername(username);
+        }
+
+        log.info("Login successful for userId={}, username={}.", user.getId(), user.getUsername());
+        return new LoginResponse(SecurityUtils.generateJwtToken(new PrincipalUser(user)));
     }
-
-    log.info("Login successful for userId={}, username={}.", user.getId(), user.getUsername());
-    return new LoginResponse(SecurityUtils.generateJwtToken(new PrincipalUser(user)));
-  }
 }

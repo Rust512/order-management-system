@@ -7,18 +7,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OrderAuditEntryToResponse
-    implements Function<OrderAuditEntry, OrderAuditEntryResponse> {
-  @Override
-  public OrderAuditEntryResponse apply(OrderAuditEntry orderAuditEntry) {
-    var user = orderAuditEntry.getUser();
+        implements Function<OrderAuditEntry, OrderAuditEntryResponse> {
+    @Override
+    public OrderAuditEntryResponse apply(OrderAuditEntry orderAuditEntry) {
+        var user = orderAuditEntry.getUser();
 
-    return OrderAuditEntryResponse.builder()
-        .version(orderAuditEntry.getVersion())
-        .operation(orderAuditEntry.getOperation())
-        .snapshot(orderAuditEntry.getSnapshot())
-        .createdAt(orderAuditEntry.getCreatedAt())
-        .changedByUserId(user.getId())
-        .changedByUsername(user.getUsername())
-        .build();
-  }
+        return OrderAuditEntryResponse.builder()
+                .version(orderAuditEntry.getVersion())
+                .operation(orderAuditEntry.getOperation())
+                .snapshot(orderAuditEntry.getSnapshot())
+                .createdAt(orderAuditEntry.getCreatedAt())
+                .changedByUserId(user.getId())
+                .changedByUsername(user.getUsername())
+                .build();
+    }
 }

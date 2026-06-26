@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemSnapshot {
-  private Long productId;
-  private String productName;
-  private Long quantity;
-  private BigDecimal purchasePrice;
+    private Long productId;
+    private String productName;
+    private Long quantity;
+    private BigDecimal purchasePrice;
 }

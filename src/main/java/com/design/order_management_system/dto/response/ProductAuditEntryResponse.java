@@ -9,12 +9,12 @@ import lombok.Builder;
 
 @Builder
 public record ProductAuditEntryResponse(
-    @JsonProperty(value = "dVersion") Long version,
-    @JsonProperty(value = "sProductName") String productName,
-    @JsonProperty(value = "dPrice") BigDecimal price,
-    @JsonProperty(value = "dStock") Long stock,
-    @JsonProperty(value = "sOperationType") OperationType operationType,
-    @JsonProperty(value = "dChangedByUserId") Long changedByUserId,
-    @JsonProperty(value = "dChangedByUserName") String changedByUsername,
-    @JsonProperty(value = "dtCreatedAt") @JsonFormat(shape = JsonFormat.Shape.STRING)
-        Instant createdAt) {}
+        @JsonProperty(value = "dVersion") Long version,
+        @JsonProperty(value = "sProductName") String productName,
+        @JsonProperty(value = "dPrice") BigDecimal price,
+        @JsonProperty(value = "dStock") Long stock,
+        @JsonProperty(value = "sOperationType") OperationType operationType,
+        @JsonProperty(value = "dChangedByUserId") Long changedByUserId,
+        @JsonProperty(value = "dChangedByUserName") String changedByUsername,
+        @JsonProperty(value = "dtCreatedAt") @JsonFormat(shape = JsonFormat.Shape.STRING)
+                Instant createdAt) {}

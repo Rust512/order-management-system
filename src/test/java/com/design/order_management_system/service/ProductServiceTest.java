@@ -32,122 +32,122 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
-  @Mock private ProductAuditEntryService productAuditEntryService;
-  @Mock private ProductRepository productRepository;
-  @Mock private CreateProductRequestToProduct createProductRequestToProduct;
-  @Mock private ProductToProductResponse productToProductResponse;
-  @InjectMocks private ProductService productService;
+    @Mock private ProductAuditEntryService productAuditEntryService;
+    @Mock private ProductRepository productRepository;
+    @Mock private CreateProductRequestToProduct createProductRequestToProduct;
+    @Mock private ProductToProductResponse productToProductResponse;
+    @InjectMocks private ProductService productService;
 
-  @BeforeEach
-  void setUp() {
-    TestSecurityUtils.setAuthenticationContext(1L, "ADMIN", CommonConstants.ROLE_ADMIN);
-  }
+    @BeforeEach
+    void setUp() {
+        TestSecurityUtils.setAuthenticationContext(1L, "ADMIN", CommonConstants.ROLE_ADMIN);
+    }
 
-  @AfterEach
-  void tearDown() {
-    TestSecurityUtils.clearAuthenticationContext();
-  }
+    @AfterEach
+    void tearDown() {
+        TestSecurityUtils.clearAuthenticationContext();
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             When the product registration service receives an already existing product name,
             it should throw a DuplicateResourceException
             """)
-  void registerProduct_WhenProductNameAlreadyExists_ShouldThrowDuplicateResourceException() {
-    String productName = "P0";
-    var request =
-        CreateProductRequest.builder()
-            .productName(productName)
-            .price(BigDecimal.valueOf(1))
-            .stock(1L)
-            .build();
+    void registerProduct_WhenProductNameAlreadyExists_ShouldThrowDuplicateResourceException() {
+        String productName = "P0";
+        var request =
+                CreateProductRequest.builder()
+                        .productName(productName)
+                        .price(BigDecimal.valueOf(1))
+                        .stock(1L)
+                        .build();
 
-    when(productRepository.existsByName(productName)).thenReturn(true);
+        when(productRepository.existsByName(productName)).thenReturn(true);
 
-    Assertions.assertThatThrownBy(() -> productService.registerProduct(request))
-        .isInstanceOf(DuplicateResourceException.class)
-        .hasMessage(
-            String.format(
-                ErrorMessageConstants.ALREADY_EXISTS,
-                CommonConstants.PRODUCT,
-                "name",
-                productName));
+        Assertions.assertThatThrownBy(() -> productService.registerProduct(request))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage(
+                        String.format(
+                                ErrorMessageConstants.ALREADY_EXISTS,
+                                CommonConstants.PRODUCT,
+                                "name",
+                                productName));
 
-    verify(productRepository).existsByName(productName);
-    verify(productRepository, never()).save(any());
-    verifyNoMoreInteractions(productRepository);
-    verifyNoInteractions(createProductRequestToProduct, productToProductResponse);
-  }
+        verify(productRepository).existsByName(productName);
+        verify(productRepository, never()).save(any());
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(createProductRequestToProduct, productToProductResponse);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             When the updateProduct request received a product ID that does not exist,
             the service should throw a ResourceNotFoundException.
             """)
-  void updateProduct_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
-    Long productId = 1L;
-    var updateProductRequest = ProductUpdateRequest.builder().build();
+    void updateProduct_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        Long productId = 1L;
+        var updateProductRequest = ProductUpdateRequest.builder().build();
 
-    when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
-    Assertions.assertThatThrownBy(
-            () -> productService.updateProduct(productId, updateProductRequest))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessage(
-            String.format(
-                ErrorMessageConstants.RESOURCE_NOT_FOUND,
-                CommonConstants.PRODUCT,
-                "id",
-                productId));
+        Assertions.assertThatThrownBy(
+                        () -> productService.updateProduct(productId, updateProductRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(
+                        String.format(
+                                ErrorMessageConstants.RESOURCE_NOT_FOUND,
+                                CommonConstants.PRODUCT,
+                                "id",
+                                productId));
 
-    verify(productRepository).findById(productId);
-    verifyNoMoreInteractions(productRepository);
-    verifyNoInteractions(productAuditEntryService, productToProductResponse);
-  }
+        verify(productRepository).findById(productId);
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(productAuditEntryService, productToProductResponse);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             When the stockToAdd parameter in the update product service request body
             is less than the negated current stock of the corresponding product;
             i.e. updatedStock = stockToUpdate + currentStock < 0
             the service should throw an IllegalArgumentException.
             """)
-  void
-      updateProduct_WhenStockToAddLessThanNegatedCurrentStock_ShouldThrowIllegalArgumentException() {
-    Long productId = 1L;
-    Long stock = 2L;
-    String productName = "P0";
-    BigDecimal price = BigDecimal.ONE;
+    void
+            updateProduct_WhenStockToAddLessThanNegatedCurrentStock_ShouldThrowIllegalArgumentException() {
+        Long productId = 1L;
+        Long stock = 2L;
+        String productName = "P0";
+        BigDecimal price = BigDecimal.ONE;
 
-    var product =
-        Product.builder().id(productId).name(productName).price(price).stock(stock).build();
+        var product =
+                Product.builder().id(productId).name(productName).price(price).stock(stock).build();
 
-    // -stock - 1 is always less than -stock
-    var updateProductRequest =
-        ProductUpdateRequest.builder()
-            .newProductName(productName)
-            .updatedPrice(BigDecimal.ONE)
-            .stockToAdd(-stock - 1)
-            .build();
+        // -stock - 1 is always less than -stock
+        var updateProductRequest =
+                ProductUpdateRequest.builder()
+                        .newProductName(productName)
+                        .updatedPrice(BigDecimal.ONE)
+                        .stockToAdd(-stock - 1)
+                        .build();
 
-    when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
-    Assertions.assertThatThrownBy(
-            () -> productService.updateProduct(productId, updateProductRequest))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage(ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
+        Assertions.assertThatThrownBy(
+                        () -> productService.updateProduct(productId, updateProductRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
 
-    Assertions.assertThat(product.getStock()).isEqualTo(stock);
+        Assertions.assertThat(product.getStock()).isEqualTo(stock);
 
-    verify(productRepository).findById(productId);
-    verify(productRepository, never()).save(any());
-    verifyNoMoreInteractions(productRepository);
-    verifyNoInteractions(productToProductResponse);
-  }
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).save(any());
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(productToProductResponse);
+    }
 }

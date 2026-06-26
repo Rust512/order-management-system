@@ -34,161 +34,168 @@ import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class ProductAuditEntryServiceTest {
-  @Mock private UserRepository userRepository;
-  @Mock private ProductRepository productRepository;
-  @Mock private ProductAuditEntryRepository productAuditEntryRepository;
-  @Mock private ProductAuditEntryToResponse productAuditEntryToResponse;
+    @Mock private UserRepository userRepository;
+    @Mock private ProductRepository productRepository;
+    @Mock private ProductAuditEntryRepository productAuditEntryRepository;
+    @Mock private ProductAuditEntryToResponse productAuditEntryToResponse;
 
-  @InjectMocks private ProductAuditEntryService productAuditEntryService;
+    @InjectMocks private ProductAuditEntryService productAuditEntryService;
 
-  @BeforeEach
-  void setUp() {
-    TestSecurityUtils.setAuthenticationContext(1L, "U0", CommonConstants.ROLE_ADMIN);
-  }
+    @BeforeEach
+    void setUp() {
+        TestSecurityUtils.setAuthenticationContext(1L, "U0", CommonConstants.ROLE_ADMIN);
+    }
 
-  @AfterEach
-  void tearDown() {
-    TestSecurityUtils.clearAuthenticationContext();
-  }
+    @AfterEach
+    void tearDown() {
+        TestSecurityUtils.clearAuthenticationContext();
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             In the createProductAuditEntry service, if a user with the given user ID does not exist,
             the method should throw a ResourceNotFoundException.
             """)
-  void createProductAuditEntry_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
-    var userId = 1L;
-    var operationType = OperationType.CREATE;
-    var product = Product.builder().id(1L).name("Pr0").price(BigDecimal.TEN).stock(2L).build();
+    void createProductAuditEntry_WhenUserDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var userId = 1L;
+        var operationType = OperationType.CREATE;
+        var product = Product.builder().id(1L).name("Pr0").price(BigDecimal.TEN).stock(2L).build();
 
-    when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-    Assertions.assertThatThrownBy(
-            () -> productAuditEntryService.createProductAuditEntry(userId, product, operationType))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessage(
-            String.format(
-                ErrorMessageConstants.RESOURCE_NOT_FOUND, CommonConstants.USER, "id", userId));
+        Assertions.assertThatThrownBy(
+                        () ->
+                                productAuditEntryService.createProductAuditEntry(
+                                        userId, product, operationType))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(
+                        String.format(
+                                ErrorMessageConstants.RESOURCE_NOT_FOUND,
+                                CommonConstants.USER,
+                                "id",
+                                userId));
 
-    verify(userRepository).findById(userId);
-    verifyNoMoreInteractions(userRepository);
-    verifyNoInteractions(productAuditEntryRepository);
-  }
+        verify(userRepository).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(productAuditEntryRepository);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             In the createProductAuditEntry service, if a user with the given user ID exists,
             the method should save the product audit entry.
             """)
-  void createProductAuditEntry_WhenUserExists_ShouldSaveAuditEntry() {
-    var userId = 1L;
-    var user = User.builder().id(userId).build();
+    void createProductAuditEntry_WhenUserExists_ShouldSaveAuditEntry() {
+        var userId = 1L;
+        var user = User.builder().id(userId).build();
 
-    var productId = 1L;
-    var productName = "Pr0";
-    var productPrice = BigDecimal.TEN;
-    var productStock = 2L;
-    var nextVersion = 3L;
-    var product =
-        Product.builder()
-            .id(productId)
-            .name(productName)
-            .price(productPrice)
-            .stock(productStock)
-            .build();
-    var operationType = OperationType.UPDATE;
+        var productId = 1L;
+        var productName = "Pr0";
+        var productPrice = BigDecimal.TEN;
+        var productStock = 2L;
+        var nextVersion = 3L;
+        var product =
+                Product.builder()
+                        .id(productId)
+                        .name(productName)
+                        .price(productPrice)
+                        .stock(productStock)
+                        .build();
+        var operationType = OperationType.UPDATE;
 
-    var auditEntryId = 4L;
-    var auditEntry = ProductAuditEntry.builder().id(auditEntryId).build();
+        var auditEntryId = 4L;
+        var auditEntry = ProductAuditEntry.builder().id(auditEntryId).build();
 
-    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-    when(productAuditEntryRepository.getNextAuditVersionByProductId(productId))
-        .thenReturn(nextVersion);
-    when(productAuditEntryRepository.save(any())).thenReturn(auditEntry);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(productAuditEntryRepository.getNextAuditVersionByProductId(productId))
+                .thenReturn(nextVersion);
+        when(productAuditEntryRepository.save(any())).thenReturn(auditEntry);
 
-    productAuditEntryService.createProductAuditEntry(userId, product, operationType);
+        productAuditEntryService.createProductAuditEntry(userId, product, operationType);
 
-    verify(userRepository).findById(userId);
-    verify(productAuditEntryRepository).getNextAuditVersionByProductId(productId);
+        verify(userRepository).findById(userId);
+        verify(productAuditEntryRepository).getNextAuditVersionByProductId(productId);
 
-    var productAuditEntryCaptor = ArgumentCaptor.forClass(ProductAuditEntry.class);
-    verify(productAuditEntryRepository).save(productAuditEntryCaptor.capture());
+        var productAuditEntryCaptor = ArgumentCaptor.forClass(ProductAuditEntry.class);
+        verify(productAuditEntryRepository).save(productAuditEntryCaptor.capture());
 
-    var productAuditEntry = productAuditEntryCaptor.getValue();
-    Assertions.assertThat(productAuditEntry.getVersion()).isEqualTo(nextVersion);
-    Assertions.assertThat(productAuditEntry.getProductName()).isEqualTo(productName);
-    Assertions.assertThat(productAuditEntry.getPrice()).isEqualTo(productPrice);
-    Assertions.assertThat(productAuditEntry.getStock()).isEqualTo(productStock);
-    Assertions.assertThat(productAuditEntry.getOperationType()).isEqualTo(operationType);
-    Assertions.assertThat(productAuditEntry.getUser()).isEqualTo(user);
-    Assertions.assertThat(productAuditEntry.getProduct()).isEqualTo(product);
+        var productAuditEntry = productAuditEntryCaptor.getValue();
+        Assertions.assertThat(productAuditEntry.getVersion()).isEqualTo(nextVersion);
+        Assertions.assertThat(productAuditEntry.getProductName()).isEqualTo(productName);
+        Assertions.assertThat(productAuditEntry.getPrice()).isEqualTo(productPrice);
+        Assertions.assertThat(productAuditEntry.getStock()).isEqualTo(productStock);
+        Assertions.assertThat(productAuditEntry.getOperationType()).isEqualTo(operationType);
+        Assertions.assertThat(productAuditEntry.getUser()).isEqualTo(user);
+        Assertions.assertThat(productAuditEntry.getProduct()).isEqualTo(product);
 
-    verifyNoMoreInteractions(userRepository, productAuditEntryRepository);
-  }
+        verifyNoMoreInteractions(userRepository, productAuditEntryRepository);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             In the getProductVersions service, if the given product ID does not exist,
             the method should throw a ResourceNotFoundException.
             """)
-  void getProductVersions_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
-    var productId = 1L;
-    var pageable = PageRequest.of(0, 1);
+    void getProductVersions_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var productId = 1L;
+        var pageable = PageRequest.of(0, 1);
 
-    when(productRepository.existsById(productId)).thenReturn(false);
+        when(productRepository.existsById(productId)).thenReturn(false);
 
-    Assertions.assertThatThrownBy(
-            () -> productAuditEntryService.getProductVersions(productId, pageable))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessage(
-            String.format(
-                ErrorMessageConstants.RESOURCE_NOT_FOUND,
-                CommonConstants.PRODUCT,
-                "id",
-                productId));
+        Assertions.assertThatThrownBy(
+                        () -> productAuditEntryService.getProductVersions(productId, pageable))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(
+                        String.format(
+                                ErrorMessageConstants.RESOURCE_NOT_FOUND,
+                                CommonConstants.PRODUCT,
+                                "id",
+                                productId));
 
-    verify(productRepository).existsById(productId);
-    verifyNoMoreInteractions(productRepository);
-    verifyNoInteractions(productAuditEntryRepository, productAuditEntryToResponse);
-  }
+        verify(productRepository).existsById(productId);
+        verifyNoMoreInteractions(productRepository);
+        verifyNoInteractions(productAuditEntryRepository, productAuditEntryToResponse);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             In the getProductAuditEntryByVersion service,
             if an audit entry with the given product ID and version does not exist,
             the method should throw a ResourceNotFoundException.
             """)
-  void
-      getProductAuditEntryByVersion_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
-    var productId = 1L;
-    var version = 3L;
+    void
+            getProductAuditEntryByVersion_WhenProductDoesNotExist_ShouldThrowResourceNotFoundException() {
+        var productId = 1L;
+        var version = 3L;
 
-    when(productAuditEntryRepository.findByProduct_IdAndVersion(productId, version))
-        .thenReturn(Optional.empty());
+        when(productAuditEntryRepository.findByProduct_IdAndVersion(productId, version))
+                .thenReturn(Optional.empty());
 
-    var fields = "(productId, version)";
-    var foundValues = String.format("(%d, %d)", productId, version);
+        var fields = "(productId, version)";
+        var foundValues = String.format("(%d, %d)", productId, version);
 
-    Assertions.assertThatThrownBy(
-            () -> productAuditEntryService.getProductAuditEntryByVersion(productId, version))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessage(
-            String.format(
-                ErrorMessageConstants.RESOURCE_NOT_FOUND,
-                CommonConstants.PRODUCT_AUDIT_ENTRY,
-                fields,
-                foundValues));
+        Assertions.assertThatThrownBy(
+                        () ->
+                                productAuditEntryService.getProductAuditEntryByVersion(
+                                        productId, version))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(
+                        String.format(
+                                ErrorMessageConstants.RESOURCE_NOT_FOUND,
+                                CommonConstants.PRODUCT_AUDIT_ENTRY,
+                                fields,
+                                foundValues));
 
-    verify(productAuditEntryRepository).findByProduct_IdAndVersion(productId, version);
-    verifyNoMoreInteractions(productAuditEntryRepository);
-    verifyNoInteractions(userRepository, productRepository, productAuditEntryToResponse);
-  }
+        verify(productAuditEntryRepository).findByProduct_IdAndVersion(productId, version);
+        verifyNoMoreInteractions(productAuditEntryRepository);
+        verifyNoInteractions(userRepository, productRepository, productAuditEntryToResponse);
+    }
 }

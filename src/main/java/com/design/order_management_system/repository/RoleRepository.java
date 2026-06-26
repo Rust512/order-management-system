@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
-  @Query(
-      value =
-          """
+    @Query(
+            value =
+                    """
             SELECT role
             FROM Role role
             WHERE role.name = :name
             """)
-  Optional<Role> findByName(@Param("name") String name);
+    Optional<Role> findByName(@Param("name") String name);
 
-  List<Role> findAllByNameIn(List<String> requiredRoles);
+    List<Role> findAllByNameIn(List<String> requiredRoles);
 }

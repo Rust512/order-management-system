@@ -27,102 +27,103 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-  private final ProductRepository productRepository;
-  private final ProductAuditEntryService productAuditEntryService;
-  private final CreateProductRequestToProduct createProductRequestToProduct;
-  private final ProductToProductResponse productToProductResponse;
+    private final ProductRepository productRepository;
+    private final ProductAuditEntryService productAuditEntryService;
+    private final CreateProductRequestToProduct createProductRequestToProduct;
+    private final ProductToProductResponse productToProductResponse;
 
-  @Transactional
-  public ProductResponse registerProduct(CreateProductRequest createProductRequest) {
-    Long userId = SecurityUtils.getPrincipalUser().getUserId();
-    String productName = createProductRequest.getProductName();
-    log.info("Product registration requested; userId={} productName={}", userId, productName);
+    @Transactional
+    public ProductResponse registerProduct(CreateProductRequest createProductRequest) {
+        Long userId = SecurityUtils.getPrincipalUser().getUserId();
+        String productName = createProductRequest.getProductName();
+        log.info("Product registration requested; userId={} productName={}", userId, productName);
 
-    if (productRepository.existsByName(productName)) {
-      log.warn(
-          "Product registration failed; userId={} productName={} reason=product_already_exists",
-          userId,
-          productName);
-      throw new DuplicateResourceException(CommonConstants.PRODUCT, "name", productName);
+        if (productRepository.existsByName(productName)) {
+            log.warn(
+                    "Product registration failed; userId={} productName={} reason=product_already_exists",
+                    userId,
+                    productName);
+            throw new DuplicateResourceException(CommonConstants.PRODUCT, "name", productName);
+        }
+
+        Product product =
+                productRepository.save(createProductRequestToProduct.apply(createProductRequest));
+
+        productAuditEntryService.createProductAuditEntry(userId, product, OperationType.CREATE);
+
+        log.info(
+                "Product registered; userId={} productId={} productName={}",
+                userId,
+                product.getId(),
+                productName);
+
+        return productToProductResponse.apply(product);
     }
 
-    Product product =
-        productRepository.save(createProductRequestToProduct.apply(createProductRequest));
+    @Transactional(readOnly = true)
+    public PagedResponse<ProductResponse> getProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-    productAuditEntryService.createProductAuditEntry(userId, product, OperationType.CREATE);
+        var productResponseList =
+                productPage.getContent().stream().map(productToProductResponse).toList();
 
-    log.info(
-        "Product registered; userId={} productId={} productName={}",
-        userId,
-        product.getId(),
-        productName);
-
-    return productToProductResponse.apply(product);
-  }
-
-  @Transactional(readOnly = true)
-  public PagedResponse<ProductResponse> getProducts(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Product> productPage = productRepository.findAll(pageable);
-
-    var productResponseList =
-        productPage.getContent().stream().map(productToProductResponse).toList();
-
-    return PagedResponse.<ProductResponse>builder()
-        .content(productResponseList)
-        .page(page)
-        .size(size)
-        .totalElements(productRepository.count())
-        .totalPages(productPage.getTotalPages())
-        .build();
-  }
-
-  @Transactional
-  public ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest) {
-    Long userId = SecurityUtils.getPrincipalUser().getUserId();
-    log.info("Product update requested; userId={} productId={}", userId, id);
-
-    var product =
-        productRepository
-            .findById(id)
-            .orElseThrow(
-                () -> {
-                  log.warn(
-                      "Product update failed; userId={} productId={} reason=product_not_found",
-                      userId,
-                      id);
-                  return new ResourceNotFoundException(
-                      CommonConstants.PRODUCT, "id", String.valueOf(id));
-                });
-
-    String newProductName = productUpdateRequest.getNewProductName();
-    if (newProductName != null) {
-      product.setName(newProductName);
+        return PagedResponse.<ProductResponse>builder()
+                .content(productResponseList)
+                .page(page)
+                .size(size)
+                .totalElements(productRepository.count())
+                .totalPages(productPage.getTotalPages())
+                .build();
     }
 
-    BigDecimal updatedPrice = productUpdateRequest.getUpdatedPrice();
-    if (updatedPrice != null) {
-      product.setPrice(updatedPrice);
+    @Transactional
+    public ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest) {
+        Long userId = SecurityUtils.getPrincipalUser().getUserId();
+        log.info("Product update requested; userId={} productId={}", userId, id);
+
+        var product =
+                productRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> {
+                                    log.warn(
+                                            "Product update failed; userId={} productId={} reason=product_not_found",
+                                            userId,
+                                            id);
+                                    return new ResourceNotFoundException(
+                                            CommonConstants.PRODUCT, "id", String.valueOf(id));
+                                });
+
+        String newProductName = productUpdateRequest.getNewProductName();
+        if (newProductName != null) {
+            product.setName(newProductName);
+        }
+
+        BigDecimal updatedPrice = productUpdateRequest.getUpdatedPrice();
+        if (updatedPrice != null) {
+            product.setPrice(updatedPrice);
+        }
+
+        if (productUpdateRequest.getStockToAdd() != null) {
+            Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
+            if (updatedStock.compareTo(0L) < 0) {
+                log.warn(
+                        "Update product failed; userId={} productId={} reason=stock_cannot_be_negative",
+                        userId,
+                        id);
+                throw new IllegalArgumentException(
+                        ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
+            }
+            product.setStock(updatedStock);
+        }
+
+        var savedProduct = productRepository.save(product);
+
+        log.info("Product updated; userId={} productId={}", userId, id);
+
+        productAuditEntryService.createProductAuditEntry(userId, product, OperationType.UPDATE);
+
+        return productToProductResponse.apply(savedProduct);
     }
-
-    if (productUpdateRequest.getStockToAdd() != null) {
-      Long updatedStock = product.getStock() + productUpdateRequest.getStockToAdd();
-      if (updatedStock.compareTo(0L) < 0) {
-        log.warn(
-            "Update product failed; userId={} productId={} reason=stock_cannot_be_negative",
-            userId,
-            id);
-        throw new IllegalArgumentException(ErrorMessageConstants.PRODUCT_STOCK_CANNOT_BE_NEGATIVE);
-      }
-      product.setStock(updatedStock);
-    }
-
-    var savedProduct = productRepository.save(product);
-
-    log.info("Product updated; userId={} productId={}", userId, id);
-
-    productAuditEntryService.createProductAuditEntry(userId, product, OperationType.UPDATE);
-
-    return productToProductResponse.apply(savedProduct);
-  }
 }

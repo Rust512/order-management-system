@@ -15,27 +15,33 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @ApiResponses(
-    value = {
-      @ApiResponse(
-          responseCode = "400",
-          description = "Validation failed",
-          content =
-              @Content(
-                  schema = @Schema(implementation = ApiErrorResponse.class),
-                  examples = @ExampleObject(value = ErrorResponseExamples.BAD_REQUEST))),
-      @ApiResponse(
-          responseCode = "401",
-          description = "Authentication required",
-          content =
-              @Content(
-                  schema = @Schema(implementation = ApiErrorResponse.class),
-                  examples = @ExampleObject(value = ErrorResponseExamples.INVALID_TOKEN))),
-      @ApiResponse(
-          responseCode = "403",
-          description = "Admin role required",
-          content =
-              @Content(
-                  schema = @Schema(implementation = ApiErrorResponse.class),
-                  examples = @ExampleObject(value = ErrorResponseExamples.ACCESS_DENIED)))
-    })
+        value = {
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation failed",
+                    content =
+                            @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples =
+                                            @ExampleObject(
+                                                    value = ErrorResponseExamples.BAD_REQUEST))),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication required",
+                    content =
+                            @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples =
+                                            @ExampleObject(
+                                                    value = ErrorResponseExamples.INVALID_TOKEN))),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Admin role required",
+                    content =
+                            @Content(
+                                    schema = @Schema(implementation = ApiErrorResponse.class),
+                                    examples =
+                                            @ExampleObject(
+                                                    value = ErrorResponseExamples.ACCESS_DENIED)))
+        })
 public @interface AdminErrorResponses {}

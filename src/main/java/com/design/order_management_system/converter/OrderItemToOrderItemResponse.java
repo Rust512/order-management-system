@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OrderItemToOrderItemResponse implements Function<OrderItem, OrderItemResponse> {
-  @Override
-  public OrderItemResponse apply(OrderItem orderItem) {
-    return OrderItemResponse.builder()
-        .productName(orderItem.getProduct().getName())
-        .quantity(orderItem.getQuantity())
-        .purchasePrice(orderItem.getPurchasePrice())
-        .build();
-  }
+    @Override
+    public OrderItemResponse apply(OrderItem orderItem) {
+        return OrderItemResponse.builder()
+                .productName(orderItem.getProduct().getName())
+                .quantity(orderItem.getQuantity())
+                .purchasePrice(orderItem.getPurchasePrice())
+                .build();
+    }
 }

@@ -30,45 +30,52 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping(path = "/v1/users")
 public class UserController {
-  private final UserService userService;
+    private final UserService userService;
 
-  @PostMapping
-  @PreAuthorize(value = "hasRole('ADMIN')")
-  @AdminErrorResponses
-  @Operation(
-      summary = "Register a user",
-      description =
-          """
+    @PostMapping
+    @PreAuthorize(value = "hasRole('ADMIN')")
+    @AdminErrorResponses
+    @Operation(
+            summary = "Register a user",
+            description =
+                    """
                     Register a new user account.
                     Only Admin users are authorized to create users.
                     """,
-      requestBody =
-          @io.swagger.v3.oas.annotations.parameters.RequestBody(
-              content =
-                  @Content(
-                      mediaType = MediaType.APPLICATION_JSON_VALUE,
-                      examples = @ExampleObject(value = RequestExamples.USER_REGISTRATION))))
-  @ApiResponse(
-      responseCode = "201",
-      description = "Registration successful",
-      content =
-          @Content(
-              schema = @Schema(implementation = UserResponse.class),
-              examples = @ExampleObject(value = ResponseExamples.REGISTER_USER)))
-  @ApiResponse(
-      responseCode = "409",
-      description = "User already exists",
-      content =
-          @Content(
-              schema = @Schema(implementation = ApiErrorResponse.class),
-              examples = @ExampleObject(value = ErrorResponseExamples.USER_ALREADY_EXISTS)))
-  ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userService.userRegistration(createUserRequest));
-  }
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            content =
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            examples =
+                                                    @ExampleObject(
+                                                            value =
+                                                                    RequestExamples
+                                                                            .USER_REGISTRATION))))
+    @ApiResponse(
+            responseCode = "201",
+            description = "Registration successful",
+            content =
+                    @Content(
+                            schema = @Schema(implementation = UserResponse.class),
+                            examples = @ExampleObject(value = ResponseExamples.REGISTER_USER)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "User already exists",
+            content =
+                    @Content(
+                            schema = @Schema(implementation = ApiErrorResponse.class),
+                            examples =
+                                    @ExampleObject(
+                                            value = ErrorResponseExamples.USER_ALREADY_EXISTS)))
+    ResponseEntity<UserResponse> createUser(
+            @RequestBody @Valid CreateUserRequest createUserRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.userRegistration(createUserRequest));
+    }
 
-  @GetMapping(path = "/{id}")
-  ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-    return ResponseEntity.ok(userService.getById(id));
-  }
+    @GetMapping(path = "/{id}")
+    ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getById(id));
+    }
 }

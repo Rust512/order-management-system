@@ -11,22 +11,22 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class ApiErrorResponse {
-  @JsonProperty(value = "dStatusCode")
-  private int statusCode;
+    @JsonProperty(value = "dStatusCode")
+    private int statusCode;
 
-  @JsonProperty(value = "sError")
-  private String error;
+    @JsonProperty(value = "sError")
+    private String error;
 
-  @JsonProperty(value = "sExceptionName")
-  private String exceptionName;
+    @JsonProperty(value = "sExceptionName")
+    private String exceptionName;
 
-  @JsonProperty(value = "sMessage")
-  private String message;
+    @JsonProperty(value = "sMessage")
+    private String message;
 
-  @JsonProperty(value = "sPath")
-  private String path;
+    @JsonProperty(value = "sPath")
+    private String path;
 
-  @JsonProperty(value = "dtTimeStamp")
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
-  private Instant timestamp;
+    @JsonProperty(value = "dtTimeStamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Instant timestamp;
 }

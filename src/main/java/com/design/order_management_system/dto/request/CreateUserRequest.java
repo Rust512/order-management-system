@@ -12,11 +12,11 @@ import lombok.Data;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateUserRequest {
-  @NotBlank
-  @JsonProperty(value = "sUsername")
-  private String username;
+    @NotBlank
+    @JsonProperty(value = "sUsername")
+    private String username;
 
-  @NotBlank
-  @JsonProperty(value = "sPassword")
-  private String password;
+    @NotBlank
+    @JsonProperty(value = "sPassword")
+    private String password;
 }

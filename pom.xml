@@ -232,25 +232,12 @@
                     <java>
                         <googleJavaFormat>
                             <version>1.35.0</version>
-                            <style>GOOGLE</style>
+                            <style>AOSP</style>
                         </googleJavaFormat>
                         <removeUnusedImports>
                             <engine>google-java-format</engine>
                         </removeUnusedImports>
                     </java>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>pom.xml</include>
-                            </includes>
-                            <trimTrailingWhitespace/>
-                            <endWithNewline/>
-                            <indent>
-                                <spaces>true</spaces>
-                                <spacesPerTab>4</spacesPerTab>
-                            </indent>
-                        </format>
-                    </formats>
                 </configuration>
                 <executions>
                     <execution>

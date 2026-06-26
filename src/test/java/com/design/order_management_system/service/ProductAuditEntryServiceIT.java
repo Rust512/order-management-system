@@ -38,204 +38,221 @@ import org.springframework.web.util.UriComponentsBuilder;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProductAuditEntryServiceIT extends DatabaseTest {
-  @Autowired private TestRestTemplate restTemplate;
-  @Autowired private RoleRepository roleRepository;
-  @Autowired private PasswordEncoder passwordEncoder;
-  @Autowired private UserRepository userRepository;
+    @Autowired private TestRestTemplate restTemplate;
+    @Autowired private RoleRepository roleRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private UserRepository userRepository;
 
-  private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
-  private static final String ADMIN_PASSWORD = "ADM@4103";
-  @Autowired private TransactionTemplate transactionTemplate;
+    private static final String ADMIN_USERNAME = GeneratorUtils.generateUUID();
+    private static final String ADMIN_PASSWORD = "ADM@4103";
+    @Autowired private TransactionTemplate transactionTemplate;
 
-  @BeforeAll
-  void setUp() {
-    var adminRole =
-        roleRepository
-            .findByName(CommonConstants.ROLE_ADMIN)
-            .orElseThrow(
-                () -> new IllegalStateException(ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
-    var adminUser =
-        User.builder()
-            .username(ADMIN_USERNAME)
-            .password(passwordEncoder.encode(ADMIN_PASSWORD))
-            .build();
-    adminUser.addRole(adminRole);
-    userRepository.save(adminUser);
-  }
+    @BeforeAll
+    void setUp() {
+        var adminRole =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_ADMIN)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                ErrorMessageConstants.ROLE_USER_WAS_NOT_SEEDED));
+        var adminUser =
+                User.builder()
+                        .username(ADMIN_USERNAME)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .build();
+        adminUser.addRole(adminRole);
+        userRepository.save(adminUser);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             The GET /v1/products/{productId}/auditLogs API should return all the audit logs
             corresponding to the given product ID.
             """)
-  void getProductVersions_ShouldReturnAllAuditEntriesForTheGivenProductId() {
-    var productName = GeneratorUtils.generateUUID();
-    var price = BigDecimal.TWO;
-    var stock = 2L;
-    var request =
-        CreateProductRequest.builder().productName(productName).price(price).stock(stock).build();
+    void getProductVersions_ShouldReturnAllAuditEntriesForTheGivenProductId() {
+        var productName = GeneratorUtils.generateUUID();
+        var price = BigDecimal.TWO;
+        var stock = 2L;
+        var request =
+                CreateProductRequest.builder()
+                        .productName(productName)
+                        .price(price)
+                        .stock(stock)
+                        .build();
 
-    HttpHeaders headers = new HttpHeaders();
-    setAuthorizationHeader(headers);
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(headers);
 
-    var requestEntity = new HttpEntity<>(request, headers);
+        var requestEntity = new HttpEntity<>(request, headers);
 
-    var response = restTemplate.postForEntity("/v1/products", requestEntity, ProductResponse.class);
+        var response =
+                restTemplate.postForEntity("/v1/products", requestEntity, ProductResponse.class);
 
-    Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Assertions.assertThat(response.getBody()).isNotNull();
 
-    var productId = response.getBody().getProductId();
-    Assertions.assertThat(productId).isNotNull();
+        var productId = response.getBody().getProductId();
+        Assertions.assertThat(productId).isNotNull();
 
-    var newProductName = GeneratorUtils.generateUUID();
-    var newPrice = BigDecimal.TEN;
-    var stockToAdd = 3L;
+        var newProductName = GeneratorUtils.generateUUID();
+        var newPrice = BigDecimal.TEN;
+        var stockToAdd = 3L;
 
-    var updateProductRequest =
-        ProductUpdateRequest.builder()
-            .newProductName(newProductName)
-            .updatedPrice(newPrice)
-            .stockToAdd(stockToAdd)
-            .build();
+        var updateProductRequest =
+                ProductUpdateRequest.builder()
+                        .newProductName(newProductName)
+                        .updatedPrice(newPrice)
+                        .stockToAdd(stockToAdd)
+                        .build();
 
-    var updateRequestEntity = new HttpEntity<>(updateProductRequest, headers);
+        var updateRequestEntity = new HttpEntity<>(updateProductRequest, headers);
 
-    var uri =
-        UriComponentsBuilder.fromUriString("/v1/products/{productId}")
-            .buildAndExpand(productId)
-            .toUri();
+        var uri =
+                UriComponentsBuilder.fromUriString("/v1/products/{productId}")
+                        .buildAndExpand(productId)
+                        .toUri();
 
-    var productUpdateResponse =
-        restTemplate.exchange(uri, HttpMethod.PUT, updateRequestEntity, ProductResponse.class);
+        var productUpdateResponse =
+                restTemplate.exchange(
+                        uri, HttpMethod.PUT, updateRequestEntity, ProductResponse.class);
 
-    Assertions.assertThat(productUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(productUpdateResponse.getBody()).isNotNull();
+        Assertions.assertThat(productUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(productUpdateResponse.getBody()).isNotNull();
 
-    var page = 0;
-    var size = 1;
-    var auditLogsUri =
-        UriComponentsBuilder.fromUriString("/v1/products/{productId}/audit")
-            .queryParam("page", page)
-            .queryParam("size", size)
-            .buildAndExpand(productId)
-            .toUri();
+        var page = 0;
+        var size = 1;
+        var auditLogsUri =
+                UriComponentsBuilder.fromUriString("/v1/products/{productId}/audit")
+                        .queryParam("page", page)
+                        .queryParam("size", size)
+                        .buildAndExpand(productId)
+                        .toUri();
 
-    var auditLogRequestEntity = new HttpEntity<>(headers);
-    var auditLogResponse =
-        restTemplate.exchange(
-            auditLogsUri,
-            HttpMethod.GET,
-            auditLogRequestEntity,
-            PagedProductAuditEntryResponse.class);
+        var auditLogRequestEntity = new HttpEntity<>(headers);
+        var auditLogResponse =
+                restTemplate.exchange(
+                        auditLogsUri,
+                        HttpMethod.GET,
+                        auditLogRequestEntity,
+                        PagedProductAuditEntryResponse.class);
 
-    Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
+        Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
 
-    var pagedAuditLogs = auditLogResponse.getBody();
-    Assertions.assertThat(pagedAuditLogs.getContent()).hasSize(1);
-    Assertions.assertThat(pagedAuditLogs.getPage()).isEqualTo(page);
-    Assertions.assertThat(pagedAuditLogs.getSize()).isEqualTo(size);
-    Assertions.assertThat(pagedAuditLogs.getTotalElements()).isEqualTo(2);
-    Assertions.assertThat(pagedAuditLogs.getTotalPages()).isEqualTo(2);
-  }
+        var pagedAuditLogs = auditLogResponse.getBody();
+        Assertions.assertThat(pagedAuditLogs.getContent()).hasSize(1);
+        Assertions.assertThat(pagedAuditLogs.getPage()).isEqualTo(page);
+        Assertions.assertThat(pagedAuditLogs.getSize()).isEqualTo(size);
+        Assertions.assertThat(pagedAuditLogs.getTotalElements()).isEqualTo(2);
+        Assertions.assertThat(pagedAuditLogs.getTotalPages()).isEqualTo(2);
+    }
 
-  @Test
-  @DisplayName(
-      value =
-          """
+    @Test
+    @DisplayName(
+            value =
+                    """
             The GET /v1/products/{productId}/auditLogs/{version} API should return the audit log to the
             corresponding version and the given product ID if it exists
             """)
-  void
-      getProductAuditEntryByVersion_WhenAuditEntryWithGivenVersionExists_ShouldReturnTheSameAuditEntry() {
-    var productName = GeneratorUtils.generateUUID();
-    var price = BigDecimal.TWO;
-    var stock = 2L;
-    var request =
-        CreateProductRequest.builder().productName(productName).price(price).stock(stock).build();
+    void
+            getProductAuditEntryByVersion_WhenAuditEntryWithGivenVersionExists_ShouldReturnTheSameAuditEntry() {
+        var productName = GeneratorUtils.generateUUID();
+        var price = BigDecimal.TWO;
+        var stock = 2L;
+        var request =
+                CreateProductRequest.builder()
+                        .productName(productName)
+                        .price(price)
+                        .stock(stock)
+                        .build();
 
-    HttpHeaders headers = new HttpHeaders();
-    setAuthorizationHeader(headers);
+        HttpHeaders headers = new HttpHeaders();
+        setAuthorizationHeader(headers);
 
-    var requestEntity = new HttpEntity<>(request, headers);
+        var requestEntity = new HttpEntity<>(request, headers);
 
-    var response = restTemplate.postForEntity("/v1/products", requestEntity, ProductResponse.class);
+        var response =
+                restTemplate.postForEntity("/v1/products", requestEntity, ProductResponse.class);
 
-    Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Assertions.assertThat(response.getBody()).isNotNull();
 
-    var productId = response.getBody().getProductId();
-    Assertions.assertThat(productId).isNotNull();
+        var productId = response.getBody().getProductId();
+        Assertions.assertThat(productId).isNotNull();
 
-    var newProductName = GeneratorUtils.generateUUID();
-    var newPrice = BigDecimal.TEN;
-    var stockToAdd = 3L;
-    var expectedStock = stock + stockToAdd;
+        var newProductName = GeneratorUtils.generateUUID();
+        var newPrice = BigDecimal.TEN;
+        var stockToAdd = 3L;
+        var expectedStock = stock + stockToAdd;
 
-    var updateProductRequest =
-        ProductUpdateRequest.builder()
-            .newProductName(newProductName)
-            .updatedPrice(newPrice)
-            .stockToAdd(stockToAdd)
-            .build();
+        var updateProductRequest =
+                ProductUpdateRequest.builder()
+                        .newProductName(newProductName)
+                        .updatedPrice(newPrice)
+                        .stockToAdd(stockToAdd)
+                        .build();
 
-    var updateRequestEntity = new HttpEntity<>(updateProductRequest, headers);
+        var updateRequestEntity = new HttpEntity<>(updateProductRequest, headers);
 
-    var uri =
-        UriComponentsBuilder.fromUriString("/v1/products/{productId}")
-            .buildAndExpand(productId)
-            .toUri();
+        var uri =
+                UriComponentsBuilder.fromUriString("/v1/products/{productId}")
+                        .buildAndExpand(productId)
+                        .toUri();
 
-    var productUpdateResponse =
-        restTemplate.exchange(uri, HttpMethod.PUT, updateRequestEntity, ProductResponse.class);
+        var productUpdateResponse =
+                restTemplate.exchange(
+                        uri, HttpMethod.PUT, updateRequestEntity, ProductResponse.class);
 
-    Assertions.assertThat(productUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(productUpdateResponse.getBody()).isNotNull();
+        Assertions.assertThat(productUpdateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(productUpdateResponse.getBody()).isNotNull();
 
-    var page = 0;
-    var size = 1;
-    var version = 2;
-    var auditLogsUri =
-        UriComponentsBuilder.fromUriString("/v1/products/{productId}/audit/{version}")
-            .queryParam("page", page)
-            .queryParam("size", size)
-            .buildAndExpand(productId, version)
-            .toUri();
+        var page = 0;
+        var size = 1;
+        var version = 2;
+        var auditLogsUri =
+                UriComponentsBuilder.fromUriString("/v1/products/{productId}/audit/{version}")
+                        .queryParam("page", page)
+                        .queryParam("size", size)
+                        .buildAndExpand(productId, version)
+                        .toUri();
 
-    var auditLogRequestEntity = new HttpEntity<>(headers);
-    var auditLogResponse =
-        restTemplate.exchange(
-            auditLogsUri, HttpMethod.GET, auditLogRequestEntity, ProductAuditEntryResponse.class);
+        var auditLogRequestEntity = new HttpEntity<>(headers);
+        var auditLogResponse =
+                restTemplate.exchange(
+                        auditLogsUri,
+                        HttpMethod.GET,
+                        auditLogRequestEntity,
+                        ProductAuditEntryResponse.class);
 
-    Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
+        Assertions.assertThat(auditLogResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(auditLogResponse.getBody()).isNotNull();
 
-    var auditLog = auditLogResponse.getBody();
-    Assertions.assertThat(auditLog.version()).isEqualTo(version);
-    Assertions.assertThat(auditLog.productName()).isEqualTo(newProductName);
-    Assertions.assertThat(auditLog.price()).isEqualByComparingTo(newPrice);
-    Assertions.assertThat(auditLog.stock()).isEqualTo(expectedStock);
-    Assertions.assertThat(auditLog.operationType()).isEqualTo(OperationType.UPDATE);
-    Assertions.assertThat(auditLog.changedByUserId()).isNotNull();
-    Assertions.assertThat(auditLog.changedByUsername()).isEqualTo(ADMIN_USERNAME);
-    Assertions.assertThat(auditLog.createdAt()).isNotNull();
-  }
+        var auditLog = auditLogResponse.getBody();
+        Assertions.assertThat(auditLog.version()).isEqualTo(version);
+        Assertions.assertThat(auditLog.productName()).isEqualTo(newProductName);
+        Assertions.assertThat(auditLog.price()).isEqualByComparingTo(newPrice);
+        Assertions.assertThat(auditLog.stock()).isEqualTo(expectedStock);
+        Assertions.assertThat(auditLog.operationType()).isEqualTo(OperationType.UPDATE);
+        Assertions.assertThat(auditLog.changedByUserId()).isNotNull();
+        Assertions.assertThat(auditLog.changedByUsername()).isEqualTo(ADMIN_USERNAME);
+        Assertions.assertThat(auditLog.createdAt()).isNotNull();
+    }
 
-  private void setAuthorizationHeader(HttpHeaders headers) {
-    var loginRequest = new LoginRequest();
-    loginRequest.setUsername(ProductAuditEntryServiceIT.ADMIN_USERNAME);
-    loginRequest.setPassword(ProductAuditEntryServiceIT.ADMIN_PASSWORD);
+    private void setAuthorizationHeader(HttpHeaders headers) {
+        var loginRequest = new LoginRequest();
+        loginRequest.setUsername(ProductAuditEntryServiceIT.ADMIN_USERNAME);
+        loginRequest.setPassword(ProductAuditEntryServiceIT.ADMIN_PASSWORD);
 
-    ResponseEntity<LoginResponse> loginResponse =
-        this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
-    Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    Assertions.assertThat(loginResponse.getBody()).isNotNull();
+        ResponseEntity<LoginResponse> loginResponse =
+                this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);
+        Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(loginResponse.getBody()).isNotNull();
 
-    String jwtToken = loginResponse.getBody().token();
-    Assertions.assertThat(jwtToken).isNotBlank();
-    headers.setBearerAuth(jwtToken);
-  }
+        String jwtToken = loginResponse.getBody().token();
+        Assertions.assertThat(jwtToken).isNotBlank();
+        headers.setBearerAuth(jwtToken);
+    }
 }

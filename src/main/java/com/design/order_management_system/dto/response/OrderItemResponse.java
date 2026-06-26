@@ -10,12 +10,12 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class OrderItemResponse {
-  @JsonProperty(value = "sProductName")
-  private String productName;
+    @JsonProperty(value = "sProductName")
+    private String productName;
 
-  @JsonProperty(value = "dQuantity")
-  private Long quantity;
+    @JsonProperty(value = "dQuantity")
+    private Long quantity;
 
-  @JsonProperty(value = "dPurchasePrice")
-  private BigDecimal purchasePrice;
+    @JsonProperty(value = "dPurchasePrice")
+    private BigDecimal purchasePrice;
 }

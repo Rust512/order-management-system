@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CreateUserRequestToUser implements Function<CreateUserRequest, User> {
-  @Override
-  public User apply(CreateUserRequest source) {
-    return User.builder().username(source.getUsername()).password(source.getPassword()).build();
-  }
+    @Override
+    public User apply(CreateUserRequest source) {
+        return User.builder().username(source.getUsername()).password(source.getPassword()).build();
+    }
 }

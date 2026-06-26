@@ -10,25 +10,25 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-  @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query(
-      value =
-          """
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(
+            value =
+                    """
             SELECT orderItem
             FROM OrderItem orderItem
             WHERE orderItem.product.id = :productId AND orderItem.order.id = :orderId
             """)
-  Optional<OrderItem> findByOrder_IdAndProduct_IdForUpdate(Long orderId, Long productId);
+    Optional<OrderItem> findByOrder_IdAndProduct_IdForUpdate(Long orderId, Long productId);
 
-  @Lock(LockModeType.PESSIMISTIC_READ)
-  @Query(
-      value =
-          """
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Query(
+            value =
+                    """
             SELECT orderItem
             FROM OrderItem orderItem
             WHERE orderItem.order.id = :orderId
             ORDER BY orderItem.id ASC
             """)
-  @EntityGraph(attributePaths = "product")
-  List<OrderItem> findAllByOrder_IdForRead(Long orderId);
+    @EntityGraph(attributePaths = "product")
+    List<OrderItem> findAllByOrder_IdForRead(Long orderId);
 }

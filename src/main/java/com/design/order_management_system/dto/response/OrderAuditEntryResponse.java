@@ -8,9 +8,9 @@ import lombok.Builder;
 
 @Builder
 public record OrderAuditEntryResponse(
-    @JsonProperty("dVersion") Long version,
-    @JsonProperty("sOperation") OrderOperation operation,
-    @JsonProperty("oSnapshot") OrderSnapshot snapshot,
-    @JsonProperty("dtCreatedAt") Instant createdAt,
-    @JsonProperty("dChangedByUserId") Long changedByUserId,
-    @JsonProperty("sChangedByUsername") String changedByUsername) {}
+        @JsonProperty("dVersion") Long version,
+        @JsonProperty("sOperation") OrderOperation operation,
+        @JsonProperty("oSnapshot") OrderSnapshot snapshot,
+        @JsonProperty("dtCreatedAt") Instant createdAt,
+        @JsonProperty("dChangedByUserId") Long changedByUserId,
+        @JsonProperty("sChangedByUsername") String changedByUsername) {}

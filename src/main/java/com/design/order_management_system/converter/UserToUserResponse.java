@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserToUserResponse implements Function<User, UserResponse> {
 
-  @Override
-  public UserResponse apply(User source) {
-    List<String> roles =
-        source.getRoles().stream().map(mapping -> mapping.getRole().getName()).toList();
-    return UserResponse.builder().username(source.getUsername()).roles(roles).build();
-  }
+    @Override
+    public UserResponse apply(User source) {
+        List<String> roles =
+                source.getRoles().stream().map(mapping -> mapping.getRole().getName()).toList();
+        return UserResponse.builder().username(source.getUsername()).roles(roles).build();
+    }
 }

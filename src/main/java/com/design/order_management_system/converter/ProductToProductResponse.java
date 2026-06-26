@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProductToProductResponse implements Function<Product, ProductResponse> {
-  @Override
-  public ProductResponse apply(Product source) {
-    return ProductResponse.builder()
-        .productId(source.getId())
-        .productName(source.getName())
-        .price(source.getPrice())
-        .stock(source.getStock())
-        .build();
-  }
+    @Override
+    public ProductResponse apply(Product source) {
+        return ProductResponse.builder()
+                .productId(source.getId())
+                .productName(source.getName())
+                .price(source.getPrice())
+                .stock(source.getStock())
+                .build();
+    }
 }

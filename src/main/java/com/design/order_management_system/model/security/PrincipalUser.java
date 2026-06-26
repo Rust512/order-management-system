@@ -18,38 +18,39 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 public class PrincipalUser implements UserDetails {
 
-  private final Long userId;
-  private final String username;
-  private final List<String> roles;
+    private final Long userId;
+    private final String username;
+    private final List<String> roles;
 
-  @Setter private Instant expiryTime;
+    @Setter private Instant expiryTime;
 
-  public PrincipalUser(Long userId, String username, List<String> roles) {
-    this.userId = userId;
-    this.username = username;
-    this.roles = roles;
-  }
+    public PrincipalUser(Long userId, String username, List<String> roles) {
+        this.userId = userId;
+        this.username = username;
+        this.roles = roles;
+    }
 
-  public PrincipalUser(User user) {
-    this.userId = user.getId();
-    this.username = user.getUsername();
-    this.roles = user.getRoles().stream().map(UserRoleMapping::getRole).map(Role::getName).toList();
-  }
+    public PrincipalUser(User user) {
+        this.userId = user.getId();
+        this.username = user.getUsername();
+        this.roles =
+                user.getRoles().stream().map(UserRoleMapping::getRole).map(Role::getName).toList();
+    }
 
-  @Override
-  @NullMarked
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream().map(SimpleGrantedAuthority::new).toList();
-  }
+    @Override
+    @NullMarked
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(SimpleGrantedAuthority::new).toList();
+    }
 
-  @Override
-  @NullMarked
-  public String getUsername() {
-    return this.username;
-  }
+    @Override
+    @NullMarked
+    public String getUsername() {
+        return this.username;
+    }
 
-  @Override
-  public @Nullable String getPassword() {
-    return null;
-  }
+    @Override
+    public @Nullable String getPassword() {
+        return null;
+    }
 }

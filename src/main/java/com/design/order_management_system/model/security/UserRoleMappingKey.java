@@ -18,9 +18,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRoleMappingKey implements Serializable {
-  @Column(name = "user_id")
-  private Long userId;
+    @Column(name = "user_id")
+    private Long userId;
 
-  @Column(name = "role_id")
-  private Long roleId;
+    @Column(name = "role_id")
+    private Long roleId;
 }

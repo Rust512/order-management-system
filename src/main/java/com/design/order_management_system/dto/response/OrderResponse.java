@@ -14,19 +14,19 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class OrderResponse {
-  @JsonProperty(value = "dOrderId")
-  private Long orderId;
+    @JsonProperty(value = "dOrderId")
+    private Long orderId;
 
-  @JsonProperty(value = "sOrderStatus")
-  private OrderStatus orderStatus;
+    @JsonProperty(value = "sOrderStatus")
+    private OrderStatus orderStatus;
 
-  @JsonProperty(value = "dtCreatedAt")
-  @JsonFormat(shape = JsonFormat.Shape.STRING)
-  private Instant createdAt;
+    @JsonProperty(value = "dtCreatedAt")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Instant createdAt;
 
-  @JsonProperty(value = "dTotalPrice")
-  private BigDecimal totalPrice;
+    @JsonProperty(value = "dTotalPrice")
+    private BigDecimal totalPrice;
 
-  @JsonProperty(value = "aOrderItems")
-  private List<OrderItemResponse> orderItems;
+    @JsonProperty(value = "aOrderItems")
+    private List<OrderItemResponse> orderItems;
 }

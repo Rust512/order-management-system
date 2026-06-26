@@ -17,9 +17,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DocumentationConfig {
 
-  private static final String SECURITY_SCHEME_NAME = "bearerToken";
-  private static final String INSTRUCTIONS =
-      """
+    private static final String SECURITY_SCHEME_NAME = "bearerToken";
+    private static final String INSTRUCTIONS =
+            """
             ### Getting Started & Authentication
 
             To access secured endpoints, follow these steps:
@@ -33,49 +33,56 @@ public class DocumentationConfig {
             NOTE: All APIs require authentication except POST /auth/login.
             """;
 
-  @Bean
-  OpenAPI customOpenAPI() {
-    var contactInfo = new Contact().name("Devang Hemant Bhagwat").email("dbhagwat512@gmail.com");
-    var securityScheme =
-        new SecurityScheme()
-            .name(SECURITY_SCHEME_NAME)
-            .type(SecurityScheme.Type.HTTP)
-            .scheme("bearer")
-            .bearerFormat("JWT");
+    @Bean
+    OpenAPI customOpenAPI() {
+        var contactInfo =
+                new Contact().name("Devang Hemant Bhagwat").email("dbhagwat512@gmail.com");
+        var securityScheme =
+                new SecurityScheme()
+                        .name(SECURITY_SCHEME_NAME)
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT");
 
-    var securityComponent =
-        new Components().addSecuritySchemes(SECURITY_SCHEME_NAME, securityScheme);
-    var securityRequirement = new SecurityRequirement().addList(SECURITY_SCHEME_NAME);
-    var information =
-        new Info()
-            .title("Order Management System")
-            .version("1.0")
-            .description(INSTRUCTIONS)
-            .contact(contactInfo);
-    return new OpenAPI()
-        .info(information)
-        .components(securityComponent)
-        .addSecurityItem(securityRequirement);
-  }
+        var securityComponent =
+                new Components().addSecuritySchemes(SECURITY_SCHEME_NAME, securityScheme);
+        var securityRequirement = new SecurityRequirement().addList(SECURITY_SCHEME_NAME);
+        var information =
+                new Info()
+                        .title("Order Management System")
+                        .version("1.0")
+                        .description(INSTRUCTIONS)
+                        .contact(contactInfo);
+        return new OpenAPI()
+                .info(information)
+                .components(securityComponent)
+                .addSecurityItem(securityRequirement);
+    }
 
-  @Bean
-  public OpenApiCustomizer customerLogoutOpenApiCustomizer() {
-    return openApi -> {
-      Operation logoutOperation =
-          new Operation()
-              .summary("Logout user")
-              .description("Invalidates the current HTTP session and clears security contexts.")
-              .addTagsItem("Authentication")
-              .responses(
-                  new ApiResponses()
-                      .addApiResponse(
-                          "200", new ApiResponse().description("Successfully logged out"))
-                      .addApiResponse(
-                          "401", new ApiResponse().description("Unauthorized / Not logged in")));
+    @Bean
+    public OpenApiCustomizer customerLogoutOpenApiCustomizer() {
+        return openApi -> {
+            Operation logoutOperation =
+                    new Operation()
+                            .summary("Logout user")
+                            .description(
+                                    "Invalidates the current HTTP session and clears security contexts.")
+                            .addTagsItem("Authentication")
+                            .responses(
+                                    new ApiResponses()
+                                            .addApiResponse(
+                                                    "200",
+                                                    new ApiResponse()
+                                                            .description("Successfully logged out"))
+                                            .addApiResponse(
+                                                    "401",
+                                                    new ApiResponse()
+                                                            .description(
+                                                                    "Unauthorized / Not logged in")));
 
-      PathItem logoutPathItem = new PathItem().post(logoutOperation);
+            PathItem logoutPathItem = new PathItem().post(logoutOperation);
 
-      openApi.getPaths().addPathItem("/auth/logout", logoutPathItem);
-    };
-  }
+            openApi.getPaths().addPathItem("/auth/logout", logoutPathItem);
+        };
+    }
 }

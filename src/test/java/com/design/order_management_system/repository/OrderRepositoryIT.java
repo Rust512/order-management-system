@@ -20,127 +20,138 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 @DataJpaTest
 class OrderRepositoryIT extends DatabaseTest {
-  @Autowired private TestEntityManager entityManager;
-  @Autowired private OrderRepository orderRepository;
-  @Autowired private RoleRepository roleRepository;
-  @Autowired private UserRepository userRepository;
+    @Autowired private TestEntityManager entityManager;
+    @Autowired private OrderRepository orderRepository;
+    @Autowired private RoleRepository roleRepository;
+    @Autowired private UserRepository userRepository;
 
-  private static final PersistenceUtil PERSISTENCE_UTIL = Persistence.getPersistenceUtil();
+    private static final PersistenceUtil PERSISTENCE_UTIL = Persistence.getPersistenceUtil();
 
-  @Test
-  @DisplayName(
-      """
+    @Test
+    @DisplayName(
+            """
             The getOrderByIdAndUserIdWithItems method, when the order corresponding to the
             given order ID is not owned by the current user, it should return an empty Optional object.
             """)
-  void getOrderByIdAndUserIdWithItems_WhenUserDoesNotOwnOrder_ShouldReturnEmpty() {
-    var product =
-        entityManager.persist(
-            Product.builder().name("Pr0").price(BigDecimal.valueOf(1.0)).stock(1L).build());
+    void getOrderByIdAndUserIdWithItems_WhenUserDoesNotOwnOrder_ShouldReturnEmpty() {
+        var product =
+                entityManager.persist(
+                        Product.builder()
+                                .name("Pr0")
+                                .price(BigDecimal.valueOf(1.0))
+                                .stock(1L)
+                                .build());
 
-    var role =
-        roleRepository
-            .findByName(CommonConstants.ROLE_USER)
-            .orElseThrow(() -> new IllegalStateException("Role not found"));
-    var user0 = User.builder().username(GeneratorUtils.generateUUID()).password("P0").build();
-    user0.addRole(role);
-    var savedUser0 = entityManager.persist(user0);
-    var user1 = User.builder().username(GeneratorUtils.generateUUID()).password("P1").build();
-    user1.addRole(role);
-    var savedUser1 = entityManager.persist(user1);
+        var role =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_USER)
+                        .orElseThrow(() -> new IllegalStateException("Role not found"));
+        var user0 = User.builder().username(GeneratorUtils.generateUUID()).password("P0").build();
+        user0.addRole(role);
+        var savedUser0 = entityManager.persist(user0);
+        var user1 = User.builder().username(GeneratorUtils.generateUUID()).password("P1").build();
+        user1.addRole(role);
+        var savedUser1 = entityManager.persist(user1);
 
-    Long user0Id = savedUser0.getId();
+        Long user0Id = savedUser0.getId();
 
-    var orderItem =
-        OrderItem.builder()
-            .product(product)
-            .quantity(1L)
-            .purchasePrice(BigDecimal.valueOf(1.0))
-            .build();
+        var orderItem =
+                OrderItem.builder()
+                        .product(product)
+                        .quantity(1L)
+                        .purchasePrice(BigDecimal.valueOf(1.0))
+                        .build();
 
-    var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser1).build();
+        var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser1).build();
 
-    order.addOrderItem(orderItem);
-    var savedOrder = entityManager.persist(order);
-    Long savedOrderId = savedOrder.getId();
-    entityManager.flush();
-    entityManager.clear();
-    var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(savedOrderId, user0Id);
-    Assertions.assertThat(fetchedOrder).isNotPresent();
-  }
+        order.addOrderItem(orderItem);
+        var savedOrder = entityManager.persist(order);
+        Long savedOrderId = savedOrder.getId();
+        entityManager.flush();
+        entityManager.clear();
+        var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(savedOrderId, user0Id);
+        Assertions.assertThat(fetchedOrder).isNotPresent();
+    }
 
-  @Test
-  @DisplayName(
-      """
+    @Test
+    @DisplayName(
+            """
             The getOrderByIdAndUserIdWithItems method, when the order corresponding to the
             given order ID does not exist, it should return an empty Optional object.
             """)
-  void getOrderByIdAndUserIdWithItems_WhenOrderDoesNotExist_ShouldReturnEmpty() {
-    var role =
-        roleRepository
-            .findByName(CommonConstants.ROLE_USER)
-            .orElseThrow(() -> new IllegalStateException("Role not found"));
-    var user0 = User.builder().username("U0").password("P0").build();
-    user0.addRole(role);
-    var savedUser0 = entityManager.persist(user0);
+    void getOrderByIdAndUserIdWithItems_WhenOrderDoesNotExist_ShouldReturnEmpty() {
+        var role =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_USER)
+                        .orElseThrow(() -> new IllegalStateException("Role not found"));
+        var user0 = User.builder().username("U0").password("P0").build();
+        user0.addRole(role);
+        var savedUser0 = entityManager.persist(user0);
 
-    Long user0Id = savedUser0.getId();
-    var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser0).build();
+        Long user0Id = savedUser0.getId();
+        var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser0).build();
 
-    var savedOrder = entityManager.persist(order);
-    entityManager.flush();
-    entityManager.clear();
-    Long nonExistentOrderId = savedOrder.getId() + 1000L;
-    var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(nonExistentOrderId, user0Id);
-    Assertions.assertThat(fetchedOrder).isNotPresent();
-  }
+        var savedOrder = entityManager.persist(order);
+        entityManager.flush();
+        entityManager.clear();
+        Long nonExistentOrderId = savedOrder.getId() + 1000L;
+        var fetchedOrder =
+                orderRepository.getOrderByIdAndUserIdWithItems(nonExistentOrderId, user0Id);
+        Assertions.assertThat(fetchedOrder).isNotPresent();
+    }
 
-  @Test
-  @DisplayName(
-      """
+    @Test
+    @DisplayName(
+            """
             The getOrderByIdAndUserIdWithItems method, when the order corresponding to the
             given order ID is owned by the current user, it should return the corresponding order.
             """)
-  void getOrderByIdAndUserIdWithItems_WhenUserOwnsOrder_ShouldReturnOrder() {
-    var product =
-        entityManager.persist(
-            Product.builder().name("Pr0").price(BigDecimal.valueOf(1.0)).stock(1L).build());
+    void getOrderByIdAndUserIdWithItems_WhenUserOwnsOrder_ShouldReturnOrder() {
+        var product =
+                entityManager.persist(
+                        Product.builder()
+                                .name("Pr0")
+                                .price(BigDecimal.valueOf(1.0))
+                                .stock(1L)
+                                .build());
 
-    var role =
-        roleRepository
-            .findByName(CommonConstants.ROLE_USER)
-            .orElseThrow(() -> new IllegalStateException("Role not found"));
-    var user0 = User.builder().username("U0").password("P0").build();
-    user0.addRole(role);
-    var savedUser0 = entityManager.persist(user0);
+        var role =
+                roleRepository
+                        .findByName(CommonConstants.ROLE_USER)
+                        .orElseThrow(() -> new IllegalStateException("Role not found"));
+        var user0 = User.builder().username("U0").password("P0").build();
+        user0.addRole(role);
+        var savedUser0 = entityManager.persist(user0);
 
-    Long user0Id = savedUser0.getId();
+        Long user0Id = savedUser0.getId();
 
-    var orderItem =
-        OrderItem.builder()
-            .product(product)
-            .quantity(1L)
-            .purchasePrice(BigDecimal.valueOf(1.0))
-            .build();
+        var orderItem =
+                OrderItem.builder()
+                        .product(product)
+                        .quantity(1L)
+                        .purchasePrice(BigDecimal.valueOf(1.0))
+                        .build();
 
-    var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser0).build();
+        var order = Order.builder().orderStatus(OrderStatus.CREATED).user(savedUser0).build();
 
-    order.addOrderItem(orderItem);
-    var savedOrder = entityManager.persist(order);
-    Long savedOrderId = savedOrder.getId();
-    entityManager.flush();
-    entityManager.clear();
+        order.addOrderItem(orderItem);
+        var savedOrder = entityManager.persist(order);
+        Long savedOrderId = savedOrder.getId();
+        entityManager.flush();
+        entityManager.clear();
 
-    var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(savedOrderId, user0Id);
-    Assertions.assertThat(fetchedOrder).isPresent();
+        var fetchedOrder = orderRepository.getOrderByIdAndUserIdWithItems(savedOrderId, user0Id);
+        Assertions.assertThat(fetchedOrder).isPresent();
 
-    var orderObj = fetchedOrder.get();
-    Assertions.assertThat(PERSISTENCE_UTIL.isLoaded(orderObj, "orderItems")).isTrue();
-    Assertions.assertThat(orderObj.getOrderItems())
-        .hasSize(1)
-        .allSatisfy(
-            item -> Assertions.assertThat(PERSISTENCE_UTIL.isLoaded(item, "product")).isTrue());
-    Assertions.assertThat(orderObj.getId()).isEqualTo(savedOrderId);
-    Assertions.assertThat(orderObj.getUser().getId()).isEqualTo(user0Id);
-  }
+        var orderObj = fetchedOrder.get();
+        Assertions.assertThat(PERSISTENCE_UTIL.isLoaded(orderObj, "orderItems")).isTrue();
+        Assertions.assertThat(orderObj.getOrderItems())
+                .hasSize(1)
+                .allSatisfy(
+                        item ->
+                                Assertions.assertThat(PERSISTENCE_UTIL.isLoaded(item, "product"))
+                                        .isTrue());
+        Assertions.assertThat(orderObj.getId()).isEqualTo(savedOrderId);
+        Assertions.assertThat(orderObj.getUser().getId()).isEqualTo(user0Id);
+    }
 }
