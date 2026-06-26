@@ -1,4 +1,4 @@
-name: 'Run tests on branch push or a pull-request'
+name: Build and Test
 
 on:
   push:
@@ -18,15 +18,24 @@ jobs:
           distribution: corretto
           cache: maven
 
+      - name: Grant executable permission to Maven wrapper
+        run: chmod +x mvnw
+        continue-on-error: true
+      
+      - name: verify formatting
+        run: ./mvnw spotless:check
+
       - name: Build and test
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
         run: ./mvnw clean verify
 
       - name: Upload JaCoCo coverage report artifact
-        if: failure() || success()
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-coverage-report
-          path: target/site/jacoco/
+          path: |
+            target/site/jacoco/
+            target/surefire-reports/
           retention-days: 5
