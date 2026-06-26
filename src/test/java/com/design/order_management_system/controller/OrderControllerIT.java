@@ -37,7 +37,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OrderControllerIntegrationTest extends DatabaseTest {
+public class OrderControllerIT extends DatabaseTest {
   @Autowired private TestRestTemplate restTemplate;
   @Autowired private RoleRepository roleRepository;
   @Autowired private PasswordEncoder passwordEncoder;

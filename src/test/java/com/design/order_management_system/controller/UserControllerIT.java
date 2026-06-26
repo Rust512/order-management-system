@@ -32,7 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerIntegrationTest extends DatabaseTest {
+class UserControllerIT extends DatabaseTest {
   @Autowired private TestRestTemplate restTemplate;
   @Autowired private UserRepository userRepository;
   @Autowired private RoleRepository roleRepository;

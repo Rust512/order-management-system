@@ -19,7 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class OrderServiceIntegrationTest extends DatabaseTest {
+class OrderServiceIT extends DatabaseTest {
   @Autowired private TransactionTemplate transactionTemplate;
   @Autowired private OrderRepository orderRepository;
   @Autowired private RoleRepository roleRepository;

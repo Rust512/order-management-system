@@ -19,7 +19,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 @DataJpaTest
-class OrderRepositoryTest extends DatabaseTest {
+class OrderRepositoryIT extends DatabaseTest {
   @Autowired private TestEntityManager entityManager;
   @Autowired private OrderRepository orderRepository;
   @Autowired private RoleRepository roleRepository;

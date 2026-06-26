@@ -17,7 +17,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 @DataJpaTest
-class ProductAuditEntryRepositoryTest extends DatabaseTest {
+class ProductAuditEntryRepositoryIT extends DatabaseTest {
   @Autowired private TestEntityManager entityManager;
   @Autowired private RoleRepository roleRepository;
   @Autowired private ProductAuditEntryRepository repository;

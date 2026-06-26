@@ -41,7 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class OrderAuditEntryServiceIntegrationTest extends DatabaseTest {
+class OrderAuditEntryServiceIT extends DatabaseTest {
   @Autowired private TestRestTemplate restTemplate;
   @Autowired private RoleRepository roleRepository;
   @Autowired private PasswordEncoder passwordEncoder;

@@ -38,7 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @AutoConfigureTestRestTemplate
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OrderItemControllerIntegrationTest extends DatabaseTest {
+public class OrderItemControllerIT extends DatabaseTest {
   @Autowired private TestRestTemplate restTemplate;
   @Autowired private RoleRepository roleRepository;
   @Autowired private UserRepository userRepository;
@@ -401,8 +401,8 @@ public class OrderItemControllerIntegrationTest extends DatabaseTest {
 
   private void setAuthorizationHeader(HttpHeaders headers) {
     var loginRequest = new LoginRequest();
-    loginRequest.setUsername(OrderItemControllerIntegrationTest.NORMAL_USERNAME);
-    loginRequest.setPassword(OrderItemControllerIntegrationTest.NORMAL_PASSWORD);
+    loginRequest.setUsername(OrderItemControllerIT.NORMAL_USERNAME);
+    loginRequest.setPassword(OrderItemControllerIT.NORMAL_PASSWORD);
 
     ResponseEntity<LoginResponse> loginResponse =
         this.restTemplate.postForEntity("/auth/login", loginRequest, LoginResponse.class);

@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class LogoutTest extends DatabaseTest {
+class LogoutIT extends DatabaseTest {
 
   @Autowired private MockMvc mockMvc;
 
