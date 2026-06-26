@@ -27,11 +27,44 @@ jobs:
 
       - name: run unit tests
         run: ./mvnw clean test
+        
+      - name: Cache Docker Images
+        id: cache-docker
+        uses: actions/cache@v4
+        with:
+          path: ~/.testcontainers-cache
+          # Invalidates cache when dependencies change, or weekly to avoid stale images
+          key: ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-
+            ${{ runner.os }}-testcontainers-
+
+      - name: Load Cached Docker Images
+        if: steps.cache-docker.outputs.cache-hit == 'true'
+        run: |
+          if [ -f ~/.testcontainers-cache/images.tar ]; then
+          echo "Loading cached images..."
+          docker load -i ~/.testcontainers-cache/images.tar
+          fi
 
       - name: run integration tests
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
         run: ./mvnw failsafe:integration-test
+        
+      - name: Save Docker Images to Cache
+        # Only save on the main branch or PR updates to prevent redundant uploads
+        if: always() && steps.cache-docker.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.testcontainers-cache
+          # Dynamically finds all active Testcontainers images (ignoring Ryuk as it isn't needed for the cache)
+          IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "ryuk" || true)
+          if [ ! -z "$IMAGES" ]; then
+            echo "Caching images: $IMAGES"
+            docker save -o ~/.testcontainers-cache/images.tar $IMAGES
+          else
+            echo "No Testcontainers images found to cache."
+          fi
 
       - name: Upload JaCoCo coverage report artifact
         if: always()
