@@ -25,10 +25,13 @@ jobs:
       - name: verify formatting
         run: ./mvnw spotless:check
 
-      - name: Build and test
+      - name: run unit tests
+        run: ./mvnw clean test
+
+      - name: run integration tests
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
-        run: ./mvnw clean verify
+        run: ./mvnw failsafe:integration-test
 
       - name: Upload JaCoCo coverage report artifact
         if: always()
