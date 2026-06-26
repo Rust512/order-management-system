@@ -227,14 +227,16 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.35.0</version>
+                <version>3.7.0</version>
                 <configuration>
                     <java>
-                        <removeUnusedImports/>
                         <googleJavaFormat>
-                            <version>1.17.0</version>
+                            <version>1.35.0</version>
                             <style>GOOGLE</style>
                         </googleJavaFormat>
+                        <removeUnusedImports>
+                            <engine>google-java-format</engine>
+                        </removeUnusedImports>
                     </java>
                     <formats>
                         <format>
