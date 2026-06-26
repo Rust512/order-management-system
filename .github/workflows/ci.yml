@@ -37,7 +37,6 @@ jobs:
           key: ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-
-            ${{ runner.os }}-testcontainers-
 
       - name: Load Cached Docker Images
         if: steps.cache-docker.outputs.cache-hit == 'true'
