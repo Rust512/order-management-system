@@ -35,8 +35,11 @@ jobs:
           path: ~/.testcontainers-cache
           # Invalidates cache when dependencies change, or weekly to avoid stale images
           key: ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-
+          restore-keys: ${{ runner.os }}-testcontainers-${{ hashFiles('**/pom.xml') }}-
+          
+      - name: Print cache hit status
+        run: |
+          echo "Cache hit status is: ${{steps.cache-docker.outputs.cache-hit}}"
 
       - name: Load Cached Docker Images
         if: steps.cache-docker.outputs.cache-hit == 'true'
